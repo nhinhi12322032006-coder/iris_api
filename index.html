@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dự đoán loài hoa Iris</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 350px;
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #34495e;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #dcdde1;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Dự đoán hoa Iris 🌸</h2>
+    
+    <div class="input-group">
+        <label>Chiều dài lá đài (Sepal Length):</label>
+        <input type="number" id="sepal_length" step="0.1" value="5.1">
+    </div>
+    <div class="input-group">
+        <label>Chiều rộng lá đài (Sepal Width):</label>
+        <input type="number" id="sepal_width" step="0.1" value="3.5">
+    </div>
+    <div class="input-group">
+        <label>Chiều dài cánh hoa (Petal Length):</label>
+        <input type="number" id="petal_length" step="0.1" value="1.4">
+    </div>
+    <div class="input-group">
+        <label>Chiều rộng cánh hoa (Petal Width):</label>
+        <input type="number" id="petal_width" step="0.1" value="0.2">
+    </div>
+
+    <button onclick="predictFlower()">Bấm để dự đoán</button>
+
+    <div id="result" class="result-box success"></div>
+</div>
+
+<script>
+    function predictFlower() {
+        const resultBox = document.getElementById("result");
+        resultBox.style.display = "block";
+        resultBox.innerHTML = "⏳ Đang tính toán...";
+
+        // Gửi dữ liệu đến đường dẫn API Render của bạn (Trang 20)
+        fetch("https://iris-api-5jf3.onrender.com/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                sepal_length: parseFloat(document.getElementById("sepal_length").value),
+                sepal_width: parseFloat(document.getElementById("sepal_width").value),
+                petal_length: parseFloat(document.getElementById("petal_length").value),
+                petal_width: parseFloat(document.getElementById("petal_width").value)
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Hiển thị kết quả ra màn hình
+            resultBox.innerHTML = `Kết quả: ${data.prediction.toUpperCase()} (ID: ${data.class_id})`;
+        })
+        .catch(error => {
+            resultBox.innerHTML = "❌ Lỗi kết nối đến API!";
+            console.error(error);
+        });
+    }
+</script>
+
+</body>
+</html>
