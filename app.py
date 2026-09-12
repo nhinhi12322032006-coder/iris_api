@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import joblib
+import os
 
-# 1. Tải mô hình
 model = joblib.load("svm_model.pkl")
 
 app = FastAPI(
@@ -12,15 +13,13 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# --- ĐOẠN MÃ MỞ KHÓA BẢO MẬT (CORS) ĐỂ FILE INDEX.HTML TRUY CẬP ĐƯỢC ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Cho phép tất cả các giao diện/file HTML gọi đến
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# ---------------------------------------------------------------------
 
 class IrisInput(BaseModel):
     sepal_length: float
@@ -30,9 +29,13 @@ class IrisInput(BaseModel):
 
 species = {0: "setosa", 1: "versicolor", 2: "virginica"}
 
-@app.get("/")
+# --- SỬA HÀM GET TẠI TRANG CHỦ ĐỂ TỰ ĐỘNG ĐỌC FILE INDEX.HTML ---
+@app.get("/", response_class=HTMLResponse)
 def home():
-    return {"message": "Iris SVM API is running"}
+    if os.path.exists("index.html"):
+        with open("index.html", "r", encoding="utf-8") as f:
+            return f.read()
+    return "<h3>Iris API is running. Nhưng không tìm thấy file index.html!</h3>"
 
 @app.get("/health")
 def health():

@@ -47,7 +47,7 @@
         button {
             width: 100%;
             padding: 12px;
-            background-color: #3498db;
+            background-color: #2ecc71;
             color: white;
             border: none;
             border-radius: 6px;
@@ -57,7 +57,7 @@
             transition: background 0.3s;
         }
         button:hover {
-            background-color: #2980b9;
+            background-color: #27ae60;
         }
         .result-box {
             margin-top: 20px;
@@ -105,9 +105,9 @@
     function predictFlower() {
         const resultBox = document.getElementById("result");
         resultBox.style.display = "block";
-        resultBox.innerHTML = "⏳ Đang tính toán...";
+        resultBox.innerHTML = "⏳ Đang kết nối server và tính toán...";
 
-        // Gửi dữ liệu đến đường dẫn API Render của bạn (Trang 20)
+        // Hàm fetch kết nối trực tiếp đến API Render của bạn (Theo Bước 14 - Trang 20)
         fetch("https://iris-api-5jf3.onrender.com/predict", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -120,7 +120,7 @@
         })
         .then(response => response.json())
         .then(data => {
-            // Hiển thị kết quả ra màn hình
+            // Hiển thị kết quả ra màn hình web
             resultBox.innerHTML = `Kết quả: ${data.prediction.toUpperCase()} (ID: ${data.class_id})`;
         })
         .catch(error => {
