@@ -149,7 +149,7 @@
         resultText.innerHTML = "⏳ Đang kết nối mạng và phân tích AI...";
 
         // Kết nối thẳng tới domain Render cá nhân của bạn
-        fetch("https://onrender.com", {
+        fetch("https://iris-api-5jf3.onrender.com/predict", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
