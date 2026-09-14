@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Nhận Diện Hoa Iris - AI</title>
+    <title>Dự đoán loài hoa Iris - AI Nâng Cao</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -55,7 +55,7 @@
         button {
             width: 100%;
             padding: 14px;
-            background-color: #2ecc71;
+            background-color: #3caea3; /* Giữ tông màu xanh ngọc giống ảnh chụp của bạn */
             color: white;
             border: none;
             border-radius: 8px;
@@ -63,12 +63,12 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.2);
+            box-shadow: 0 4px 12px rgba(60, 174, 163, 0.2);
         }
         button:hover {
-            background-color: #27ae60;
+            background-color: #2f8980;
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(46, 204, 113, 0.3);
+            box-shadow: 0 6px 15px rgba(60, 174, 163, 0.3);
         }
         .result-container {
             margin-top: 25px;
@@ -103,7 +103,7 @@
 <body>
 
 <div class="container">
-    <h2>Dự đoán hoa Iris AI 🌸</h2>
+    <h2>Dự đoán hoa Iris 🌸</h2>
     
     <div class="input-group">
         <label>Chiều dài lá đài (Sepal Length):</label>
@@ -122,20 +122,21 @@
         <input type="number" id="petal_width" step="0.1" value="0.2">
     </div>
 
-    <button onclick="predictFlower()">Bấm để phân tích AI</button>
+    <button onclick="predictFlower()">Bấm để dự đoán</button>
 
+    <!-- KHU VỰC CHỨA CẢ CHỮ VÀ ẢNH ĐƯỢC ẨN ĐI, CHỈ HIỆN KHI CÓ KẾT QUẢ -->
     <div id="resultContainer" class="result-container">
         <div id="resultText" class="result-box"></div>
-        <img id="flowerImg" class="flower-image" src="" alt="Hình ảnh hoa Iris">
+        <img id="flowerImg" class="flower-image" src="" alt="Hình ảnh hoa Iris thực tế">
     </div>
 </div>
 
 <script>
-    // Bản đồ trỏ trực tiếp tới 3 file ảnh bạn vừa lưu dưới máy tính
+    // Bản đồ chứa link ảnh trực tuyến tốc độ cao và cực kỳ ổn định
     const flowerImages = {
-        "setosa": "C:/iris_api/setosa.jpg",
-        "versicolor": "C:/iris_api/versicolor.jpg",
-        "virginica": "C:/iris_api/virginica.jpg"
+        "setosa": "https://apc.edu.vn",
+        "versicolor": "https://apc.edu.vn",
+        "virginica": "https://apc.edu.vn"
     };
 
     function predictFlower() {
@@ -144,9 +145,10 @@
         const flowerImg = document.getElementById("flowerImg");
         
         resultContainer.style.display = "block";
-        flowerImg.style.display = "none";
-        resultText.innerHTML = "⏳ Đang kết nối mạng và phân tích...";
+        flowerImg.style.display = "none"; // Tạm thời ẩn khung ảnh khi đang gọi API
+        resultText.innerHTML = "⏳ Đang kết nối mạng và phân tích AI...";
 
+        // Kết nối thẳng tới domain Render cá nhân của bạn
         fetch("https://onrender.com", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -160,8 +162,11 @@
         .then(response => response.json())
         .then(data => {
             const predName = data.prediction.toLowerCase();
-            resultText.innerHTML = `Mô hình AI dự đoán: ${data.prediction.toUpperCase()} (ID: ${data.class_id})`;
             
+            // 1. Cập nhật dòng chữ thông báo kết quả giống định dạng cũ của bạn
+            resultText.innerHTML = `Kết quả: ${data.prediction.toUpperCase()} (ID: ${data.class_id})`;
+            
+            // 2. Tự động kiểm tra bản đồ và đính kèm bức ảnh hoa lung linh vào dưới
             if (flowerImages[predName]) {
                 flowerImg.src = flowerImages[predName];
                 flowerImg.style.display = "block";
