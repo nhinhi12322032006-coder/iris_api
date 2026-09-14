@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dự đoán loài hoa Iris - Phiên bản Sáng tạo</title>
+    <title>Dự đoán loài hoa Iris</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -133,24 +133,20 @@
 <script>
     // Kho dữ liệu hình ảnh và mô tả để tăng tính bứt phá cho đồ án
     const flowerData = {
-        "setosa": {
-            img: "https://wikimedia.org",
-            desc: "💡 Hoa diên vĩ Setosa thường có lá đài lớn, cánh hoa nhỏ. Đây là loài hoa rất dễ nhận biết với kích thước cánh hoa ngắn đặc trưng."
-        },
-        "versicolor": {
-            img: "https://wikimedia.org",
-            desc: "💡 Hoa diên vĩ Versicolor (Xanh mượt) có màu sắc pha trộn giữa xanh lam, tím và vàng. Kích thước các bộ phận ở mức trung bình."
-        },
-        "virginica": {
-            img: "https://wikimedia.org",
-            desc: "💡 Hoa diên vĩ Virginica sở hữu cánh hoa dài và lớn nhất trong 3 loại, màu sắc tím đậm quý phái, thường sống ở vùng ẩm ướt."
-        }
+        "setosa": "setosa.jpg",
+        "versicolor": "versicolor.jpg",
+        "virginica": "virginica.jpg"
+    };
+const flowerData = {
+        "setosa": "C:\iris_api\setosa.jpg",
+        "versicolor": "C:\iris_api\versicolor.jpg",
+        "virginica": "C:\iris_api\virginica.jpg"
     };
 
     function predictFlower() {
         const resultBox = document.getElementById("result");
         resultBox.style.display = "block";
-        resultBox.innerHTML = "⏳ Đang kết nối server và phân tích...";
+        resultBox.innerHTML = "⏳ Đang kết nối mạng và phân tích...";
 
         fetch("https://onrender.com", {
             method: "POST",
