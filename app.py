@@ -49,7 +49,7 @@ def predict(data: IrisInput):
         data.petal_length,
         data.petal_width
     ]]
-    prediction = int(model.predict(features))
+    prediction = int(model.predict(features)[0]) 
     return {
         "class_id": prediction,
         "prediction": species[prediction]
