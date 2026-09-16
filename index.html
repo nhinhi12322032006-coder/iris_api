@@ -3,180 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dự đoán loài hoa Iris - AI Nâng Cao</title>
+    <title>Dự đoán hoa Iris</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #e0f7fa 0%, #e8f5e9 100%);
+            background-color: #f0f4f8;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
         }
-        .container {
-            background-color: #ffffff;
-            padding: 35px;
+
+        .card {
+            background: white;
+            padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            width: 380px;
-            box-sizing: border-box;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 400px;
         }
+
         h2 {
             text-align: center;
             color: #2c3e50;
+            margin-top: 0;
             margin-bottom: 25px;
-            font-weight: 700;
+            font-size: 24px;
         }
-        .input-group {
-            margin-bottom: 18px;
+
+        .slider-group {
+            margin-bottom: 20px;
         }
-        .input-group label {
-            display: block;
-            margin-bottom: 6px;
-            color: #4a5568;
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
             font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
             font-size: 14px;
         }
-        .input-group input {
+
+        .slider-value {
+            color: #319795;
+            background: #e6fffa;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        input[type="range"] {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-        .input-group input:focus {
-            border-color: #2ecc71;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
             outline: none;
         }
-        button {
-            width: 100%;
-            padding: 14px;
-            background-color: #3caea3; /* Giữ tông màu xanh ngọc giống ảnh chụp của bạn */
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #319795;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(60, 174, 163, 0.2);
+            transition: transform 0.1s;
         }
-        button:hover {
-            background-color: #2f8980;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(60, 174, 163, 0.3);
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
         }
-        .result-container {
-            margin-top: 25px;
-            display: none;
-            animation: fadeIn 0.6s ease-in-out forwards;
-        }
+
         .result-box {
+            margin-top: 25px;
             padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 16px;
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #c8e6c9;
-            margin-bottom: 15px;
-        }
-        .flower-image {
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
             border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            border: 2px solid #fff;
+            background: #f7fafc;
+            border: 1px dashed #cbd5e0;
+            text-align: center;
+            min-height: 50px;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        .prediction-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2b6cb0;
+            margin: 0;
+        }
+
+        .loading {
+            color: #a0aec0;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="card">
     <h2>Dự đoán hoa Iris 🌸</h2>
-    
-    <div class="input-group">
-        <label>Chiều dài lá đài (Sepal Length):</label>
-        <input type="number" id="sepal_length" step="0.1" value="5.1">
-    </div>
-    <div class="input-group">
-        <label>Chiều rộng lá đài (Sepal Width):</label>
-        <input type="number" id="sepal_width" step="0.1" value="3.5">
-    </div>
-    <div class="input-group">
-        <label>Chiều dài cánh hoa (Petal Length):</label>
-        <input type="number" id="petal_length" step="0.1" value="1.4">
-    </div>
-    <div class="input-group">
-        <label>Chiều rộng cánh hoa (Petal Width):</label>
-        <input type="number" id="petal_width" step="0.1" value="0.2">
+
+    <!-- Sepal Length -->
+    <div class="slider-group">
+        <div class="slider-label">
+            <span>Chiều dài lá đài (Sepal Length)</span>
+            <span class="slider-value" id="val-sepal-len">5.1</span>
+        </div>
+        <input type="range" id="sepal-len" min="4.0" max="8.0" step="0.1" value="5.1">
     </div>
 
-    <button onclick="predictFlower()">Bấm để dự đoán</button>
+    <!-- Sepal Width -->
+    <div class="slider-group">
+        <div class="slider-label">
+            <span>Chiều rộng lá đài (Sepal Width)</span>
+            <span class="slider-value" id="val-sepal-wid">3.5</span>
+        </div>
+        <input type="range" id="sepal-wid" min="2.0" max="4.5" step="0.1" value="3.5">
+    </div>
 
-    <!-- KHU VỰC CHỨA CẢ CHỮ VÀ ẢNH ĐƯỢC ẨN ĐI, CHỈ HIỆN KHI CÓ KẾT QUẢ -->
-    <div id="resultContainer" class="result-container">
-        <div id="resultText" class="result-box"></div>
-        <img id="flowerImg" class="flower-image" src="" alt="Hình ảnh hoa Iris thực tế">
+    <!-- Petal Length -->
+    <div class="slider-group">
+        <div class="slider-label">
+            <span>Chiều dài cánh hoa (Petal Length)</span>
+            <span class="slider-value" id="val-petal-len">1.4</span>
+        </div>
+        <input type="range" id="petal-len" min="1.0" max="7.0" step="0.1" value="1.4">
+    </div>
+
+    <!-- Petal Width -->
+    <div class="slider-group">
+        <div class="slider-label">
+            <span>Chiều rộng cánh hoa (Petal Width)</span>
+            <span class="slider-value" id="val-petal-wid">0.2</span>
+        </div>
+        <input type="range" id="petal-wid" min="0.1" max="2.5" step="0.1" value="0.2">
+    </div>
+
+    <!-- Kết quả dự đoán -->
+    <div class="result-box">
+        <p class="prediction-text" id="result">Kéo thanh trượt để dự đoán</p>
     </div>
 </div>
 
 <script>
-    // Bản đồ chứa link ảnh trực tuyến tốc độ cao và cực kỳ ổn định
-    const flowerImages = {
-        "setosa": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Iris_setosa_2.jpg/960px-Iris_setosa_2.jpg?utm_source=vi.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
-        "versicolor": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/03/Verschiedenfarbige_Schwertlilie_%28Iris_versicolor%29-20200603-RM-100257.jpg/960px-Verschiedenfarbige_Schwertlilie_%28Iris_versicolor%29-20200603-RM-100257.jpg?utm_source=vi.wikipedia.org&utm_campaign=parser&utm_content=thumbnail",
-        "virginica": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Commelina_virginica_-_Virginia_Dayflower.jpg/960px-Commelina_virginica_-_Virginia_Dayflower.jpg?utm_source=vi.wikipedia.org&utm_campaign=index&utm_content=thumbnail"
+    // Lấy các phần tử DOM
+    const sliders = {
+        'sepal-len': document.getElementById('sepal-len'),
+        'sepal-wid': document.getElementById('sepal-wid'),
+        'petal-len': document.getElementById('petal-len'),
+        'petal-wid': document.getElementById('petal-wid')
     };
 
-    function predictFlower() {
-        const resultContainer = document.getElementById("resultContainer");
-        const resultText = document.getElementById("resultText");
-        const flowerImg = document.getElementById("flowerImg");
-        
-        resultContainer.style.display = "block";
-        flowerImg.style.display = "none"; // Tạm thời ẩn khung ảnh khi đang gọi API
-        resultText.innerHTML = "⏳ Đang kết nối mạng và phân tích AI...";
+    const labels = {
+        'sepal-len': document.getElementById('val-sepal-len'),
+        'sepal-wid': document.getElementById('val-sepal-wid'),
+        'petal-len': document.getElementById('val-petal-len'),
+        'petal-wid': document.getElementById('val-petal-wid')
+    };
 
-        // Kết nối thẳng tới domain Render cá nhân của bạn
-        fetch("https://iris-api-5jf3.onrender.com/predict", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                sepal_length: parseFloat(document.getElementById("sepal_length").value),
-                sepal_width: parseFloat(document.getElementById("sepal_width").value),
-                petal_length: parseFloat(document.getElementById("petal_length").value),
-                petal_width: parseFloat(document.getElementById("petal_width").value)
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            const predName = data.prediction.toLowerCase();
+    const resultBox = document.getElementById('result');
+    let debounceTimer;
+
+    // Hàm gửi dữ liệu lên API
+    async function fetchPrediction() {
+        resultBox.className = "loading";
+        resultBox.innerText = "Đang tính toán...";
+
+        const data = {
+            sepal_length: parseFloat(sliders['sepal-len'].value),
+            sepal_width: parseFloat(sliders['sepal-wid'].value),
+            petal_length: parseFloat(sliders['petal-len'].value),
+            petal_width: parseFloat(sliders['petal-wid'].value)
+        };
+
+        try {
+            const response = await fetch("https://iris-api-5jf3.onrender.com/predict", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) throw new Error('Lỗi kết nối API');
             
-            // 1. Cập nhật dòng chữ thông báo kết quả giống định dạng cũ của bạn
-            resultText.innerHTML = `Kết quả: ${data.prediction.toUpperCase()} (ID: ${data.class_id})`;
+            const result = await response.json();
             
-            // 2. Tự động kiểm tra bản đồ và đính kèm bức ảnh hoa lung linh vào dưới
-            if (flowerImages[predName]) {
-                flowerImg.src = flowerImages[predName];
-                flowerImg.style.display = "block";
-            }
-        })
-        .catch(error => {
-            resultText.innerHTML = "❌ Lỗi kết nối đến API!";
-            console.error(error);
-        });
+            // Hiển thị kết quả (Giả định API trả về key "prediction")
+            resultBox.className = "prediction-text";
+            resultBox.innerText = `Kết quả: ${result.prediction || JSON.stringify(result)}`;
+        } catch (error) {
+            resultBox.className = "";
+            resultBox.style.color = "red";
+            resultBox.innerText = "Không thể kết nối đến API server!";
+        }
     }
+
+    // Lắng nghe sự kiện kéo thanh trượt
+    Object.keys(sliders).forEach(key => {
+        sliders[key].addEventListener('input', (e) => {
+            // Cập nhật số hiển thị ngay lập tức khi kéo
+            labels[key].innerText = e.target.value;
+
+            // Debounce: Chờ người dùng dừng kéo 300ms mới gọi API để tránh quá tải
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(fetchPrediction, 300);
+        });
+    });
+
+    // Chạy dự đoán lần đầu tiên khi vừa tải trang
+    fetchPrediction();
 </script>
 
 </body>
