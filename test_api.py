@@ -13,3 +13,10 @@ response = requests.post(url, json=data, timeout=30)
 response.raise_for_status()
 
 print(response.json())
+
+result = response.json()
+assert result['prediction'] in {'setosa', 'versicolor', 'virginica'}
+assert 0 <= result['confidence'] <= 100
+assert set(result['probabilities']) == {'setosa', 'versicolor', 'virginica'}
+assert abs(sum(result['probabilities'].values()) - 100) < 0.05
+assert result['confidence'] == result['probabilities'][result['prediction']]

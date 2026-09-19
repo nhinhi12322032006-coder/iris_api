@@ -1,18 +1,17 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 import joblib
 import os
 
+if not os.path.exists("svm_model.pkl"):
+    raise FileNotFoundError("Chưa thấy file svm_model.pkl. Vui lòng chạy train.py trước!")
+
 model = joblib.load("svm_model.pkl")
 
-app = FastAPI(
-    title="Iris Classification API",
-    description="SVM model for the Iris dataset",
-    version="1.0.0"
-)
+app = FastAPI(title="Iris SVM API")
 
+# Mở CORS để Frontend gọi API không bị chặn
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -29,13 +28,9 @@ class IrisInput(BaseModel):
 
 species = {0: "setosa", 1: "versicolor", 2: "virginica"}
 
-# --- SỬA HÀM GET TẠI TRANG CHỦ ĐỂ TỰ ĐỘNG ĐỌC FILE INDEX.HTML ---
-@app.get("/", response_class=HTMLResponse)
+@app.get("/")
 def home():
-    if os.path.exists("index.html"):
-        with open("index.html", "r", encoding="utf-8") as f:
-            return f.read()
-    return "<h3>Iris API is running. Nhưng không tìm thấy file index.html!</h3>"
+    return {"message": "Iris SVM API is running"}
 
 @app.get("/health")
 def health():
@@ -43,14 +38,26 @@ def health():
 
 @app.post("/predict")
 def predict(data: IrisInput):
-    features = [[
-        data.sepal_length,
-        data.sepal_width,
-        data.petal_length,
-        data.petal_width
-    ]]
-    prediction = int(model.predict(features)[0]) 
-    return {
-        "class_id": prediction,
-        "prediction": species[prediction]
-    }
+    try:
+        features = [[
+            data.sepal_length,
+            data.sepal_width,
+            data.petal_length,
+            data.petal_width
+        ]]
+        
+        prediction_idx = int(model.predict(features)[0])
+        predicted_name = species[prediction_idx]
+        
+        # Lấy xác suất độ tin cậy
+        confidence = 100.0
+        if hasattr(model, "predict_proba"):
+            probs = model.predict_proba(features)[0]
+            confidence = round(float(probs[prediction_idx]) * 100, 2)
+
+        return {
+            "prediction": predicted_name,
+            "confidence": confidence
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
