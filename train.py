@@ -15,7 +15,6 @@ target_names = [name.lower() for name in iris.target_names]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # 3. Khởi tạo mô hình Support Vector Machine (SVM)
-# BẮT BUỘC có probability=True để mô hình ML tính xác suất Platt Scaling
 model = SVC(kernel='rbf', probability=True, random_state=42)
 
 # 4. Huấn luyện mô hình
