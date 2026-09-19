@@ -4,10 +4,11 @@ from pydantic import BaseModel
 import joblib
 import os
 
-if not os.path.exists("svm_model.pkl"):
-    raise FileNotFoundError("Chưa thấy file svm_model.pkl. Vui lòng chạy train.py trước!")
-
-model = joblib.load("svm_model.pkl")
+model_bundle = joblib.load("iris_svm_model.pkl")
+model = model_bundle["model"]
+target_names = model_bundle["target_names"]
+if not hasattr(model, "predict_proba"):
+    raise RuntimeError("Mô hình chưa hỗ trợ predict_proba; hãy huấn luyện lại bằng train.py.")
 
 app = FastAPI(title="Iris SVM API")
 
@@ -25,8 +26,6 @@ class IrisInput(BaseModel):
     sepal_width: float
     petal_length: float
     petal_width: float
-
-species = {0: "setosa", 1: "versicolor", 2: "virginica"}
 
 @app.get("/")
 def home():
@@ -47,17 +46,20 @@ def predict(data: IrisInput):
         ]]
         
         prediction_idx = int(model.predict(features)[0])
-        predicted_name = species[prediction_idx]
-        
-        # Lấy xác suất độ tin cậy
-        confidence = 100.0
-        if hasattr(model, "predict_proba"):
-            probs = model.predict_proba(features)[0]
-            confidence = round(float(probs[prediction_idx]) * 100, 2)
+        predicted_name = target_names[prediction_idx]
+
+        # Xác suất được sắp theo model.classes_, không lấy vị trí bằng mã nhãn.
+        scores = model.predict_proba(features)[0]
+        probabilities = {
+            target_names[int(label)]: round(float(score) * 100, 2)
+            for label, score in zip(model.classes_, scores)
+        }
+        confidence = probabilities[predicted_name]
 
         return {
             "prediction": predicted_name,
-            "confidence": confidence
+            "confidence": confidence,
+            "probabilities": probabilities
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
