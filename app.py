@@ -1,4 +1,6 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import joblib
@@ -27,10 +29,20 @@ class IrisInput(BaseModel):
     petal_length: float
     petal_width: float
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def home():
-    return {"message": "Iris SVM API is running"}
+    if not os.path.exists("index.html"):
+        return "<h3>Không tìm thấy file index.html</h3>"
 
+    with open("index.html", "r", encoding="utf-8") as file:
+        return file.read()
+from fastapi.responses import FileResponse
+
+@app.get("/{image_name}.jpg")
+def flower_image(image_name: str):
+    if image_name not in {"setosa", "versicolor", "virginica"}:
+        raise HTTPException(status_code=404, detail="Image not found")
+    return FileResponse(f"{image_name}.jpg")
 @app.get("/health")
 def health():
     return {"status": "healthy"}
