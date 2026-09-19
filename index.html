@@ -563,6 +563,18 @@
         .history-table tbody tr:last-child td { border-bottom: 0; }
         .history-table td:first-child { white-space: nowrap; }
         .history-result { color: #4f38ac; font-weight: 800; }
+        .history-retry { padding: 8px 12px; border: 1px solid #dcd5f4; border-radius: 9px; background: #f4f1ff; color: #5741b5; font: inherit; font-weight: 700; white-space: nowrap; cursor: pointer; }
+        .history-retry:hover, .history-retry:focus-visible { background: #e9e2ff; }
+        .limits-intro { color: #58657a; line-height: 1.7; max-width: 72ch; }
+        .limits-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 18px; margin-top: 22px; }
+        .limit-card { padding: 22px; background: #f7f5ff; border: 1px solid #e4defd; border-radius: 18px; }
+        .limit-card h4 { margin: 0 0 10px; color: #302762; font-size: 18px; }
+        .limit-card p { margin: 0; color: #58657a; line-height: 1.65; }
+        .history-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+        .history-controls input, .history-controls select { padding: 11px 13px; border: 1px solid #dcd5f4; border-radius: 11px; font: inherit; color: #302762; background: white; }
+        .history-controls input { flex: 1 1 220px; min-width: 0; }
+        .history-count { color: #627086; font-size: 14px; margin: 12px 0 0; }
+        .history-no-match { color: #627086; padding: 25px; text-align: center; }
         @media (max-width: 630px) {
             .history-header { flex-direction: column; }
             .history-table-wrap { border: 0; overflow: visible; }
@@ -613,19 +625,13 @@
             <li>
                 <button class="nav-btn" onclick="switchPage('page-3', this)">
                     <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
-                    Lịch sử & Fun Fact
+                    Câu chuyện Iris
                 </button>
             </li>
             <li>
                 <button class="nav-btn" onclick="switchPage('page-4', this)">
                     <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-                    Đánh giá mô hình
-                </button>
-            </li>
-            <li>
-                <button class="nav-btn" onclick="switchPage('page-5', this)">
-                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-                    Về đồ án
+                    Giới hạn của mô hình
                 </button>
             </li>
         </ul>
@@ -698,6 +704,7 @@
                             <span>Độ tin cậy dự đoán (Confidence):</span>
                             <span id="highest-score" style="font-weight: bold; color: var(--primary-color);">0%</span>
                         </div>
+                        <p id="confidence-note" style="display:none; margin:0; color:#627086; font-size:13px;">API chưa cung cấp độ tin cậy cho dự đoán này.</p>
                         <div class="progress-bar-bg">
                             <div id="highest-bar" class="progress-bar-fill"></div>
                         </div>
@@ -728,26 +735,29 @@
                     <div>
                         <p class="history-overline">NHẬT KÝ CỦA BẠN</p>
                         <h2 id="history-title">Lịch sử dự đoán</h2>
-                        <p>Các lượt dự đoán được lưu trên trình duyệt này để bạn xem lại.</p>
+                        <p>Các lượt dự đoán được lưu trên trình duyệt này. Bấm “Dự đoán lại ↗” ở một dòng để dùng lại bốn số đo.</p>
                     </div>
-                    <button id="clear-predictions" class="history-clear" type="button" disabled>Xóa lịch sử</button>
+                    <div class="history-controls"><button id="export-predictions" class="history-clear" type="button" disabled>Xuất CSV</button><button id="clear-predictions" class="history-clear" type="button" disabled>Xóa lịch sử</button></div>
                 </div>
                 <p id="history-message" class="history-message" role="status" aria-live="polite"></p>
+                <div class="history-controls"><input id="history-search" type="search" placeholder="Tìm theo loài hoặc số đo…" aria-label="Tìm lịch sử dự đoán"><select id="history-filter" aria-label="Lọc theo loài"><option value="">Tất cả loài</option><option value="setosa">Setosa</option><option value="versicolor">Versicolor</option><option value="virginica">Virginica</option></select></div>
+                <p id="history-count" class="history-count" role="status"></p>
                 <div id="history-empty" class="history-empty">
                     <span aria-hidden="true">✿</span>
                     <h3>Chưa có lượt dự đoán nào</h3>
-                    <p>Hãy dự đoán một bông hoa ở trang Dự đoán AI; kết quả sẽ xuất hiện tại đây.</p>
+                    <p>Hãy dự đoán một bông hoa ở trang Dự đoán AI. Khi có lịch sử, nút “Dự đoán lại ↗” sẽ xuất hiện bên cạnh từng kết quả.</p>
                 </div>
                 <div id="history-table-wrap" class="history-table-wrap" hidden>
                     <table class="history-table">
-                        <thead><tr><th scope="col">Thời gian</th><th scope="col">Dài lá đài</th><th scope="col">Rộng lá đài</th><th scope="col">Dài cánh hoa</th><th scope="col">Rộng cánh hoa</th><th scope="col">Kết quả</th></tr></thead>
+                        <thead><tr><th scope="col">Thời gian</th><th scope="col">Dài lá đài</th><th scope="col">Rộng lá đài</th><th scope="col">Dài cánh hoa</th><th scope="col">Rộng cánh hoa</th><th scope="col">Kết quả</th><th scope="col">Độ tin cậy</th><th scope="col">Thao tác</th></tr></thead>
                         <tbody id="history-rows"></tbody>
                     </table>
+                    <p id="history-no-match" class="history-no-match" hidden>Không có dự đoán nào khớp bộ lọc.</p>
                 </div>
             </div>
         </section>
 
-        <!-- TRANG 2: PHÂN TÍCH DỮ LIỆU & BIỂU ĐỒ -->
+        <!-- TRANG 3: PHÂN TÍCH DỮ LIỆU & BIỂU ĐỒ -->
         <div id="page-2" class="page-section">
             <div class="info-card">
                 <h3>📊 Phân Tích Dữ Liệu & Biểu Đồ Iris</h3>
@@ -815,7 +825,7 @@
         
                             <!-- Hình ảnh bên trái -->
                             <div style="flex: 1; display: flex; justify-content: center;">
-                                <img id="species-img" src="images/setosa.jpg" alt="Iris Species" style="width: 100%; max-height: 240px; object-fit: cover; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 2px solid white;">                            
+                                <img id="species-img" src="setosa.jpg" alt="Iris Species" style="width: 100%; max-height: 240px; object-fit: cover; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 2px solid white;">                            
                             </div>
 
                             <!-- Thông tin chi tiết bên phải -->
@@ -904,12 +914,12 @@
             </div>
         </div>
 
-        <!-- TRANG 3: LỊCH SỬ & FUN FACT -->
+        <!-- TRANG 4: CÂU CHUYỆN IRIS -->
         <div id="page-3" class="page-section">
             <article class="iris-story">
                 <header class="story-hero">
                     <div class="story-intro">
-                        <span class="story-eyebrow">GÓC LỊCH SỬ & FUN FACT</span>
+                        <span class="story-eyebrow">CÂU CHUYỆN IRIS</span>
                         <h1>Từ một bông diên vĩ<br>đến bài toán AI</h1>
                         <p>Một câu chuyện bắt đầu bằng quan sát thực vật, rồi trở thành ví dụ kinh điển cho việc phân loại bằng dữ liệu.</p>
                     </div>
@@ -959,21 +969,16 @@
             </article>
         </div>
 
-        <!-- TRANG 4: ĐÁNH GIÁ MÔ HÌNH -->
+        <!-- TRANG 5: GIỚI HẠN CỦA MÔ HÌNH -->
         <div id="page-4" class="page-section">
             <div class="info-card">
-                <h3>🧠 Đánh Giá Mô Hình Học Máy</h3>
-                <p>Mô hình được huấn luyện dựa trên bộ dữ liệu chuẩn, tích hợp thuật toán phân loại tối ưu thông qua Backend API triển khai trên Render cloud.</p>
-                <p>Độ chính xác tổng thể (Accuracy) trên tập dữ liệu kiểm thử đạt trên <b>96.5%</b>, đảm bảo khả năng dự đoán cực kỳ nhạy bén đối với các thông số truyền vào.</p>
-            </div>
-        </div>
-
-        <!-- TRANG 5: VỀ ĐỒ ÁN -->
-        <div id="page-5" class="page-section">
-            <div class="info-card">
-                <h3>ℹ️ Về Đồ Án / Ứng Dụng</h3>
-                <p><b>IrisAI Studio</b> là ứng dụng web tương tác trực quan phục vụ cho việc học tập và nghiên cứu Khoa học dữ liệu (Data Science) và Trí tuệ nhân tạo (AI).</p>
-                <p>Được thiết kế theo chuẩn giao diện hiện đại (Modern Dashboard), tối ưu hóa trải nghiệm người dùng và trực quan hóa dữ liệu thời gian thực.</p>
+                <h3>🧭 Giới hạn của mô hình</h3>
+                <p class="limits-intro">Kết quả dự đoán chỉ dùng để minh họa cách phân loại dữ liệu hoa Iris. Hãy cân nhắc những giới hạn sau khi đọc kết quả:</p>
+                <div class="limits-grid">
+                    <div class="limit-card"><h4>Chỉ có ba loài</h4><p>Mô hình chỉ được huấn luyện để chọn giữa Iris setosa, Iris versicolor và Iris virginica trong bộ dữ liệu Iris. Một loài khác vẫn có thể bị gán vào một trong ba nhóm này.</p></div>
+                    <div class="limit-card"><h4>Số đo khác thường</h4><p>Khi nhập số đo nằm ngoài phạm vi thường gặp trong dữ liệu huấn luyện, kết quả có thể kém đáng tin cậy. Hãy kiểm tra đơn vị centimet và bốn phép đo trước khi dùng kết quả.</p></div>
+                    <div class="limit-card"><h4>Độ tin cậy có giới hạn</h4><p>Phần trăm hiển thị là xác suất ước lượng của mô hình cho ba loài đã học, không phải bảo đảm rằng bông hoa được nhận diện đúng.</p></div>
+                </div>
             </div>
         </div>
 
@@ -1088,6 +1093,20 @@
         const historyTableWrap = document.getElementById('history-table-wrap');
         const historyMessage = document.getElementById('history-message');
         const clearPredictionsBtn = document.getElementById('clear-predictions');
+        const exportPredictionsBtn = document.getElementById('export-predictions');
+        const historySearch = document.getElementById('history-search');
+        const historyFilter = document.getElementById('history-filter');
+        const historyCount = document.getElementById('history-count');
+        const historyNoMatch = document.getElementById('history-no-match');
+
+        function getConfidence(data) {
+            const raw = data.confidence;
+            if (raw === null || raw === undefined || raw === '') return null;
+            const value = Number(raw);
+            if (!Number.isFinite(value)) return null;
+            const percent = value >= 0 && value <= 1 ? value * 100 : value;
+            return percent >= 0 && percent <= 100 ? Math.round(percent * 10) / 10 : null;
+        }
 
         function readPredictionHistory() {
             try {
@@ -1105,14 +1124,25 @@
             historyEmpty.hidden = entries.length > 0;
             historyTableWrap.hidden = entries.length === 0;
             clearPredictionsBtn.disabled = entries.length === 0;
-            const labels = ['Thời gian', 'Dài lá đài', 'Rộng lá đài', 'Dài cánh hoa', 'Rộng cánh hoa', 'Kết quả'];
-            for (const item of entries) {
+            exportPredictionsBtn.disabled = entries.length === 0;
+            const search = historySearch.value.trim().toLocaleLowerCase('vi-VN');
+            const species = historyFilter.value;
+            const filtered = entries.filter(item => {
+                const fields = [item.prediction, item.sepalLength, item.sepalWidth, item.petalLength, item.petalWidth];
+                return (!species || String(item.prediction).toLowerCase().includes(species)) &&
+                    (!search || fields.some(value => String(value).toLocaleLowerCase('vi-VN').includes(search)));
+            });
+            historyCount.textContent = entries.length ? `Hiển thị ${filtered.length}/${entries.length} lượt dự đoán` : '';
+            historyNoMatch.hidden = filtered.length > 0;
+            const labels = ['Thời gian', 'Dài lá đài', 'Rộng lá đài', 'Dài cánh hoa', 'Rộng cánh hoa', 'Kết quả', 'Độ tin cậy'];
+            for (const item of filtered) {
                 const row = document.createElement('tr');
                 const timestamp = new Date(item.time);
                 const values = [
                     Number.isNaN(timestamp.getTime()) ? '—' : timestamp.toLocaleString('vi-VN'),
                     item.sepalLength + ' cm', item.sepalWidth + ' cm',
-                    item.petalLength + ' cm', item.petalWidth + ' cm', item.prediction
+                    item.petalLength + ' cm', item.petalWidth + ' cm', item.prediction,
+                    typeof item.confidence === 'number' ? `${item.confidence}%` : '—'
                 ];
                 values.forEach((value, index) => {
                     const cell = document.createElement('td');
@@ -1121,18 +1151,28 @@
                     if (index === 5) cell.className = 'history-result';
                     row.appendChild(cell);
                 });
+                const actionCell = document.createElement('td');
+                actionCell.dataset.label = 'Thao tác';
+                const retryButton = document.createElement('button');
+                retryButton.type = 'button';
+                retryButton.className = 'history-retry';
+                retryButton.textContent = 'Dự đoán lại ↗';
+                retryButton.setAttribute('aria-label', 'Dự đoán lại với số đo của ' + values[0]);
+                retryButton.addEventListener('click', () => retryPrediction(item));
+                actionCell.appendChild(retryButton);
+                row.appendChild(actionCell);
                 historyRows.appendChild(row);
             }
         }
 
-        function savePrediction(payload, prediction) {
+        function savePrediction(payload, prediction, confidence) {
             try {
                 const entries = readPredictionHistory();
                 entries.unshift({
                     time: new Date().toISOString(),
                     sepalLength: payload.sepal_length, sepalWidth: payload.sepal_width,
                     petalLength: payload.petal_length, petalWidth: payload.petal_width,
-                    prediction
+                    prediction, confidence
                 });
                 localStorage.setItem(HISTORY_KEY, JSON.stringify(entries));
                 historyMessage.textContent = '';
@@ -1151,6 +1191,22 @@
             } catch (error) {
                 historyMessage.textContent = 'Không thể xóa lịch sử trên trình duyệt này.';
             }
+        });
+        historySearch.addEventListener('input', renderPredictionHistory);
+        historyFilter.addEventListener('change', renderPredictionHistory);
+        exportPredictionsBtn.addEventListener('click', () => {
+            const entries = readPredictionHistory();
+            if (!entries.length) return;
+            const escapeCsv = value => `"${String(value ?? '').replace(/"/g, '""')}"`;
+            const lines = [['Thời gian', 'Dài lá đài (cm)', 'Rộng lá đài (cm)', 'Dài cánh hoa (cm)', 'Rộng cánh hoa (cm)', 'Kết quả', 'Độ tin cậy (%)'],
+                ...entries.map(item => [item.time, item.sepalLength, item.sepalWidth, item.petalLength, item.petalWidth, item.prediction, item.confidence ?? ''])];
+            const blob = new Blob(['\uFEFF' + lines.map(row => row.map(escapeCsv).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `lich-su-du-doan-iris-${new Date().toISOString().slice(0, 10)}.csv`;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
         });
         renderPredictionHistory();
 
@@ -1197,43 +1253,28 @@
                     throw new Error('Unexpected prediction');
                 }
                 updateFlowerDetails(predictedClass);
-                if (recordHistory) savePrediction(payload, resultBox.innerText);
-
-
-                let confidenceVal = data.confidence;
-                if (confidenceVal === undefined || confidenceVal === null) {
-                    confidenceVal = (Math.random() * (99.5 - 92.0) + 92.0).toFixed(1);
-                }
-
+                const confidence = getConfidence(data);
+                if (recordHistory) savePrediction(payload, resultBox.innerText, confidence);
                 confidenceBox.style.display = 'block';
-                highestScore.innerText = `${confidenceVal}%`;
-                highestBar.style.width = `${confidenceVal}%`;
-
-                let pSetosa = 0.0, pVersicolor = 0.0, pVirginica = 0.0;
-                const cleanPred = String(predictedClass).toLowerCase();
-
-                if (cleanPred.includes('setosa')) {
-                    pSetosa = parseFloat(confidenceVal);
-                    pVersicolor = ((100 - pSetosa) / 2).toFixed(1);
-                    pVirginica = (100 - pSetosa - pVersicolor).toFixed(1);
-                } else if (cleanPred.includes('versicolor')) {
-                    pVersicolor = parseFloat(confidenceVal);
-                    pSetosa = ((100 - pVersicolor) / 2).toFixed(1);
-                    pVirginica = (100 - pVersicolor - pSetosa).toFixed(1);
-                } else {
-                    pVirginica = parseFloat(confidenceVal);
-                    pSetosa = 0.1;
-                    pVersicolor = (100 - pVirginica - pSetosa).toFixed(1);
+                document.getElementById('confidence-note').style.display = confidence === null ? 'block' : 'none';
+                confidenceBox.querySelector('.progress-bar-bg').style.display = confidence === null ? 'none' : 'block';
+                confidenceBox.querySelector('.classes-grid').style.display = 'none';
+                if (confidence === null) highestScore.innerText = '—';
+                if (confidence !== null) {
+                    highestScore.innerText = `${confidence}%`;
+                    highestBar.style.width = `${confidence}%`;
+                    // Chỉ hiện xác suất từng loài khi API cung cấp đủ ba giá trị thật.
+                    const probabilities = data.probabilities;
+                    const cardsGrid = confidenceBox.querySelector('.classes-grid');
+                    const keys = ['setosa', 'versicolor', 'virginica'];
+                    const scores = keys.map(key => probabilities && Number(probabilities[key]));
+                    const hasScores = probabilities && scores.every(value => Number.isFinite(value) && value >= 0 && value <= 100);
+                    cardsGrid.style.display = hasScores ? '' : 'none';
+                    if (hasScores) keys.forEach((key, index) => {
+                        document.getElementById(`score-${key}`).innerText = `${scores[index]}%`;
+                        document.getElementById(`card-${key}`).classList.toggle('active-class', predictedClass.toLowerCase().includes(key));
+                    });
                 }
-
-                document.getElementById('score-setosa').innerText = `${pSetosa}%`;
-                document.getElementById('score-versicolor').innerText = `${pVersicolor}%`;
-                document.getElementById('score-virginica').innerText = `${pVirginica}%`;
-
-                document.querySelectorAll('.class-card').forEach(card => card.classList.remove('active-class'));
-                if (cleanPred.includes('setosa')) document.getElementById('card-setosa').classList.add('active-class');
-                else if (cleanPred.includes('versicolor')) document.getElementById('card-versicolor').classList.add('active-class');
-                else document.getElementById('card-virginica').classList.add('active-class');
 
             } catch (error) {
                 subtitleBox.style.display = 'none';
@@ -1261,7 +1302,23 @@
             });
         });
 
-        predictBtn.addEventListener('click', fetchPrediction);
+        predictBtn.addEventListener('click', () => fetchPrediction());
+
+        function retryPrediction(item) {
+            const measurements = [item.sepalLength, item.sepalWidth, item.petalLength, item.petalWidth];
+            const keys = ['sepal-len', 'sepal-wid', 'petal-len', 'petal-wid'];
+            if (measurements.some(value => !Number.isFinite(Number(value)) || Number(value) <= 0)) {
+                historyMessage.textContent = 'Số đo đã lưu không hợp lệ, không thể dự đoán lại.';
+                return;
+            }
+            keys.forEach((key, index) => {
+                elements[key].input.value = measurements[index];
+                elements[key].slider.value = measurements[index];
+            });
+            switchPage('page-1', document.querySelector('.nav-btn[onclick*="page-1"]'));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            fetchPrediction();
+        }
 
         function applyPreset(sepalLen, sepalWid, petalLen, petalWidth) {
             elements['sepal-len'].input.value = sepalLen; elements['sepal-len'].slider.value = sepalLen;
