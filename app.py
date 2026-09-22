@@ -1,8 +1,6 @@
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse
-from fastapi.responses import FileResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import joblib
@@ -118,21 +116,25 @@ def home():
     """
 
 
-# KIỂM TRA TRẠNG THÁI API
-@app.get("/", response_class=HTMLResponse)
-def home():
-    if not os.path.exists("index.html"):
-        return "<h3>Không tìm thấy file index.html</h3>"
-
-    with open("index.html", "r", encoding="utf-8") as file:
-        return file.read()
-from fastapi.responses import FileResponse
-
 @app.get("/{image_name}.jpg")
 def flower_image(image_name: str):
     if image_name not in {"setosa", "versicolor", "virginica"}:
         raise HTTPException(status_code=404, detail="Image not found")
-    return FileResponse(f"{image_name}.jpg")
+    image_path = os.path.join(BASE_DIR, f"{image_name}.jpg")
+    if not os.path.isfile(image_path):
+        raise HTTPException(status_code=404, detail="Image not found")
+    return FileResponse(image_path)
+
+# Ảnh ban đầu trong trang chi tiết từng loài dùng đường dẫn images/setosa.jpg.
+@app.get("/images/{image_name}.jpg")
+def species_image(image_name: str):
+    if image_name not in {"setosa", "versicolor", "virginica"}:
+        raise HTTPException(status_code=404, detail="Image not found")
+    image_path = os.path.join(BASE_DIR, "images", f"{image_name}.jpg")
+    if not os.path.isfile(image_path):
+        raise HTTPException(status_code=404, detail="Image not found")
+    return FileResponse(image_path)
+
 @app.get("/health")
 def health():
     return {
@@ -156,6 +158,7 @@ def get_models_evaluation():
         "default_model": default_model,
         "test_size": model_bundle.get("test_size"),
         "random_state": model_bundle.get("random_state"),
+        "cv_folds": model_bundle.get("cv_folds", 5),
         "models": evaluations,
     }
 
@@ -291,4 +294,5 @@ def predict_all(data: IrisInput):
         raise HTTPException(
             status_code=500,
             detail=str(error),
+        )
 
