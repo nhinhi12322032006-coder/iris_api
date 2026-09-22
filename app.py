@@ -99,7 +99,7 @@ class IrisInput(BaseModel):
     petal_width: float
     model_name: str = "svm_rbf"
 
-<<<<<<< HEAD
+
 
 # TRANG CHỦ
 
@@ -119,12 +119,10 @@ def home():
 
 
 # KIỂM TRA TRẠNG THÁI API
-=======
 @app.get("/", response_class=HTMLResponse)
 def home():
     if not os.path.exists("index.html"):
         return "<h3>Không tìm thấy file index.html</h3>"
->>>>>>> 1ca6c995aa6b5ff4c7ded73ac66b9bbfa9469d7b
 
     with open("index.html", "r", encoding="utf-8") as file:
         return file.read()
