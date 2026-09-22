@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>IrisAI Studio - Hệ thống khoa học dữ liệu</title>
-    <!-- Nhúng thư viện Chart.js để vẽ biểu đồ ở trang 2 -->
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<<<<<<< HEAD
+    <link rel="stylesheet" href="/static/css/style.css">
+=======
     <style>
         :root {
             --primary-color: #6c5ce7;
@@ -586,10 +590,12 @@
             .history-table td:before { content: attr(data-label); font-weight: 700; color: #627086; }
         }
     </style>
+>>>>>>> 1ca6c995aa6b5ff4c7ded73ac66b9bbfa9469d7b
 </head>
+
 <body>
 
-    <!-- THANH NAVBAR -->
+    <!-- THANH ĐIỀU HƯỚNG -->
     <nav class="navbar">
         <div class="nav-brand-group">
             <div class="nav-logo-box">
@@ -597,6 +603,7 @@
                     <path d="M11 4h2v16h-2zM7 6h2v12H7zM15 6h2v12h-2z"/>
                 </svg>
             </div>
+
             <div class="nav-brand-text">
                 <span class="nav-title">IrisAI Studio</span>
                 <span class="nav-subtitle">Hệ thống khoa học dữ liệu</span>
@@ -605,370 +612,1284 @@
 
         <ul class="nav-links">
             <li>
-                <button class="nav-btn active" onclick="switchPage('page-1', this)">
-                    <svg viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-8h2v2h4v2h-4v2h-2V5z"/></svg>
+                <button
+                    class="nav-btn active"
+                    type="button"
+                    onclick="switchPage('page-1', this)"
+                >
+                    <svg viewBox="0 0 24 24">
+                        <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-8h2v2h4v2h-4v2h-2V5z"/>
+                    </svg>
                     Dự đoán AI
                 </button>
             </li>
+
             <li>
-                <button class="nav-btn" onclick="switchPage('page-history', this)">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3a9 9 0 1 1-8.4 12.2l1.9-.7A7 7 0 1 0 6 12H9v2H2V7h2v3.3A9 9 0 0 1 13 3zm-1 4h2v5.4l3.2 1.9-1 1.7-4.2-2.5V7z"/></svg>
+                <button
+                    class="nav-btn"
+                    type="button"
+                    onclick="switchPage('page-history', this)"
+                >
+                    <svg viewBox="0 0 24 24">
+                        <path d="M13 3a9 9 0 1 1-8.4 12.2l1.9-.7A7 7 0 1 0 6 12H9v2H2V7h2v3.3A9 9 0 0 1 13 3zm-1 4h2v5.4l3.2 1.9-1 1.7-4.2-2.5V7z"/>
+                    </svg>
                     Lịch sử dự đoán
                 </button>
             </li>
+
             <li>
-                <button class="nav-btn" onclick="switchPage('page-2', this)">
-                    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
-                    Phân tích dữ liệu
+                <button
+                    class="nav-btn"
+                    type="button"
+                    onclick="switchPage('page-2', this)"
+                >
+                    <svg viewBox="0 0 24 24">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                    </svg>
+                    Phân tích &amp; đánh giá
                 </button>
             </li>
+
             <li>
+<<<<<<< HEAD
+                <button
+                    class="nav-btn"
+                    type="button"
+                    onclick="switchPage('page-3', this)"
+                >
+                    <svg viewBox="0 0 24 24">
+                        <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
+                    </svg>
+=======
                 <button class="nav-btn" onclick="switchPage('page-3', this)">
                     <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+>>>>>>> 1ca6c995aa6b5ff4c7ded73ac66b9bbfa9469d7b
                     Câu chuyện Iris
                 </button>
             </li>
+
             <li>
+<<<<<<< HEAD
+                <button
+                    class="nav-btn"
+                    type="button"
+                    onclick="switchPage('page-4', this)"
+                >
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                    </svg>
+=======
                 <button class="nav-btn" onclick="switchPage('page-4', this)">
                     <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+>>>>>>> 1ca6c995aa6b5ff4c7ded73ac66b9bbfa9469d7b
                     Giới hạn của mô hình
                 </button>
             </li>
         </ul>
     </nav>
 
-    <!-- NỘI DUNG CÁC TRANG -->
-    <div class="main-container">
+    <main class="main-container">
 
-        <!-- TRANG 1: DỰ ĐOÁN AI -->
+        <!-- ======================================================
+             TRANG 1: DỰ ĐOÁN AI
+        ======================================================= -->
         <div id="page-1" class="page-section active">
             <div class="dashboard-card">
+
                 <div class="column-left">
                     <h2>Dự đoán hoa Iris</h2>
 
                     <div class="presets-container">
                         <span class="preset-label">MẪU NHANH:</span>
-                        <button class="preset-btn preset-setosa" onclick="applyPreset(5.0, 3.4, 1.4, 0.2)">Setosa</button>
-                        <button class="preset-btn preset-versicolor" onclick="applyPreset(5.9, 2.7, 4.2, 1.3)">Versicolor</button>
-                        <button class="preset-btn preset-virginica" onclick="applyPreset(6.5, 3.0, 5.5, 2.0)">Virginica</button>
+
+                        <button
+                            class="preset-btn preset-setosa"
+                            type="button"
+                            onclick="applyPreset(5.0, 3.4, 1.4, 0.2)"
+                        >
+                            Setosa
+                        </button>
+
+                        <button
+                            class="preset-btn preset-versicolor"
+                            type="button"
+                            onclick="applyPreset(5.9, 2.7, 4.2, 1.3)"
+                        >
+                            Versicolor
+                        </button>
+
+                        <button
+                            class="preset-btn preset-virginica"
+                            type="button"
+                            onclick="applyPreset(6.5, 3.0, 5.5, 2.0)"
+                        >
+                            Virginica
+                        </button>
                     </div>
 
                     <div class="feature-block">
                         <div class="feature-header">
-                            <span class="feature-title">Chiều dài lá đài (Sepal Length)</span>
-                            <input type="number" id="num-sepal-len" class="number-input" min="3.0" max="10.0" step="0.1" value="5.1">
+                            <label class="feature-title" for="num-sepal-len">
+                                Chiều dài lá đài (Sepal Length)
+                            </label>
+
+                            <input
+                                type="number"
+                                id="num-sepal-len"
+                                class="number-input"
+                                min="3.0"
+                                max="10.0"
+                                step="0.1"
+                                value="5.1"
+                            >
                         </div>
-                        <input type="range" id="sepal-len" min="3.0" max="10.0" step="0.1" value="5.1">
+
+                        <input
+                            type="range"
+                            id="sepal-len"
+                            min="3.0"
+                            max="10.0"
+                            step="0.1"
+                            value="5.1"
+                        >
                     </div>
 
                     <div class="feature-block">
                         <div class="feature-header">
-                            <span class="feature-title">Chiều rộng lá đài (Sepal Width)</span>
-                            <input type="number" id="num-sepal-wid" class="number-input" min="1.0" max="6.0" step="0.1" value="3.5">
+                            <label class="feature-title" for="num-sepal-wid">
+                                Chiều rộng lá đài (Sepal Width)
+                            </label>
+
+                            <input
+                                type="number"
+                                id="num-sepal-wid"
+                                class="number-input"
+                                min="1.0"
+                                max="6.0"
+                                step="0.1"
+                                value="3.5"
+                            >
                         </div>
-                        <input type="range" id="sepal-wid" min="1.0" max="6.0" step="0.1" value="3.5">
+
+                        <input
+                            type="range"
+                            id="sepal-wid"
+                            min="1.0"
+                            max="6.0"
+                            step="0.1"
+                            value="3.5"
+                        >
                     </div>
 
                     <div class="feature-block">
                         <div class="feature-header">
-                            <span class="feature-title">Chiều dài cánh hoa (Petal Length)</span>
-                            <input type="number" id="num-petal-len" class="number-input" min="0.1" max="10.0" step="0.1" value="1.4">
+                            <label class="feature-title" for="num-petal-len">
+                                Chiều dài cánh hoa (Petal Length)
+                            </label>
+
+                            <input
+                                type="number"
+                                id="num-petal-len"
+                                class="number-input"
+                                min="0.1"
+                                max="10.0"
+                                step="0.1"
+                                value="1.4"
+                            >
                         </div>
-                        <input type="range" id="petal-len" min="0.1" max="10.0" step="0.1" value="1.4">
+
+                        <input
+                            type="range"
+                            id="petal-len"
+                            min="0.1"
+                            max="10.0"
+                            step="0.1"
+                            value="1.4"
+                        >
                     </div>
 
                     <div class="feature-block">
                         <div class="feature-header">
-                            <span class="feature-title">Chiều rộng cánh hoa (Petal Width)</span>
-                            <input type="number" id="num-petal-wid" class="number-input" min="0.1" max="4.0" step="0.1" value="0.2">
+                            <label class="feature-title" for="num-petal-wid">
+                                Chiều rộng cánh hoa (Petal Width)
+                            </label>
+
+                            <input
+                                type="number"
+                                id="num-petal-wid"
+                                class="number-input"
+                                min="0.1"
+                                max="4.0"
+                                step="0.1"
+                                value="0.2"
+                            >
                         </div>
-                        <input type="range" id="petal-wid" min="0.1" max="4.0" step="0.1" value="0.2">
+
+                        <input
+                            type="range"
+                            id="petal-wid"
+                            min="0.1"
+                            max="4.0"
+                            step="0.1"
+                            value="0.2"
+                        >
                     </div>
 
-                    <button id="predict-btn" class="predict-button">Bấm để dự đoán</button>
+                    <button
+                        id="predict-btn"
+                        class="predict-button"
+                        type="button"
+                    >
+                        Bấm để dự đoán
+                    </button>
                 </div>
 
                 <div class="column-right">
-                    <div class="result-subtitle" id="subtitle-box" style="display: none;">Kết quả dự đoán</div>
-                    <p class="prediction-text" id="result">Chọn thông số và nhấp nút để dự đoán</p>
-                    
-                    <div class="content-split" id="content-split" style="display: none;">
-                        <div class="image-container" id="flower-img-container">
-                            <img src="" id="flower-img" alt="Iris Flower">
-                        </div>
-                        <div class="description-container" id="flower-desc"></div>
+                    <div
+                        class="result-subtitle"
+                        id="subtitle-box"
+                        style="display: none;"
+                    >
+                        Kết quả dự đoán
                     </div>
 
-                    <div class="confidence-container" id="confidence-box" style="display: none;">
+                    <p class="prediction-text" id="result">
+                        Chọn thông số và nhấp nút để dự đoán
+                    </p>
+
+                    <div
+                        class="content-split"
+                        id="content-split"
+                        style="display: none;"
+                    >
+                        <div class="image-container" id="flower-img-container">
+                            <img
+                                src=""
+                                id="flower-img"
+                                alt="Hình ảnh minh họa hoa Iris"
+                            >
+                        </div>
+
+                        <div
+                            class="description-container"
+                            id="flower-desc"
+                        ></div>
+                    </div>
+
+                    <div
+                        class="confidence-container"
+                        id="confidence-box"
+                        style="display: none;"
+                    >
                         <div class="prob-label">
-                            <span>Độ tin cậy dự đoán (Confidence):</span>
-                            <span id="highest-score" style="font-weight: bold; color: var(--primary-color);">0%</span>
+                            <span>Độ tin cậy dự đoán:</span>
+
+                            <span
+                                id="highest-score"
+                                style="font-weight: bold; color: var(--primary-color);"
+                            >
+                                0%
+                            </span>
                         </div>
-                        <p id="confidence-note" style="display:none; margin:0; color:#627086; font-size:13px;">API chưa cung cấp độ tin cậy cho dự đoán này.</p>
+
+                        <p
+                            id="confidence-note"
+                            style="display: none; margin: 0; color: #627086; font-size: 13px;"
+                        >
+                            API chưa cung cấp độ tin cậy cho dự đoán này.
+                        </p>
+
                         <div class="progress-bar-bg">
-                            <div id="highest-bar" class="progress-bar-fill"></div>
+                            <div
+                                id="highest-bar"
+                                class="progress-bar-fill"
+                            ></div>
                         </div>
-                        
+
                         <div class="classes-grid">
                             <div class="class-card" id="card-setosa">
                                 <div class="class-name">Setosa</div>
-                                <div class="class-score" id="score-setosa">0.0%</div>
+                                <div class="class-score" id="score-setosa">
+                                    0.0%
+                                </div>
                             </div>
+
                             <div class="class-card" id="card-versicolor">
                                 <div class="class-name">Versicolor</div>
-                                <div class="class-score" id="score-versicolor">0.0%</div>
+                                <div class="class-score" id="score-versicolor">
+                                    0.0%
+                                </div>
                             </div>
+
                             <div class="class-card" id="card-virginica">
                                 <div class="class-name">Virginica</div>
-                                <div class="class-score" id="score-virginica">0.0%</div>
+                                <div class="class-score" id="score-virginica">
+                                    0.0%
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- PHỎNG ĐOÁN CỦA 5 MÔ HÌNH -->
+            <section
+                id="model-predictions"
+                class="model-predictions"
+                hidden
+                aria-labelledby="model-predictions-title"
+            >
+                <div class="model-predictions-heading">
+                    <div>
+                        <span>SO SÁNH TRÊN CÙNG MỘT MẪU</span>
+
+                        <h2 id="model-predictions-title">
+                            Phỏng đoán của từng thuật toán
+                        </h2>
+
+                        <p>
+                            Cùng bốn số đo đầu vào, mỗi mô hình đưa ra
+                            nhãn và độ tin cậy riêng.
+                        </p>
+                    </div>
+
+                    <div
+                        id="model-agreement"
+                        class="model-agreement"
+                    ></div>
+                </div>
+
+                <div
+                    id="model-prediction-grid"
+                    class="model-prediction-grid"
+                ></div>
+
+                <p
+                    id="model-prediction-message"
+                    class="model-prediction-message"
+                    role="status"
+                ></p>
+            </section>
         </div>
 
-        <!-- TRANG 2: LỊCH SỬ DỰ ĐOÁN -->
-        <section id="page-history" class="page-section" aria-labelledby="history-title">
+        <!-- ======================================================
+             TRANG 2: LỊCH SỬ DỰ ĐOÁN
+        ======================================================= -->
+        <section
+            id="page-history"
+            class="page-section"
+            aria-labelledby="history-title"
+        >
             <div class="prediction-history">
+
                 <div class="history-header">
                     <div>
+<<<<<<< HEAD
+                        <p class="history-overline">
+                            NHẬT KÝ CỦA BẠN
+                        </p>
+
+                        <h2 id="history-title">
+                            Lịch sử dự đoán
+                        </h2>
+
+                        <p>
+                            Các lượt dự đoán được lưu trên trình duyệt này.
+                            Bấm “Dự đoán lại” để sử dụng lại bốn số đo.
+                        </p>
+                    </div>
+
+                    <div class="history-controls">
+                        <button
+                            id="export-predictions"
+                            class="history-clear"
+                            type="button"
+                            disabled
+                        >
+                            Xuất CSV
+                        </button>
+
+                        <button
+                            id="clear-predictions"
+                            class="history-clear"
+                            type="button"
+                            disabled
+                        >
+                            Xóa lịch sử
+                        </button>
+=======
                         <p class="history-overline">NHẬT KÝ CỦA BẠN</p>
                         <h2 id="history-title">Lịch sử dự đoán</h2>
                         <p>Các lượt dự đoán được lưu trên trình duyệt này. Bấm “Dự đoán lại ↗” ở một dòng để dùng lại bốn số đo.</p>
+>>>>>>> 1ca6c995aa6b5ff4c7ded73ac66b9bbfa9469d7b
                     </div>
-                    <div class="history-controls"><button id="export-predictions" class="history-clear" type="button" disabled>Xuất CSV</button><button id="clear-predictions" class="history-clear" type="button" disabled>Xóa lịch sử</button></div>
                 </div>
-                <p id="history-message" class="history-message" role="status" aria-live="polite"></p>
-                <div class="history-controls"><input id="history-search" type="search" placeholder="Tìm theo loài hoặc số đo…" aria-label="Tìm lịch sử dự đoán"><select id="history-filter" aria-label="Lọc theo loài"><option value="">Tất cả loài</option><option value="setosa">Setosa</option><option value="versicolor">Versicolor</option><option value="virginica">Virginica</option></select></div>
-                <p id="history-count" class="history-count" role="status"></p>
+
+                <p
+                    id="history-message"
+                    class="history-message"
+                    role="status"
+                    aria-live="polite"
+                ></p>
+
+                <div class="history-controls">
+                    <input
+                        id="history-search"
+                        type="search"
+                        placeholder="Tìm theo loài hoặc số đo…"
+                        aria-label="Tìm lịch sử dự đoán"
+                    >
+
+                    <select
+                        id="history-filter"
+                        aria-label="Lọc theo loài"
+                    >
+                        <option value="">Tất cả loài</option>
+                        <option value="setosa">Setosa</option>
+                        <option value="versicolor">Versicolor</option>
+                        <option value="virginica">Virginica</option>
+                    </select>
+                </div>
+
+                <p
+                    id="history-count"
+                    class="history-count"
+                    role="status"
+                ></p>
+
                 <div id="history-empty" class="history-empty">
                     <span aria-hidden="true">✿</span>
+
                     <h3>Chưa có lượt dự đoán nào</h3>
+<<<<<<< HEAD
+
+                    <p>
+                        Hãy dự đoán một bông hoa ở trang Dự đoán AI.
+                    </p>
+=======
                     <p>Hãy dự đoán một bông hoa ở trang Dự đoán AI.</p>
+>>>>>>> 1ca6c995aa6b5ff4c7ded73ac66b9bbfa9469d7b
                 </div>
-                <div id="history-table-wrap" class="history-table-wrap" hidden>
+
+                <div
+                    id="history-table-wrap"
+                    class="history-table-wrap"
+                    hidden
+                >
                     <table class="history-table">
+<<<<<<< HEAD
+                        <thead>
+                            <tr>
+                                <th>Thời gian</th>
+                                <th>Dài lá đài</th>
+                                <th>Rộng lá đài</th>
+                                <th>Dài cánh hoa</th>
+                                <th>Rộng cánh hoa</th>
+                                <th>Kết quả</th>
+                                <th>Độ tin cậy</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+
+=======
                         <thead><tr><th scope="col">Thời gian</th><th scope="col">Dài lá đài</th><th scope="col">Rộng lá đài</th><th scope="col">Dài cánh hoa</th><th scope="col">Rộng cánh hoa</th><th scope="col">Kết quả</th><th scope="col">Độ tin cậy</th><th scope="col">Thao tác</th></tr></thead>
+>>>>>>> 1ca6c995aa6b5ff4c7ded73ac66b9bbfa9469d7b
                         <tbody id="history-rows"></tbody>
                     </table>
-                    <p id="history-no-match" class="history-no-match" hidden>Không có dự đoán nào khớp bộ lọc.</p>
+
+                    <p
+                        id="history-no-match"
+                        class="history-no-match"
+                        hidden
+                    >
+                        Không có dự đoán nào khớp bộ lọc.
+                    </p>
                 </div>
             </div>
         </section>
 
+<<<<<<< HEAD
+        <!-- ======================================================
+             TRANG 3: PHÂN TÍCH VÀ ĐÁNH GIÁ
+        ======================================================= -->
+=======
         <!-- TRANG 3: PHÂN TÍCH DỮ LIỆU & BIỂU ĐỒ -->
+>>>>>>> 1ca6c995aa6b5ff4c7ded73ac66b9bbfa9469d7b
         <div id="page-2" class="page-section">
+
             <div class="info-card">
-                <h3>📊 Phân Tích Dữ Liệu & Biểu Đồ Iris</h3>
-                <p style="color: #718096; margin-top: -6px; margin-bottom: 22px;">Khám phá phân phối thống kê, quan hệ tương quan giữa các đặc trưng đài và cánh hoa.</p>
-                
-                <!-- 4 THẺ THỐNG KÊ TỔNG QUAN -->
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 25px;">
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 15px;">
-                        <div style="font-size: 11px; font-weight: 700; color: #718096; text-transform: uppercase; margin-bottom: 4px;">Tổng mẫu dữ liệu</div>
-                        <div style="font-size: 22px; font-weight: 800; color: #1a202c; margin-bottom: 4px;">150 mẫu</div>
-                        <div style="font-size: 11.5px; color: #38a169; font-weight: 600;">✓ Không khuyết thiếu</div>
+                <h3>📊 Phân tích dữ liệu Iris</h3>
+
+                <p style="color: #718096; margin-top: -6px; margin-bottom: 22px;">
+                    Khám phá phân phối thống kê và mối quan hệ giữa
+                    các đặc trưng lá đài và cánh hoa.
+                </p>
+
+                <!-- THỐNG KÊ TỔNG QUAN -->
+                <div
+                    style="
+                        display: grid;
+                        grid-template-columns: repeat(4, 1fr);
+                        gap: 14px;
+                        margin-bottom: 25px;
+                    "
+                >
+                    <div
+                        style="
+                            background: #f8fafc;
+                            border: 1px solid #e2e8f0;
+                            border-radius: 14px;
+                            padding: 15px;
+                        "
+                    >
+                        <div
+                            style="
+                                font-size: 11px;
+                                font-weight: 700;
+                                color: #718096;
+                                text-transform: uppercase;
+                            "
+                        >
+                            Tổng mẫu dữ liệu
+                        </div>
+
+                        <div
+                            style="
+                                font-size: 22px;
+                                font-weight: 800;
+                                color: #1a202c;
+                                margin: 4px 0;
+                            "
+                        >
+                            150 mẫu
+                        </div>
+
+                        <div
+                            style="
+                                font-size: 11.5px;
+                                color: #38a169;
+                                font-weight: 600;
+                            "
+                        >
+                            ✓ Không khuyết thiếu
+                        </div>
                     </div>
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 15px;">
-                        <div style="font-size: 11px; font-weight: 700; color: #718096; text-transform: uppercase; margin-bottom: 4px;">Số lớp (Classes)</div>
-                        <div style="font-size: 22px; font-weight: 800; color: #1a202c; margin-bottom: 4px;">3 loài</div>
-                        <div style="font-size: 11.5px; color: #6b46c1; font-weight: 600;">Setosa, Versicolor, Virginica</div>
+
+                    <div
+                        style="
+                            background: #f8fafc;
+                            border: 1px solid #e2e8f0;
+                            border-radius: 14px;
+                            padding: 15px;
+                        "
+                    >
+                        <div
+                            style="
+                                font-size: 11px;
+                                font-weight: 700;
+                                color: #718096;
+                                text-transform: uppercase;
+                            "
+                        >
+                            Số lớp
+                        </div>
+
+                        <div
+                            style="
+                                font-size: 22px;
+                                font-weight: 800;
+                                color: #1a202c;
+                                margin: 4px 0;
+                            "
+                        >
+                            3 loài
+                        </div>
+
+                        <div
+                            style="
+                                font-size: 11.5px;
+                                color: #6b46c1;
+                                font-weight: 600;
+                            "
+                        >
+                            Setosa, Versicolor, Virginica
+                        </div>
                     </div>
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 15px;">
-                        <div style="font-size: 11px; font-weight: 700; color: #718096; text-transform: uppercase; margin-bottom: 4px;">Thuộc tính</div>
-                        <div style="font-size: 22px; font-weight: 800; color: #1a202c; margin-bottom: 4px;">4 đặc trưng</div>
-                        <div style="font-size: 11.5px; color: #718096; font-weight: 600;">Đài & Cánh hoa (cm)</div>
+
+                    <div
+                        style="
+                            background: #f8fafc;
+                            border: 1px solid #e2e8f0;
+                            border-radius: 14px;
+                            padding: 15px;
+                        "
+                    >
+                        <div
+                            style="
+                                font-size: 11px;
+                                font-weight: 700;
+                                color: #718096;
+                                text-transform: uppercase;
+                            "
+                        >
+                            Thuộc tính
+                        </div>
+
+                        <div
+                            style="
+                                font-size: 22px;
+                                font-weight: 800;
+                                color: #1a202c;
+                                margin: 4px 0;
+                            "
+                        >
+                            4 đặc trưng
+                        </div>
+
+                        <div
+                            style="
+                                font-size: 11.5px;
+                                color: #718096;
+                                font-weight: 600;
+                            "
+                        >
+                            Lá đài và cánh hoa
+                        </div>
                     </div>
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 15px;">
-                        <div style="font-size: 11px; font-weight: 700; color: #718096; text-transform: uppercase; margin-bottom: 4px;">Độ cân bằng</div>
-                        <div style="font-size: 20px; font-weight: 800; color: #1a202c; margin-bottom: 4px;">Hoàn hảo</div>
-                        <div style="font-size: 11.5px; color: #38a169; font-weight: 600;">Đúng 50 mẫu/loài</div>
+
+                    <div
+                        style="
+                            background: #f8fafc;
+                            border: 1px solid #e2e8f0;
+                            border-radius: 14px;
+                            padding: 15px;
+                        "
+                    >
+                        <div
+                            style="
+                                font-size: 11px;
+                                font-weight: 700;
+                                color: #718096;
+                                text-transform: uppercase;
+                            "
+                        >
+                            Độ cân bằng
+                        </div>
+
+                        <div
+                            style="
+                                font-size: 20px;
+                                font-weight: 800;
+                                color: #1a202c;
+                                margin: 4px 0;
+                            "
+                        >
+                            Hoàn hảo
+                        </div>
+
+                        <div
+                            style="
+                                font-size: 11.5px;
+                                color: #38a169;
+                                font-weight: 600;
+                            "
+                        >
+                            50 mẫu mỗi loài
+                        </div>
                     </div>
                 </div>
-                
-                <!-- BIỂU ĐỒ 1: SCATTER PLOT -->
-                <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px; margin-bottom: 20px;">
-                    <h4 style="margin: 0 0 12px 0; color: #2d3748; font-size: 15px;">Biểu đồ Phân tán chiều dài vs chiều rộng cánh hoa (Petal)</h4>
-                    <div style="position: relative; height: 260px; width: 100%;">
+
+                <!-- BIỂU ĐỒ PHÂN TÁN -->
+                <div
+                    style="
+                        background: #fff;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 14px;
+                        padding: 18px;
+                        margin-bottom: 20px;
+                    "
+                >
+                    <h4
+                        style="
+                            margin: 0 0 12px;
+                            color: #2d3748;
+                            font-size: 15px;
+                        "
+                    >
+                        Biểu đồ phân tán chiều dài và chiều rộng cánh hoa
+                    </h4>
+
+                    <div style="position: relative; height: 260px;">
                         <canvas id="irisScatterChart"></canvas>
                     </div>
                 </div>
 
-                <!-- BIỂU ĐỒ 2: BAR CHART (BỔ SUNG THÊM) -->
-                <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px; margin-bottom: 25px;">
-                    <h4 style="margin: 0 0 12px 0; color: #2d3748; font-size: 15px;">Biểu đồ So sánh giá trị trung bình các đặc trưng giữa 3 loài</h4>
-                    <div style="position: relative; height: 260px; width: 100%;">
+                <!-- BIỂU ĐỒ GIÁ TRỊ TRUNG BÌNH -->
+                <div
+                    style="
+                        background: #fff;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 14px;
+                        padding: 18px;
+                        margin-bottom: 25px;
+                    "
+                >
+                    <h4
+                        style="
+                            margin: 0 0 12px;
+                            color: #2d3748;
+                            font-size: 15px;
+                        "
+                    >
+                        So sánh giá trị trung bình giữa ba loài
+                    </h4>
+
+                    <div style="position: relative; height: 260px;">
                         <canvas id="irisBarChart"></canvas>
                     </div>
                 </div>
 
-                <h3>🌸 Chi Tiết Đặc Điểm Từng Loài Hoa</h3>
-                <p style="color: #718096; margin-top: -6px; margin-bottom: 22px;">Để hiểu rõ hơn vì sao các biểu đồ trên lại có sự phân cụm và chênh lệch giá trị như vậy, hãy cùng nhìn lướt qua đặc điểm hình thái thực tế của từng loài:</p>
-                    <!-- === KHUNG GIỚI THIỆU LOÀI HOA TƯƠNG TÁC (TABBED SPECIES CARD) === -->
-                     <div style="margin-top: 35px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.03);">
-                        
-                        <!-- Tiêu đề khung -->
-                        <div style="text-align: center; margin-bottom: 20px;">
-                            <span style="background: #ede9fe; color: #6c5ce7; font-size: 18px; font-weight: 700; padding: 5px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;">Khám phá sinh học & Dữ liệu</span>
-                        </div>
+                <!-- THÔNG TIN CÁC LOÀI -->
+                <h3>🌸 Chi tiết đặc điểm từng loài hoa</h3>
 
-                        <!-- Các nút Tabs chuyển đổi loài -->
-                        <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 22px;">
-                            <button onclick="switchSpecies('setosa')" id="tab-setosa" class="species-tab active-tab" style="padding: 8px 18px; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid #38b2ac; background: #e6fffa; color: #00796b; transition: all 0.2s;">1. Iris Setosa</button>
-                            <button onclick="switchSpecies('versicolor')" id="tab-versicolor" class="species-tab" style="padding: 8px 18px; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid #cbd5e0; background: #f8fafc; color: #4a5568; transition: all 0.2s;">2. Iris Versicolor</button>
-                            <button onclick="switchSpecies('virginica')" id="tab-virginica" class="species-tab" style="padding: 8px 18px; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid #cbd5e0; background: #f8fafc; color: #4a5568; transition: all 0.2s;">3. Iris Virginica</button>
-                        </div>
+                <p style="color: #718096; margin-top: -6px;">
+                    Khám phá đặc điểm hình thái và dữ liệu của từng loài.
+                </p>
 
-                        <!-- Nội dung hiển thị của từng loài (Split Card Layout giống mẫu của bạn) -->
-                        <div style="display: flex; gap: 24px; align-items: center; background: #f8fafc; border: 1px solid #edf2f7; border-radius: 16px; padding: 20px;" id="species-content-box">
-        
-                            <!-- Hình ảnh bên trái -->
-                            <div style="flex: 1; display: flex; justify-content: center;">
-                                <img id="species-img" src="images/setosa.jpg" alt="Iris Species" style="width: 100%; max-height: 240px; object-fit: cover; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 2px solid white;">                            
-                            </div>
-
-                            <!-- Thông tin chi tiết bên phải -->
-                            <div style="flex: 1.3;" id="species-info">
-                                <h4 id="species-title" style="margin: 0 0 10px 0; color: #00796b; font-size: 18px;">Iris Setosa (Diên vĩ lông cứng)</h4>
-                                <ul style="margin: 0; padding-left: 18px; font-size: 13.5px; color: #4a5568; line-height: 1.6;">
-                                    <li style="margin-bottom: 6px;"><b>Cánh hoa (Petal):</b> <span id="info-petal">Rất ngắn và hẹp, kích thước nhỏ nhất trong 3 loài.</span></li>
-                                    <li style="margin-bottom: 6px;"><b>Lá đài (Sepal):</b> <span id="info-sepal">Tương đối rộng, hình bầu dục tròn trịa.</span></li>
-                                    <li style="margin-bottom: 6px;"><b>Tổng quan & Dữ liệu:</b> <span id="info-data">Tạo thành một cụm hoàn toàn tách biệt ở phía trái biểu đồ, dễ phân loại nhất.</span></li>
-                                    <li style="margin-bottom: 5px;"><b>Đặc tính sinh lý:</b> <span id="info-physiology">Chịu lạnh cực tốt, thích nghi với mùa đông dài băng giá.</span></li>
-                                    <li><b>Nơi sống:</b> <span id="info-habitat">Vùng khí hậu lạnh giá phía bắc, thích nghi với đất ẩm lạnh.</span></li>
-                                </ul>
-                            </div>
-
-                        </div>
+                <div
+                    style="
+                        margin-top: 35px;
+                        background: #ffffff;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 20px;
+                        padding: 25px;
+                        box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+                    "
+                >
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <span
+                            style="
+                                background: #ede9fe;
+                                color: #6c5ce7;
+                                font-size: 18px;
+                                font-weight: 700;
+                                padding: 5px 12px;
+                                border-radius: 20px;
+                            "
+                        >
+                            Khám phá sinh học &amp; dữ liệu
+                        </span>
                     </div>
 
-                    <!-- SCRIPT ĐIỀU KHIỂN TAB CHUYỂN ĐỔI -->
-                    <script>
-                        const speciesData = {
-                            'setosa': {
-                                title: "Iris Setosa",
-                                color: "#00796b",
-                                img: "setosa.jpg",
-                                petal: "Rất ngắn và hẹp, kích thước nhỏ nhất trong 3 loài. Có màu tím nhạt hoặc xanh lam đồng điệu với hoa nhưng trơn, không có các vệt màu vàng ở gốc.",
-                                sepal: "Tương đối rộng, hình bầu dục tròn trịa. Thường có màu xanh tím hoặc tím nhạt, ở gốc đài hoa có một vùng màu vàng sẫm hoặc vàng trắng kèm theo các đường gân đậm màu rất rõ nét.",
-                                data: "Tạo thành một cụm hoàn toàn tách biệt ở phía trái biểu đồ, dễ phân loại nhất.",
-                                physiology: "Chịu lạnh cực tốt, thích nghi với mùa đông dài băng giá.",
-                                habitat: "Vùng khí hậu lạnh giá phía bắc, thích nghi với đất ẩm lạnh.",
-                                bg: "#e6fffa", border: "#38b2ac"
-                            },
-                            'versicolor': {
-                                title: "Iris Versicolor",
-                                color: "#dd6b20",
-                                img: "versicolor.jpg",
-                                petal: "Kích thước nằm ở mức trung gian giữa setosa và virginica. Có màu sắc pha trộn giữa tím và xanh lam (đồng điệu với màu nền của hoa nhưng trơn, không có đốm vàng/trắng ở gốc).",
-                                sepal: "Thon dài, cân đối vừa phải. Có màu sắc rực rỡ pha trộn giữa tím, xanh lam và có các đốm vàng/trắng ở phần gốc.",
-                                data: "Nằm ở vùng trung gian trên biểu đồ, có sự giao thoa nhẹ với các loài khác.",
-                                physiology: "Sức sống dẻo dai, linh hoạt với sự thay đổi pH của đất.",
-                                habitat: "Phổ biến ở miền đông Bắc Mỹ, mọc hoang ở đất ẩm ướt, đầm lầy.",
-                                bg: "#fffaf0", border: "#f6ad55"
-                            },
-                            'virginica': {
-                                title: "Iris Virginica",
-                                color: "#6b46c1",
-                                img: "virginica.jpg",
-                                petal: "Dài và phát triển mạnh mẽ nhất trong 3 loài, có xu hướng hơi ngả nhẹ ra ngoài. Có màu tím/xanh đậm đồng màu với đài hoa, trơn và không có đốm vàng ở gốc, đôi khi có gân tím sẫm chạy dọc thân cánh. ",
-                                sepal: "Rộng, dài và khỏe khoắn. Mang sắc tím đậm hoặc xanh lam sẫm rực rỡ, ở gốc đài hoa có một đốm màu vàng tươi sáng (đốm mật) nổi bật nhưng các đường gân thường mờ hơn hoặc mịn hơn so với versicolor.",
-                                data: "Chiếm vị trí ở phía phải biểu đồ với các giá trị thông số cao nhất.",
-                                physiology: "Ưa sáng mạnh, phát triển nhanh khi có đủ ánh nắng mặt trời.",
-                                habitat: "Sinh trưởng mạnh tại các vùng ngập nước ven sông suối, đầm lầy.",
-                                bg: "#f5f3ff", border: "#b794f4"
-                            }
-                        };
+                    <div
+                        style="
+                            display: flex;
+                            justify-content: center;
+                            gap: 8px;
+                            margin-bottom: 22px;
+                            flex-wrap: wrap;
+                        "
+                    >
+                        <button
+                            onclick="switchSpecies('setosa')"
+                            id="tab-setosa"
+                            class="species-tab active-tab"
+                            type="button"
+                        >
+                            1. Iris Setosa
+                        </button>
 
-                        function switchSpecies(key) {
-                            // Cập nhật giao diện nút Tabs
-                            document.querySelectorAll('.species-tab').forEach(tab => {
-                                tab.style.background = "#f8fafc";
-                                tab.style.color = "#4a5568";
-                                tab.style.borderColor = "#cbd5e0";
-                            });
-                            
-                            const activeTab = document.getElementById(`tab-${key}`);
-                            const data = speciesData[key];
-        
-                            activeTab.style.background = data.bg;
-                            activeTab.style.color = data.color;
-                            activeTab.style.borderColor = data.border;
+                        <button
+                            onclick="switchSpecies('versicolor')"
+                            id="tab-versicolor"
+                            class="species-tab"
+                            type="button"
+                        >
+                            2. Iris Versicolor
+                        </button>
 
-                            // Cập nhật nội dung hiển thị
-                            document.getElementById('species-img').src = data.img;
-                            document.getElementById('species-title').innerText = data.title;
-                            document.getElementById('species-title').style.color = data.color;
-                            document.getElementById('info-petal').innerText = data.petal;
-                            document.getElementById('info-sepal').innerText = data.sepal;
-                            document.getElementById('info-data').innerText = data.data;
-                            document.getElementById('info-physiology').innerText = data.physiology;
-                            document.getElementById('info-habitat').innerText = data.habitat;
-                        }
-                    </script>
-                
-                
+                        <button
+                            onclick="switchSpecies('virginica')"
+                            id="tab-virginica"
+                            class="species-tab"
+                            type="button"
+                        >
+                            3. Iris Virginica
+                        </button>
+                    </div>
 
-                
+                    <div
+                        id="species-content-box"
+                        style="
+                            display: flex;
+                            gap: 24px;
+                            align-items: center;
+                            background: #f8fafc;
+                            border: 1px solid #edf2f7;
+                            border-radius: 16px;
+                            padding: 20px;
+                        "
+                    >
+                        <div
+                            style="
+                                flex: 1;
+                                display: flex;
+                                justify-content: center;
+                            "
+                        >
+                            <img
+                                id="species-img"
+                                src="/static/images/setosa.jpg"
+                                alt="Hoa Iris Setosa"
+                                style="
+                                    width: 100%;
+                                    max-height: 240px;
+                                    object-fit: cover;
+                                    border-radius: 14px;
+                                "
+                            >
+                        </div>
+
+                        <div style="flex: 1.3;" id="species-info">
+                            <h4
+                                id="species-title"
+                                style="
+                                    margin: 0 0 10px;
+                                    color: #00796b;
+                                    font-size: 18px;
+                                "
+                            >
+                                Iris Setosa
+                            </h4>
+
+                            <ul
+                                style="
+                                    margin: 0;
+                                    padding-left: 18px;
+                                    color: #4a5568;
+                                    line-height: 1.6;
+                                "
+                            >
+                                <li>
+                                    <strong>Cánh hoa:</strong>
+                                    <span id="info-petal">
+                                        Rất ngắn và hẹp.
+                                    </span>
+                                </li>
+
+                                <li>
+                                    <strong>Lá đài:</strong>
+                                    <span id="info-sepal">
+                                        Tương đối rộng.
+                                    </span>
+                                </li>
+
+                                <li>
+                                    <strong>Dữ liệu:</strong>
+                                    <span id="info-data">
+                                        Tạo thành cụm riêng biệt.
+                                    </span>
+                                </li>
+
+                                <li>
+                                    <strong>Đặc tính sinh lý:</strong>
+                                    <span id="info-physiology">
+                                        Có khả năng chịu lạnh.
+                                    </span>
+                                </li>
+
+                                <li>
+                                    <strong>Nơi sống:</strong>
+                                    <span id="info-habitat">
+                                        Các vùng khí hậu lạnh.
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- ===============================================
+                 ĐÁNH GIÁ 5 MÔ HÌNH
+            ================================================ -->
+            <section
+                class="evaluation-card"
+                aria-labelledby="evaluation-title"
+            >
+                <div class="evaluation-heading">
+                    <div>
+                        <span class="evaluation-eyebrow">
+                            MODEL BENCHMARK
+                        </span>
+
+                        <h2 id="evaluation-title">
+                            Đánh giá các mô hình phân loại
+                        </h2>
+
+                        <p>
+                            So sánh các phương pháp tuyến tính và phi tuyến tính
+                            trên cùng bộ dữ liệu Iris.
+                        </p>
+                    </div>
+
+                    <div
+                        id="evaluation-status"
+                        class="evaluation-status"
+                    >
+                        Đang tải kết quả…
+                    </div>
+                </div>
+
+                <div class="model-type-grid">
+                    <article class="model-type-card linear-type">
+                        <span>TUYẾN TÍNH</span>
+
+                        <h3>Ranh giới dạng đường phẳng</h3>
+
+                        <p>
+                            Linear SVM và Logistic Regression dễ diễn giải,
+                            phù hợp khi các lớp có thể phân tách tuyến tính.
+                        </p>
+                    </article>
+
+                    <article class="model-type-card nonlinear-type">
+                        <span>PHI TUYẾN TÍNH</span>
+
+                        <h3>Ranh giới phân loại linh hoạt</h3>
+
+                        <p>
+                            SVM RBF, KNN và Decision Tree có khả năng mô tả
+                            những quan hệ phức tạp hơn giữa các đặc trưng.
+                        </p>
+                    </article>
+                </div>
+
+                <div class="evaluation-summary">
+                    <div class="summary-chip">
+                        <span>Mô hình chính</span>
+                        <strong>SVM (RBF)</strong>
+                    </div>
+
+                    <div class="summary-chip">
+                        <span>Tập kiểm thử</span>
+                        <strong id="evaluation-test-size">—</strong>
+                    </div>
+
+                    <div class="summary-chip">
+                        <span>Random state</span>
+                        <strong id="evaluation-random-state">—</strong>
+                    </div>
+
+                    <div class="summary-chip">
+                        <span>Tốt nhất theo CV 5-fold</span>
+                        <strong id="evaluation-best-model">—</strong>
+                    </div>
+                </div>
+
+                <div class="evaluation-grid">
+                    <div class="evaluation-table-wrap">
+                        <table class="evaluation-table">
+                            <thead>
+                                <tr>
+                                    <th>Mô hình</th>
+                                    <th>Kiểu</th>
+                                    <th>Accuracy</th>
+                                    <th>Precision</th>
+                                    <th>Recall</th>
+                                    <th>F1-score</th>
+                                    <th>CV Accuracy</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="evaluation-rows"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="evaluation-chart-wrap">
+                        <canvas
+                            id="modelEvaluationChart"
+                            aria-label="Biểu đồ so sánh độ chính xác các mô hình"
+                        ></canvas>
+                    </div>
+                </div>
+
+                <p class="evaluation-note">
+                    <strong>Cách đọc:</strong>
+                    Accuracy, Precision, Recall và F1-score được tính trên
+                    30 mẫu kiểm thử. CV Accuracy là độ chính xác trung bình
+                    của kiểm định chéo 5-fold.
+                </p>
+            </section>
         </div>
 
+<<<<<<< HEAD
+        <!-- ======================================================
+             TRANG 4: CÂU CHUYỆN IRIS
+        ======================================================= -->
+=======
         <!-- TRANG 4: CÂU CHUYỆN IRIS -->
+>>>>>>> 1ca6c995aa6b5ff4c7ded73ac66b9bbfa9469d7b
         <div id="page-3" class="page-section">
             <article class="iris-story">
+
                 <header class="story-hero">
                     <div class="story-intro">
+<<<<<<< HEAD
+                        <span class="story-eyebrow">
+                            CÂU CHUYỆN IRIS
+                        </span>
+
+                        <h1>
+                            Từ một bông diên vĩ<br>
+                            đến bài toán AI
+                        </h1>
+
+                        <p>
+                            Một câu chuyện bắt đầu bằng quan sát thực vật,
+                            rồi trở thành ví dụ kinh điển của khoa học dữ liệu.
+                        </p>
+=======
                         <span class="story-eyebrow">CÂU CHUYỆN IRIS</span>
                         <h1>Từ một bông diên vĩ<br>đến bài toán AI</h1>
                         <p>Một câu chuyện bắt đầu bằng quan sát thực vật, rồi trở thành ví dụ kinh điển cho việc phân loại bằng dữ liệu.</p>
+>>>>>>> 1ca6c995aa6b5ff4c7ded73ac66b9bbfa9469d7b
                     </div>
+
                     <div class="story-art" aria-hidden="true">
-                        <svg viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="171" cy="142" r="114" fill="none" stroke="#9a87e4" opacity=".4" stroke-dasharray="3 7"/>
-                            <path d="M170 168c3 46 7 84 0 124M166 228c-31-29-52-29-67-16 24 5 47 21 66 35M173 246c24-35 47-40 71-36-21 10-41 27-68 53" fill="none" stroke="#9fcc9c" stroke-width="5" stroke-linecap="round"/>
-                            <path d="M169 137C122 97 104 71 133 52c31-18 40 43 36 85M169 137c13-68 26-88 55-75 36 19-5 53-55 75M168 138c-59-14-82-6-82 22 2 32 46 25 82-22M171 140c57-22 83-10 82 17-3 31-41 28-82-17M168 138c-37 25-47 61-26 73 29 15 40-23 26-73M172 139c42 23 49 61 28 73-27 12-37-19-28-73" fill="#c9b9ff" stroke="#e9dfff" stroke-width="3" stroke-linejoin="round"/>
-                            <path d="M169 138c-24-10-36-34-33-61 20 6 36 25 33 61M171 138c11-35 25-53 46-57-4 29-23 47-46 57M168 142c-31 12-56 5-70-11 28-13 53-8 70 11M173 143c36-15 56-9 70 6-27 11-48 7-70-6" fill="#815ee0" opacity=".8"/>
-                            <ellipse cx="170" cy="141" rx="22" ry="19" fill="#f8ce78"/><path d="M158 141c8-11 17-13 26-1" fill="none" stroke="#fff0b8" stroke-width="3"/>
+                        <svg
+                            viewBox="0 0 340 300"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <circle
+                                cx="171"
+                                cy="142"
+                                r="114"
+                                fill="none"
+                                stroke="#9a87e4"
+                                opacity=".4"
+                                stroke-dasharray="3 7"
+                            />
+
+                            <path
+                                d="M170 168c3 46 7 84 0 124M166 228c-31-29-52-29-67-16 24 5 47 21 66 35M173 246c24-35 47-40 71-36-21 10-41 27-68 53"
+                                fill="none"
+                                stroke="#9fcc9c"
+                                stroke-width="5"
+                                stroke-linecap="round"
+                            />
+
+                            <path
+                                d="M169 137C122 97 104 71 133 52c31-18 40 43 36 85M169 137c13-68 26-88 55-75 36 19-5 53-55 75M168 138c-59-14-82-6-82 22 2 32 46 25 82-22M171 140c57-22 83-10 82 17-3 31-41 28-82-17M168 138c-37 25-47 61-26 73 29 15 40-23 26-73M172 139c42 23 49 61 28 73-27 12-37-19-28-73"
+                                fill="#c9b9ff"
+                                stroke="#e9dfff"
+                                stroke-width="3"
+                            />
+
+                            <ellipse
+                                cx="170"
+                                cy="141"
+                                rx="22"
+                                ry="19"
+                                fill="#f8ce78"
+                            />
                         </svg>
+
                         <span>Botanical notes · Iris</span>
                     </div>
                 </header>
 
                 <div class="story-body">
-                    <section class="story-panel" aria-labelledby="story-title">
-                        <p class="story-label">Câu chuyện theo thời gian</p>
-                        <h2 id="story-title">Hoa Iris đã đi vào khoa học dữ liệu như thế nào?</h2>
+                    <section
+                        class="story-panel"
+                        aria-labelledby="story-title"
+                    >
+                        <p class="story-label">
+                            Câu chuyện theo thời gian
+                        </p>
+
+                        <h2 id="story-title">
+                            Hoa Iris đã đi vào khoa học dữ liệu như thế nào?
+                        </h2>
+
                         <div class="story-timeline">
-                            <div class="story-step"><strong>1935 · Edgar Anderson</strong><p>Nghiên cứu sự biến đổi hình thái của các loài diên vĩ, trong đó có hoa ở bán đảo Gaspé, Canada.</p></div>
-                            <div class="story-step"><strong>1936 · Ronald A. Fisher</strong><p>Dùng các phép đo của Anderson trong bài báo về cách phân biệt các nhóm bằng nhiều đặc điểm cùng lúc: "The use of multiple measurements in taxonomic problems" đăng trên Tạp chí Eugenics</p></div>
-                            <div class="story-step"><strong>Ngày nay · IrisAI Studio</strong><p>Tiếp nối chính câu hỏi đó: từ đặc điểm của một bông hoa, thử dự đoán nó thuộc loài nào, tạo thành thuật toán kinh điển trong suốt gần một thế kỉ qua.</p></div>
+                            <div class="story-step">
+                                <strong>1935 · Edgar Anderson</strong>
+
+                                <p>
+                                    Nghiên cứu sự biến đổi hình thái của
+                                    các loài hoa diên vĩ.
+                                </p>
+                            </div>
+
+                            <div class="story-step">
+                                <strong>1936 · Ronald A. Fisher</strong>
+
+                                <p>
+                                    Sử dụng các phép đo trong bài báo về
+                                    phân biệt các nhóm bằng nhiều đặc điểm.
+                                </p>
+                            </div>
+
+                            <div class="story-step">
+                                <strong>Ngày nay · IrisAI Studio</strong>
+
+                                <p>
+                                    Tiếp tục bài toán phân loại bằng các
+                                    mô hình học máy hiện đại.
+                                </p>
+                            </div>
                         </div>
                     </section>
-                    <div class="story-people-cards" aria-label="Hai nhân vật lịch sử">
+
+                    <div
+                        class="story-people-cards"
+                        aria-label="Hai nhân vật lịch sử"
+                    >
                         <h2>Hai người làm nên câu chuyện Iris</h2>
-                        <button class="person-flip" type="button" aria-label="Edgar Anderson, nhấn để xem câu chuyện" aria-pressed="false" onclick="flipPersonCard(this, 'Edgar Anderson')">
-                            <span class="person-flip-inner" aria-hidden="true">
+
+                        <button
+                            class="person-flip"
+                            type="button"
+                            aria-label="Edgar Anderson, nhấn để xem câu chuyện"
+                            aria-pressed="false"
+                            onclick="flipPersonCard(this, 'Edgar Anderson')"
+                        >
+                            <span
+                                class="person-flip-inner"
+                                aria-hidden="true"
+                            >
                                 <span class="person-face person-front">
-                
-                                    <span class="person-symbol">✧</span><span class="person-name">Edgar Anderson (1935)</span><span class="person-role">Người thu thập các phép đo thực tế</span><span class="person-hint">Chạm để lật thẻ ↗</span></span>
-                                <span class="person-face person-back"><span class="person-name">Edgar Anderson</span><span class="person-back-text">Nghiên cứu và đo đạc hình thái hoa diên vĩ, trong đó có mẫu từ bán đảo Gaspé. Những phép đo này là cơ sở cho nghiên cứu sau đó của Fisher.</span><span class="person-hint">Chạm để quay lại ↶</span></span>
+                                    <span class="person-symbol">✧</span>
+
+                                    <span class="person-name">
+                                        Edgar Anderson (1935)
+                                    </span>
+
+                                    <span class="person-role">
+                                        Người thu thập các phép đo thực tế
+                                    </span>
+
+                                    <span class="person-hint">
+                                        Chạm để lật thẻ ↗
+                                    </span>
+                                </span>
+
+                                <span class="person-face person-back">
+                                    <span class="person-name">
+                                        Edgar Anderson
+                                    </span>
+
+                                    <span class="person-back-text">
+                                        Nghiên cứu và đo đạc hình thái hoa
+                                        diên vĩ. Những phép đo này là cơ sở
+                                        cho nghiên cứu sau đó của Fisher.
+                                    </span>
+
+                                    <span class="person-hint">
+                                        Chạm để quay lại ↶
+                                    </span>
+                                </span>
                             </span>
                         </button>
-                        <button class="person-flip" type="button" aria-label="Sir Ronald A. Fisher, nhấn để xem câu chuyện" aria-pressed="false" onclick="flipPersonCard(this, 'Sir Ronald A. Fisher')">
-                            <span class="person-flip-inner" aria-hidden="true">
+
+                        <button
+                            class="person-flip"
+                            type="button"
+                            aria-label="Sir Ronald A. Fisher, nhấn để xem câu chuyện"
+                            aria-pressed="false"
+                            onclick="flipPersonCard(this, 'Sir Ronald A. Fisher')"
+                        >
+                            <span
+                                class="person-flip-inner"
+                                aria-hidden="true"
+                            >
                                 <span class="person-face person-front">
-                                    
-                                    <span class="person-symbol">✧</span><span class="person-name">Sir Ronald A. Fisher (1936)</span><span class="person-role">Người đưa các phép đo vào phân tích thống kê</span><span class="person-hint">Chạm để lật thẻ ↗</span></span>
-                                <span class="person-face person-back"><span class="person-name">Sir Ronald A. Fisher</span><span class="person-back-text">Dùng dữ liệu của Anderson trong bài báo <em>The Use of Multiple Measurements in Taxonomic Problems</em>, trình bày cách kết hợp nhiều phép đo để phân biệt các nhóm.</span><span class="person-hint">Chạm để quay lại ↶</span></span>
+                                    <span class="person-symbol">✧</span>
+
+                                    <span class="person-name">
+                                        Sir Ronald A. Fisher (1936)
+                                    </span>
+
+                                    <span class="person-role">
+                                        Người đưa các phép đo vào phân tích thống kê
+                                    </span>
+
+                                    <span class="person-hint">
+                                        Chạm để lật thẻ ↗
+                                    </span>
+                                </span>
+
+                                <span class="person-face person-back">
+                                    <span class="person-name">
+                                        Sir Ronald A. Fisher
+                                    </span>
+
+                                    <span class="person-back-text">
+                                        Dùng dữ liệu của Anderson trong bài báo
+                                        <em>
+                                            The Use of Multiple Measurements
+                                            in Taxonomic Problems
+                                        </em>.
+                                    </span>
+
+                                    <span class="person-hint">
+                                        Chạm để quay lại ↶
+                                    </span>
+                                </span>
                             </span>
                         </button>
                     </div>
                 </div>
-                <p class="story-sources">Nguồn tham khảo: <a href="https://doi.org/10.1111/j.1469-1809.1936.tb02137.x" target="_blank" rel="noopener noreferrer">Fisher (1936)</a> · <a href="https://archive.ics.uci.edu/dataset/53/iris" target="_blank" rel="noopener noreferrer">UCI Iris</a>.</p>
             </article>
         </div>
 
+<<<<<<< HEAD
+        <!-- ======================================================
+             TRANG 5: GIỚI HẠN CỦA MÔ HÌNH
+        ======================================================= -->
+        <div id="page-4" class="page-section">
+            <div class="info-card">
+                <h3>🧭 Giới hạn của mô hình</h3>
+
+                <p class="limits-intro">
+                    Kết quả dự đoán dùng để minh họa cách phân loại
+                    dữ liệu hoa Iris. Hãy cân nhắc các giới hạn sau:
+                </p>
+
+                <div class="limits-grid">
+                    <div class="limit-card">
+                        <h4>Chỉ có ba loài</h4>
+
+                        <p>
+                            Mô hình chỉ được huấn luyện để phân loại
+                            Iris setosa, Iris versicolor và Iris virginica.
+                        </p>
+                    </div>
+
+                    <div class="limit-card">
+                        <h4>Số đo khác thường</h4>
+
+                        <p>
+                            Kết quả có thể kém đáng tin cậy nếu số đo nằm
+                            ngoài phạm vi của dữ liệu huấn luyện.
+                        </p>
+                    </div>
+
+                    <div class="limit-card">
+                        <h4>Độ tin cậy có giới hạn</h4>
+
+                        <p>
+                            Phần trăm hiển thị là xác suất ước lượng,
+                            không phải sự bảo đảm tuyệt đối.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+=======
         <!-- TRANG 5: GIỚI HẠN CỦA MÔ HÌNH -->
         <div id="page-4" class="page-section">
             <div class="info-card">
@@ -981,9 +1902,21 @@
                 </div>
             </div>
         </div>
+>>>>>>> 1ca6c995aa6b5ff4c7ded73ac66b9bbfa9469d7b
 
-    </div>
+    <!-- JAVASCRIPT -->
+    <script src="/static/js/config.js"></script>
+    <script src="/static/js/navigation.js"></script>
+    <script src="/static/js/species.js"></script>
+    <script src="/static/js/storage.js"></script>
+    <script src="/static/js/history.js"></script>
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/model-comparison.js"></script>
+    <script src="/static/js/prediction.js"></script>
+    <script src="/static/js/evaluation.js"></script>
 
+<<<<<<< HEAD
+=======
     <!-- SCRIPT XỬ LÝ -->
     <script>
         function flipPersonCard(card, name) {
@@ -1402,5 +2335,6 @@
             });
         });
     </script>
+>>>>>>> 1ca6c995aa6b5ff4c7ded73ac66b9bbfa9469d7b
 </body>
 </html>
