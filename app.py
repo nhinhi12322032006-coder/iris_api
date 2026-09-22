@@ -293,4 +293,4 @@ def predict_all(data: IrisInput):
         raise HTTPException(
             status_code=500,
             detail=str(error),
-        )
+
