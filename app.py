@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import joblib
 import os
+from time import perf_counter
 
 
 # ĐƯỜNG DẪN TỆP
@@ -180,6 +181,7 @@ def run_prediction(
 
     selected_model = models[model_key]
 
+    started_at = perf_counter()
     prediction_idx = int(
         selected_model.predict(features)[0]
     )
@@ -187,6 +189,7 @@ def run_prediction(
     predicted_name = target_names[prediction_idx]
 
     scores = selected_model.predict_proba(features)[0]
+    prediction_time_ms = (perf_counter() - started_at) * 1000
 
     probabilities = {
         target_names[int(label)]: round(
@@ -208,6 +211,7 @@ def run_prediction(
         "prediction": predicted_name,
         "confidence": probabilities[predicted_name],
         "probabilities": probabilities,
+        "prediction_time_ms": round(prediction_time_ms, 3),
         "model_name": model_key,
         "model_display_name": model_names.get(
             model_key,
@@ -243,7 +247,6 @@ def predict(data: IrisInput):
             status_code=500,
             detail=str(error),
         )
-
 
 # DỰ ĐOÁN BẰNG TẤT CẢ MÔ HÌNH
 
