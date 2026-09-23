@@ -79,7 +79,7 @@
             const data = await response.json();
             for (const [key, item] of Object.entries(data.predictions || {})) {
                 predictionList.append(row({ name: item.model_display_name }, `Dự đoán: ${speciesNames[item.prediction] || item.prediction}`,
-                    [['Loài dự đoán', item.confidence], ['Setosa', item.probabilities?.setosa], ['Versicolor', item.probabilities?.versicolor], ['Virginica', item.probabilities?.virginica]],
+                    [['Loài dự đoán', item.confidence], ['Setosa', item.probabilities?.setosa], ['Versicolor', item.probabilities?.versicolor], ['Virginica', item.probabilities?.virginica], ['Thời gian dự đoán', item.prediction_time_ms, ' ms']],
                     key === data.default_model));
             }
             predictionStatus.textContent = `Đã so sánh ${data.total_models} mô hình trên cùng bốn số đo.`;
