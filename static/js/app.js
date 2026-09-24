@@ -345,8 +345,46 @@ window.addEventListener('DOMContentLoaded', () => {
     fetchPrediction(false);
 
     // Biểu đồ 1: Scatter Plot
+    const chartSpeciesInputs = [...document.querySelectorAll('input[name="chart-species"]')];
+    const chartFilterMessage = document.getElementById('chart-filter-message');
+    const separationGuides = {
+        id: 'separationGuides',
+        beforeDatasetsDraw(chart) {
+            const {ctx, chartArea, scales} = chart;
+            if (!chartArea || !scales.x) return;
+            const regions = [
+                {from: chartArea.left, to: scales.x.getPixelForValue(2.85), color: 'rgba(56, 178, 172, 0.10)'},
+                {from: scales.x.getPixelForValue(2.85), to: scales.x.getPixelForValue(5), color: 'rgba(221, 107, 32, 0.09)'},
+                {from: scales.x.getPixelForValue(5), to: chartArea.right, color: 'rgba(107, 70, 193, 0.09)'}
+            ];
+            ctx.save();
+            for (const [index, region] of regions.entries()) {
+                if (!chart.isDatasetVisible(index)) continue;
+                const left = Math.max(chartArea.left, region.from);
+                const right = Math.min(chartArea.right, region.to);
+                if (right > left) {
+                    ctx.fillStyle = region.color;
+                    ctx.fillRect(left, chartArea.top, right - left, chartArea.bottom - chartArea.top);
+                }
+            }
+            ctx.strokeStyle = 'rgba(74, 85, 104, 0.65)';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([5, 5]);
+            for (const [index, value] of [2.85, 5].entries()) {
+                if (!chart.isDatasetVisible(index) || !chart.isDatasetVisible(index + 1)) continue;
+                const x = scales.x.getPixelForValue(value);
+                if (x > chartArea.left && x < chartArea.right) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, chartArea.top);
+                    ctx.lineTo(x, chartArea.bottom);
+                    ctx.stroke();
+                }
+            }
+            ctx.restore();
+        }
+    };
     const ctxScatter = document.getElementById('irisScatterChart').getContext('2d');
-    new Chart(ctxScatter, {
+    const scatterChart = new Chart(ctxScatter, {
         type: 'scatter',
         data: {
             datasets: [
@@ -367,6 +405,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 }
             ]
         },
+        plugins: [separationGuides],
         options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -379,7 +418,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Biểu đồ 2: Bar Chart (So sánh thông số trung bình)
     const ctxBar = document.getElementById('irisBarChart').getContext('2d');
-    new Chart(ctxBar, {
+    const barChart = new Chart(ctxBar, {
         type: 'bar',
         data: {
             labels: ['Sepal Length', 'Sepal Width', 'Petal Length', 'Petal Width'],
@@ -412,4 +451,23 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    function updateChartSpecies() {
+        const selected = new Set(chartSpeciesInputs.filter(input => input.checked).map(input => input.value));
+        for (const chart of [scatterChart, barChart]) {
+            chart.data.datasets.forEach((dataset, index) => chart.setDatasetVisibility(index, selected.has(dataset.label)));
+            chart.update();
+        }
+        chartFilterMessage.textContent = selected.size === 3
+            ? 'Đang hiển thị cả 3 loài.'
+            : `Đang hiển thị: ${[...selected].join(', ')}.`;
+    }
+    chartSpeciesInputs.forEach(input => input.addEventListener('change', () => {
+        if (!chartSpeciesInputs.some(option => option.checked)) {
+            input.checked = true;
+            chartFilterMessage.textContent = 'Hãy giữ ít nhất một loài để hiển thị.';
+            return;
+        }
+        updateChartSpecies();
+    }));
 });

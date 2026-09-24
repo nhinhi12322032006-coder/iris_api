@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IrisAI Studio - Hệ thống khoa học dữ liệu</title>
+    <title>Iris Studio - Hệ thống khoa học dữ liệu</title>
     <!-- Nhúng thư viện Chart.js để vẽ biểu đồ ở trang 2 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="static/css/style.css">
+    <script src="static/js/theme.js?v=theme-1"></script>
+    <link rel="stylesheet" href="static/css/style.css?v=story-sources-1">
 </head>
 <body>
 
@@ -19,7 +20,7 @@
                 </svg>
             </div>
             <div class="nav-brand-text">
-                <span class="nav-title">IrisAI Studio</span>
+                <span class="nav-title">Iris Studio</span>
                 <span class="nav-subtitle">Hệ thống khoa học dữ liệu</span>
             </div>
         </div>
@@ -28,7 +29,7 @@
             <li>
                 <button class="nav-btn active" onclick="switchPage('page-1', this)">
                     <svg viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-8h2v2h4v2h-4v2h-2V5z"/></svg>
-                    Dự đoán AI
+                    Dự đoán 
                 </button>
             </li>
             <li>
@@ -55,6 +56,7 @@
                     Giới hạn của mô hình
                 </button>
             </li>
+            <li><button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Bật chế độ tối"><span id="theme-icon" aria-hidden="true">☾</span><span id="theme-label">Chế độ tối</span></button></li>
         </ul>
     </nav>
 
@@ -63,9 +65,15 @@
 
         <!-- TRANG 1: DỰ ĐOÁN AI -->
         <div id="page-1" class="page-section active">
+          <div class="prediction-stack">
             <div class="dashboard-card">
                 <div class="column-left">
                     <h2>Dự đoán hoa Iris</h2>
+                    <div class="prediction-modes" role="group" aria-label="Cách nhập số đo">
+                        <button id="mode-single" class="prediction-mode is-active" type="button" aria-pressed="true">✿ Nhập số đo</button>
+                        <button id="mode-file" class="prediction-mode" type="button" aria-pressed="false">▤ Tải tệp số đo</button>
+                    </div>
+                    <div id="manual-inputs" class="manual-inputs">
 
                     <div class="presets-container">
                         <span class="preset-label">MẪU NHANH:</span>
@@ -107,6 +115,21 @@
                     </div>
 
                     <button id="predict-btn" class="predict-button">Bấm để dự đoán</button>
+                    <button id="compare-current-input" class="predict-button" type="button" aria-controls="quick-comparison" aria-expanded="false">So sánh 5 mô hình</button>
+                    </div>
+                    <div id="batch-file-mode" class="batch-file-mode" hidden>
+                        <p class="batch-mode-intro">Mỗi dòng là một bông hoa. Dự đoán bằng SVM (RBF), rồi tải kết quả của cả tệp.</p>
+                        <label class="batch-upload-zone" for="batch-file" role="button" tabindex="0">
+                            <span class="batch-upload-icon" aria-hidden="true">↑</span>
+                            <strong>Chọn tệp CSV hoặc Excel</strong>
+                            <span id="batch-file-name">.csv hoặc .xlsx · tối đa 5 MB</span>
+                        </label>
+                        <input id="batch-file" class="batch-file-input" type="file" accept=".csv,.xlsx" aria-describedby="batch-status">
+                        <button id="batch-submit" class="predict-button" type="button">Dự đoán toàn bộ tệp</button>
+                        <p id="batch-status" class="batch-status" role="status" aria-live="polite">Chưa chọn tệp.</p>
+                        <div class="batch-helper"><a id="batch-template" href="#" download="iris-mau.csv">Tải tệp mẫu CSV ↓</a><span>Tối đa 2.000 dòng</span></div>
+                        <details class="batch-format"><summary>Xem định dạng bốn cột số đo</summary><p><code>sepal_length</code>, <code>sepal_width</code>, <code>petal_length</code>, <code>petal_width</code> (cm). Cũng chấp nhận <code>SepalLengthCm</code>, <code>SepalWidthCm</code>, <code>PetalLengthCm</code>, <code>PetalWidthCm</code>.</p></details>
+                    </div>
                 </div>
 
                 <div class="column-right">
@@ -147,6 +170,33 @@
                     </div>
                 </div>
             </div>
+                <section id="quick-comparison" class="quick-comparison" aria-labelledby="quick-comparison-title" hidden>
+                <div class="quick-comparison-header">
+                    <div>
+                        <span class="comparison-eyebrow">CÙNG BỐN SỐ ĐO · NĂM GÓC NHÌN</span>
+                        <h3 id="quick-comparison-title">Kết quả từ 5 mô hình</h3>
+                        <p>Mỗi mô hình dùng các số đo bạn đang nhập ở phía trên. Chỉnh số đo và bấm so sánh lại để xem kết quả mới.</p>
+                    </div>
+                    <button id="close-comparison" class="quick-comparison-close" type="button" aria-label="Đóng phần so sánh">×</button>
+                </div>
+                <p id="model-prediction-status" class="comparison-status" role="status" aria-live="polite"></p>
+                <div id="model-predictions" class="model-list" aria-live="polite"></div>
+                <p class="comparison-footnote">Thời gian tính bằng mili giây cho một lần dự đoán trên máy chủ và có thể thay đổi giữa các lần chạy. Xác suất của từng lần dự đoán không phải tỉ lệ dự đoán đúng của mô hình.</p>
+                </section>
+                <section id="batch-prediction" class="batch-prediction" aria-labelledby="batch-title" hidden>
+                    <div class="batch-heading">
+                        <div><span class="comparison-eyebrow">KẾT QUẢ THEO TỆP</span><h3 id="batch-title">Dự đoán nhiều bông hoa</h3><p id="batch-summary"></p></div>
+                        <button id="batch-download" class="batch-download" type="button" hidden>Tải toàn bộ kết quả CSV ↓</button>
+                    </div>
+                    <div id="batch-results-wrap" class="batch-results-wrap" hidden>
+                        <table class="batch-results-table">
+                            <thead><tr><th scope="col">Dòng</th><th scope="col">Số đo (cm)</th><th scope="col">Dự đoán</th><th scope="col">Độ tin cậy</th><th scope="col">Ghi chú</th></tr></thead>
+                            <tbody id="batch-results"></tbody>
+                        </table>
+                        <p id="batch-preview-note" class="batch-preview-note"></p>
+                    </div>
+                </section>
+          </div>
         </div>
 
         <!-- TRANG 2: LỊCH SỬ DỰ ĐOÁN -->
@@ -208,9 +258,18 @@
                     </div>
                 </div>
                 
+                <fieldset class="chart-species-filter" aria-label="Chọn loài hoa để hiển thị trên hai biểu đồ">
+                    <legend>Chọn loài hoa để hiển thị trên cả hai biểu đồ</legend>
+                    <label class="chart-species-option chart-species-setosa"><input type="checkbox" name="chart-species" value="Setosa" checked> Setosa</label>
+                    <label class="chart-species-option chart-species-versicolor"><input type="checkbox" name="chart-species" value="Versicolor" checked> Versicolor</label>
+                    <label class="chart-species-option chart-species-virginica"><input type="checkbox" name="chart-species" value="Virginica" checked> Virginica</label>
+                    <span id="chart-filter-message" class="chart-filter-message" role="status" aria-live="polite">Đang hiển thị cả 3 loài.</span>
+                </fieldset>
+
                 <!-- BIỂU ĐỒ 1: SCATTER PLOT -->
                 <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px; margin-bottom: 20px;">
                     <h4 style="margin: 0 0 12px 0; color: #2d3748; font-size: 15px;">Biểu đồ Phân tán chiều dài vs chiều rộng cánh hoa (Petal)</h4>
+                    <p class="chart-guide-note">Vùng màu và đường nét đứt giúp so sánh các nhóm số đo minh họa; không phải ranh giới phân loại của mô hình AI.</p>
                     <div style="position: relative; height: 260px; width: 100%;">
                         <canvas id="irisScatterChart"></canvas>
                     </div>
@@ -246,15 +305,6 @@
                             <p class="comparison-status">Đang tải kết quả đánh giá…</p>
                         </div>
                         <p id="model-evaluation-note" class="comparison-note"></p>
-
-                        <div class="comparison-rule" aria-hidden="true"><span>THỬ CÙNG MỘT BÔNG HOA</span></div>
-                        <div class="comparison-caption">
-                            <div><h4>So sánh dự đoán và xác suất</h4><p>Dùng bốn số đo đang nhập ở trang Dự đoán AI để xem cả năm mô hình đưa ra kết quả gì.</p></div>
-                        </div>
-                        <button type="button" id="compare-current-input" class="comparison-action">So sánh với số đo đang nhập <span aria-hidden="true">↗</span></button>
-                        <p id="model-prediction-status" class="comparison-status" role="status" aria-live="polite"></p>
-                        <div id="model-predictions" class="model-list" aria-live="polite"></div>
-                        <p class="comparison-footnote">Xác suất của từng lần dự đoán không phải tỉ lệ dự đoán đúng của mô hình. Hãy đối chiếu thêm các chỉ số trên tập kiểm tra.</p>
                     </div>
                 </section>
             </div>
@@ -312,7 +362,47 @@
                         </button>
                     </div>
                 </div>
-                <p class="story-sources">Nguồn tham khảo: <a href="https://doi.org/10.1111/j.1469-1809.1936.tb02137.x" target="_blank" rel="noopener noreferrer">Fisher (1936)</a> · <a href="https://archive.ics.uci.edu/dataset/53/iris" target="_blank" rel="noopener noreferrer">UCI Iris</a>.</p>
+                <section class="anatomy-explorer" aria-labelledby="anatomy-title">
+                    <div class="anatomy-heading">
+                        <span class="story-label">GIẢI MÃ BỐN CON SỐ</span>
+                        <h2 id="anatomy-title">AI “nhìn” bông hoa qua những phép đo nào?</h2>
+                        <p>Kéo các chấm tròn trên bông hoa để chỉnh số đo và xem kết quả dự đoán ngay bên cạnh.</p>
+                    </div>
+                    <div class="anatomy-layout">
+                        <div class="anatomy-illustration">
+                            <svg id="anatomy-flower" viewBox="0 0 360 320" role="group" aria-label="Sơ đồ hoa Iris: kéo chấm tròn trên cánh hoặc lá đài để chỉnh số đo" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="180" cy="144" r="114" fill="#f2eeff"/><circle cx="180" cy="144" r="96" fill="none" stroke="#d6ccf6" stroke-dasharray="3 7"/>
+                                <path d="M180 173c-4 44-4 89-2 140M179 265c-19-26-42-35-67-33 16 10 35 29 65 49M179 278c20-26 45-38 73-36-19 13-43 25-72 49" fill="none" stroke="#84a98b" stroke-width="5" stroke-linecap="round"/>
+                                <g data-anatomy="sepal_length" class="anatomy-svg-target" role="slider" tabindex="0" aria-label="Chiều dài lá đài" aria-valuemin="3" aria-valuemax="10" aria-valuenow="5.9"><path d="M180 158C129 150 94 177 65 210c46 6 92-2 115-52Z" fill="#78b9a0" stroke="#3b927c" stroke-width="3"/><path d="M83 201 163 163" class="anatomy-ruler"/><circle cx="73" cy="205" r="8" fill="#fff" stroke="#328a72" stroke-width="3"/></g>
+                                <g data-anatomy="sepal_width" class="anatomy-svg-target" role="slider" tabindex="0" aria-label="Chiều rộng lá đài" aria-valuemin="1" aria-valuemax="6" aria-valuenow="2.7"><path d="M182 159c38-18 91-1 112 42-47 12-89 5-112-42Z" fill="#a3d6b5" stroke="#3b927c" stroke-width="3"/><path d="m241 169 13 39" class="anatomy-ruler"/><circle cx="284" cy="196" r="8" fill="#fff" stroke="#328a72" stroke-width="3"/></g>
+                                <g data-anatomy="petal_length" class="anatomy-svg-target is-active" role="slider" tabindex="0" aria-label="Chiều dài cánh hoa" aria-valuemin="0.1" aria-valuemax="10" aria-valuenow="4.2"><path d="M180 151C142 120 124 82 145 45c25-28 46 13 35 106Z" fill="#9271df" stroke="#5e46b4" stroke-width="3"/><path d="m158 62 19 78" class="anatomy-ruler"/><circle cx="150" cy="51" r="8" fill="#fff" stroke="#6a51c6" stroke-width="3"/></g>
+                                <g data-anatomy="petal_width" class="anatomy-svg-target" role="slider" tabindex="0" aria-label="Chiều rộng cánh hoa" aria-valuemin="0.1" aria-valuemax="4" aria-valuenow="1.3"><path d="M181 150C175 101 193 58 227 48c39-3 36 55-46 102Z" fill="#bba2f3" stroke="#5e46b4" stroke-width="3"/><path d="m195 79 45 18" class="anatomy-ruler"/><circle cx="233" cy="57" r="8" fill="#fff" stroke="#6a51c6" stroke-width="3"/></g>
+                                <ellipse cx="181" cy="154" rx="20" ry="15" fill="#f3ca72" stroke="#fff2cb" stroke-width="3"/>
+                            </svg>
+                            <div class="anatomy-readouts" aria-label="Bốn số đo đang chọn">
+                                <div data-measurement="petal_length"><span>Cánh dài</span><strong id="anatomy-value-petal_length">4,2 cm</strong></div>
+                                <div data-measurement="petal_width"><span>Cánh rộng</span><strong id="anatomy-value-petal_width">1,3 cm</strong></div>
+                                <div data-measurement="sepal_length"><span>Đài dài</span><strong id="anatomy-value-sepal_length">5,9 cm</strong></div>
+                                <div data-measurement="sepal_width"><span>Đài rộng</span><strong id="anatomy-value-sepal_width">2,7 cm</strong></div>
+                            </div>
+                            <span>Kéo chấm tròn để chỉnh số đo · hình chỉ minh họa</span>
+                        </div>
+                        <div class="anatomy-details">
+                            <div class="anatomy-options" role="group" aria-label="Chọn số đo hoa Iris">
+                                <button class="anatomy-option is-active" data-anatomy="petal_length" type="button" aria-pressed="true"><span>01 · Cánh hoa</span><strong>Chiều dài</strong></button>
+                                <button class="anatomy-option" data-anatomy="petal_width" type="button" aria-pressed="false"><span>02 · Cánh hoa</span><strong>Chiều rộng</strong></button>
+                                <button class="anatomy-option" data-anatomy="sepal_length" type="button" aria-pressed="false"><span>03 · Lá đài</span><strong>Chiều dài</strong></button>
+                                <button class="anatomy-option" data-anatomy="sepal_width" type="button" aria-pressed="false"><span>04 · Lá đài</span><strong>Chiều rộng</strong></button>
+                            </div>
+                            <div class="anatomy-explanation" aria-live="polite"><span id="anatomy-field">PETAL LENGTH · cm</span><h3 id="anatomy-name">Chiều dài cánh hoa</h3><p id="anatomy-description">Đo theo trục dài của cánh hoa, từ gốc cánh đến đầu cánh. Đây là một trong bốn số đo đầu vào của mô hình.</p></div>
+                            <div class="anatomy-prediction" aria-live="polite" aria-atomic="true">
+                                <span class="anatomy-prediction-label">KẾT QUẢ TỪ BỐN SỐ ĐO</span>
+                                <strong id="anatomy-prediction-species">—</strong>
+                                <p id="anatomy-prediction-status">Đang kết nối mô hình...</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </article>
             <div class="info-card species-section">
                 <h3>🌸 Chi Tiết Đặc Điểm Từng Loài Hoa</h3>
@@ -356,6 +446,10 @@
                     </div>
 
             </div>
+                <footer class="story-sources" aria-label="Nguồn tham khảo và nguồn ảnh hoa">
+                    <p><strong>Nguồn tham khảo:</strong> <a href="https://doi.org/10.1111/j.1469-1809.1936.tb02137.x" target="_blank" rel="noopener noreferrer">Fisher (1936)</a> · <a href="https://archive.ics.uci.edu/dataset/53/iris" target="_blank" rel="noopener noreferrer">UCI Iris</a>.</p>
+                    <p><strong>Nguồn ảnh hoa:</strong> <a href="https://www.ebay.com/itm/225757697490" target="_blank" rel="noopener noreferrer">Iris setosa — eBay</a> · <a href="https://vi.wikipedia.org/wiki/Iris_versicolor" target="_blank" rel="noopener noreferrer">Iris versicolor — Wikipedia</a> · <a href="https://mowildflowers.net/iris-virginica-southern-blue-flag/" target="_blank" rel="noopener noreferrer">Iris virginica — Missouri Wildflowers Nursery</a>.</p>
+                </footer>
             </div>
         </div>
 
@@ -369,6 +463,17 @@
                     <div class="limit-card"><h4>Số đo khác thường</h4><p>Khi nhập số đo nằm ngoài phạm vi thường gặp trong dữ liệu huấn luyện, kết quả có thể kém đáng tin cậy. Hãy kiểm tra đơn vị centimet và bốn phép đo trước khi dùng kết quả.</p></div>
                     <div class="limit-card"><h4>Độ tin cậy có giới hạn</h4><p>Phần trăm hiển thị là xác suất ước lượng của mô hình cho ba loài đã học, không phải bảo đảm rằng bông hoa được nhận diện đúng.</p></div>
                 </div>
+                <section class="limits-explorer" aria-labelledby="limits-explorer-title">
+                    <div class="limits-explorer-heading"><span>THỬ MỘT TÌNH HUỐNG</span><h3 id="limits-explorer-title">Khi nào cần đọc kết quả cẩn thận hơn?</h3><p>Chọn một tình huống để xem cách hiểu kết quả dự đoán.</p></div>
+                    <div class="limits-explorer-layout">
+                        <div class="limits-cases" role="group" aria-label="Các tình huống minh họa">
+                            <button class="limits-case is-active" type="button" data-case="unusual" aria-pressed="true"><span class="limits-case-index">01</span><span><strong>Số đo khác thường</strong><small>Ví dụ: cánh hoa dài 9,8 cm</small></span><span aria-hidden="true">↗</span></button>
+                            <button class="limits-case" type="button" data-case="unknown" aria-pressed="false"><span class="limits-case-index">02</span><span><strong>Loài không có trong dữ liệu</strong><small>Ví dụ: một loài Iris khác</small></span><span aria-hidden="true">↗</span></button>
+                            <button class="limits-case" type="button" data-case="confidence" aria-pressed="false"><span class="limits-case-index">03</span><span><strong>Độ tin cậy rất cao</strong><small>Ví dụ: mô hình hiển thị 97%</small></span><span aria-hidden="true">↗</span></button>
+                        </div>
+                        <div class="limits-case-answer" aria-live="polite"><span id="limits-case-tag">TÌNH HUỐNG 01 · SỐ ĐO</span><h4 id="limits-case-question">Nếu cánh hoa dài 9,8 cm thì sao?</h4><p id="limits-case-response">Mô hình vẫn có thể trả về một trong ba loài đã học, nhưng đây là số đo khác thường. Tên loài được trả về không xác nhận rằng mẫu hoa thực sự thuộc loài đó.</p><div class="limits-case-tip"><strong>Nên làm gì?</strong><p id="limits-case-action">Kiểm tra lại số đo, đơn vị centimet và so sánh với phạm vi dữ liệu Iris trước khi sử dụng kết quả.</p></div><small>Các tình huống này chỉ minh họa cách đọc kết quả; phần này không chạy dự đoán mới.</small></div>
+                    </div>
+                </section>
             </div>
         </div>
 
@@ -376,7 +481,9 @@
 
     <!-- SCRIPT XỬ LÝ -->
     <script src="static/js/species.js"></script>
-    <script src="static/js/app.js"></script>
+    <script src="static/js/app.js?v=batch-upload-1"></script>
     <script src="static/js/comparison.js"></script>
+    <script src="static/js/batch.js?v=batch-mode-1"></script>
+    <script src="static/js/explore.js?v=anatomy-drag-1"></script>
 </body>
 </html>

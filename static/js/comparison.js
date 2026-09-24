@@ -1,12 +1,15 @@
-// Phần so sánh chỉ hoạt động trên trang Phân tích dữ liệu.
+// Chỉ số đánh giá ở trang Phân tích; so sánh số đo ở trang Dự đoán AI.
 (() => {
-    const apiBase = 'https://iris-api-5jf3.onrender.com';
+    const apiBase = window.location.origin;
     const evaluationList = document.getElementById('model-evaluations');
     const evaluationNote = document.getElementById('model-evaluation-note');
     const predictionList = document.getElementById('model-predictions');
     const predictionStatus = document.getElementById('model-prediction-status');
     const compareButton = document.getElementById('compare-current-input');
+    const comparisonPanel = document.getElementById('quick-comparison');
+    const closeButton = document.getElementById('close-comparison');
     const speciesNames = { setosa: 'Setosa', versicolor: 'Versicolor', virginica: 'Virginica' };
+    let requestId = 0;
 
     function metric(label, value, unit = '%') {
         const box = document.createElement('div');
@@ -60,12 +63,16 @@
     }
 
     compareButton.addEventListener('click', async () => {
+        comparisonPanel.hidden = false;
+        compareButton.setAttribute('aria-expanded', 'true');
+        requestAnimationFrame(() => comparisonPanel.scrollIntoView({ behavior: 'smooth', block: 'start' }));
         const ids = ['num-sepal-len', 'num-sepal-wid', 'num-petal-len', 'num-petal-wid'];
         const numbers = ids.map(id => Number(document.getElementById(id).value));
         if (numbers.some(value => !Number.isFinite(value) || value <= 0)) {
-            predictionStatus.textContent = 'Vui lòng nhập đủ bốn số đo lớn hơn 0 ở trang Dự đoán AI.';
+            predictionStatus.textContent = 'Vui lòng nhập đủ bốn số đo lớn hơn 0 ở phía trên.';
             return;
         }
+        const currentRequest = ++requestId;
         compareButton.disabled = true;
         predictionStatus.textContent = 'Đang so sánh các mô hình…';
         predictionList.replaceChildren();
@@ -77,17 +84,44 @@
             });
             if (!response.ok) throw new Error('API chưa có /predict/all');
             const data = await response.json();
+            if (currentRequest !== requestId) return;
             for (const [key, item] of Object.entries(data.predictions || {})) {
                 predictionList.append(row({ name: item.model_display_name }, `Dự đoán: ${speciesNames[item.prediction] || item.prediction}`,
-                    [['Loài dự đoán', item.confidence], ['Setosa', item.probabilities?.setosa], ['Versicolor', item.probabilities?.versicolor], ['Virginica', item.probabilities?.virginica], ['Thời gian dự đoán', item.prediction_time_ms, ' ms']],
+                    [['Độ tin cậy', item.confidence], ['Setosa', item.probabilities?.setosa], ['Versicolor', item.probabilities?.versicolor], ['Virginica', item.probabilities?.virginica], ['Thời gian dự đoán', item.prediction_time_ms, ' ms']],
                     key === data.default_model));
             }
             predictionStatus.textContent = `Đã so sánh ${data.total_models} mô hình trên cùng bốn số đo.`;
         } catch (error) {
-            predictionStatus.textContent = 'Chưa thể so sánh. Hãy cập nhật app.py và tệp mô hình trên máy chủ.';
+            if (currentRequest === requestId) predictionStatus.textContent = 'Chưa thể so sánh. Hãy kiểm tra API đang chạy và thử lại.';
         } finally {
-            compareButton.disabled = false;
+            if (currentRequest === requestId) compareButton.disabled = false;
         }
+    });
+
+    closeButton.addEventListener('click', () => {
+        requestId++;
+        comparisonPanel.hidden = true;
+        compareButton.disabled = false;
+        compareButton.setAttribute('aria-expanded', 'false');
+        compareButton.focus();
+    });
+
+    function invalidateComparison() {
+        if (comparisonPanel.hidden) return;
+        requestId++;
+        compareButton.disabled = false;
+        predictionList.replaceChildren();
+        predictionStatus.textContent = 'Số đo đã thay đổi. Bấm “So sánh 5 mô hình” để xem kết quả mới.';
+    }
+
+    ['num-sepal-len', 'num-sepal-wid', 'num-petal-len', 'num-petal-wid', 'sepal-len', 'sepal-wid', 'petal-len', 'petal-wid'].forEach(id => {
+        document.getElementById(id).addEventListener('input', invalidateComparison);
+    });
+    document.querySelectorAll('.preset-btn').forEach(button => {
+        button.addEventListener('click', invalidateComparison);
+    });
+    document.addEventListener('click', event => {
+        if (event.target.closest('.history-retry')) invalidateComparison();
     });
 
     loadEvaluations();
