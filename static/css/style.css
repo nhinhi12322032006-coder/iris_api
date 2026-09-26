@@ -879,3 +879,834 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .theme-dark #page-2 [style*="color: #718096"],
 .theme-dark #page-3 [style*="color: #718096"] { color: #c4cbe0 !important; }
 .theme-dark #species-title { color: #9ce7d9 !important; }
+/* ================================
+   ĐĂNG NHẬP / ĐĂNG KÝ
+   ================================ */
+
+   .auth-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(6px);
+}
+
+.auth-overlay[hidden] {
+    display: none;
+}
+
+.auth-card {
+    width: min(420px, 100%);
+    padding: 32px;
+    border-radius: 20px;
+    background: var(--card-bg, #ffffff);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+}
+
+.auth-card h2 {
+    margin: 0 0 8px;
+    text-align: center;
+}
+
+.auth-card > p {
+    margin: 0 0 24px;
+    text-align: center;
+}
+
+.auth-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.auth-card label {
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+.auth-card input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 13px;
+    border: 1px solid #cbd5e0;
+    border-radius: 10px;
+    font-size: 15px;
+}
+
+.auth-card form button {
+    margin-top: 14px;
+    padding: 12px;
+    border: 0;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+#auth-message {
+    min-height: 22px;
+    margin-top: 14px;
+}
+
+#auth-switch {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+/* Chỉ hiện Iris Studio sau khi đăng nhập */
+body:not(.is-authenticated) > .navbar,
+body:not(.is-authenticated) > .main-container {
+    display: none !important;
+}
+
+body.is-authenticated > .auth-overlay {
+    display: none !important;
+}
+
+/* Tài khoản và nút đăng xuất */
+.account-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 12px;
+    border-left: 1px solid #e6e2f2;
+}
+
+.account-name {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #514570;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.logout-btn {
+    padding: 9px 13px;
+    border: 1px solid #ddd6f8;
+    border-radius: 10px;
+    background: #f7f5ff;
+    color: #5842ae;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.logout-btn:hover {
+    background: #eee9ff;
+}
+
+.logout-btn:focus-visible,
+.auth-card button:focus-visible,
+.auth-card input:focus-visible {
+    outline: 3px solid #a995ed;
+    outline-offset: 2px;
+}
+
+/* Màn hình đăng nhập và đăng ký */
+.auth-overlay {
+    box-sizing: border-box;
+    padding: 24px;
+    overflow-y: auto;
+    background: #f1effa;
+    backdrop-filter: none;
+}
+
+.auth-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(380px, .88fr);
+    width: min(1080px, 100%);
+    min-height: min(680px, calc(100vh - 48px));
+    overflow: hidden;
+    border-radius: 28px;
+    background: #fff;
+    box-shadow: 0 25px 75px rgba(46, 36, 102, .15);
+}
+
+.auth-intro {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    padding: 38px 44px;
+    background:
+        radial-gradient(circle at 85% 85%, #836bdd 0, transparent 43%),
+        linear-gradient(145deg, #372772, #6650c7);
+    color: #fff;
+}
+
+.auth-intro::before {
+    content: '';
+    position: absolute;
+    width: 360px;
+    height: 360px;
+    right: -140px;
+    top: -145px;
+    border: 1px solid rgba(255, 255, 255, .25);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 65px rgba(255, 255, 255, .045),
+        0 0 0 132px rgba(255, 255, 255, .035);
+}
+
+.auth-brand {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -.4px;
+}
+
+.auth-brand-icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: rgba(255, 255, 255, .2);
+    font-size: 28px;
+}
+
+.auth-intro-content {
+    position: relative;
+    max-width: 440px;
+    padding: 60px 0;
+}
+
+.auth-eyebrow,
+.auth-intro-footer,
+.auth-card-eyebrow {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .16em;
+}
+
+.auth-eyebrow {
+    color: #dfd6ff;
+}
+
+.auth-intro h1 {
+    margin: 18px 0;
+    font-size: clamp(36px, 4vw, 55px);
+    line-height: 1.12;
+    letter-spacing: -.04em;
+}
+
+.auth-intro p {
+    max-width: 350px;
+    line-height: 1.65;
+    color: #eee9ff;
+}
+
+.auth-flower {
+    position: absolute;
+    right: -75px;
+    bottom: -85px;
+    color: rgba(255, 255, 255, .13);
+    font-size: 260px;
+    line-height: 1;
+    transform: rotate(-20deg);
+    pointer-events: none;
+}
+
+.auth-intro-footer {
+    position: relative;
+    color: #dcd3ff;
+}
+
+.auth-card {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 48px clamp(30px, 5vw, 74px);
+    border-radius: 0;
+    box-shadow: none;
+    background: #fff;
+}
+
+.auth-card-inner {
+    width: 100%;
+    max-width: 360px;
+}
+
+.auth-card-mark {
+    display: none;
+}
+
+.auth-card-eyebrow {
+    color: #7157cd;
+}
+
+.auth-card h2 {
+    margin: 12px 0 8px;
+    text-align: left;
+    color: #28213d;
+    font-size: 36px;
+    letter-spacing: -.035em;
+}
+
+.auth-card #auth-subtitle {
+    margin: 0 0 30px;
+    color: #697189;
+    line-height: 1.5;
+}
+
+.auth-card form {
+    gap: 0;
+}
+
+.auth-card label {
+    margin: 0 0 8px;
+    color: #322c47;
+    font-size: 13px;
+}
+
+.auth-card input {
+    margin: 0 0 18px;
+    padding: 13px 14px;
+    border-color: #d9d6e4;
+    background: #faf9ff;
+    font: inherit;
+    font-size: 14px;
+}
+
+.auth-card input::placeholder {
+    color: #9996a8;
+}
+
+.auth-card #register-fields {
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-card #register-fields[hidden] {
+    display: none;
+}
+
+.auth-card form #auth-submit {
+    margin-top: 9px;
+    padding: 14px;
+    background: #6c5ce7;
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    box-shadow: 0 8px 18px rgba(108, 92, 231, .2);
+}
+
+.auth-card form #auth-submit:hover:not(:disabled) {
+    background: #5948d1;
+}
+
+.auth-card form #auth-submit:disabled {
+    opacity: .65;
+    cursor: wait;
+}
+
+.auth-card #auth-message {
+    min-height: 22px;
+    margin: 15px 0 0;
+    color: #a13758;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.auth-card #auth-switch {
+    margin-top: 4px;
+    color: #6148c4;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.auth-card #auth-switch:hover {
+    text-decoration: underline;
+}
+
+/* Chế độ tối */
+.theme-dark .account-actions {
+    border-color: #5c527f;
+}
+
+.theme-dark .account-name {
+    color: #eee9ff;
+}
+
+.theme-dark .logout-btn {
+    background: #302a4e;
+    border-color: #5c527f;
+    color: #f3ecff;
+}
+
+.theme-dark .auth-overlay {
+    background: #171a2a;
+}
+
+.theme-dark .auth-card {
+    background: #23283d;
+}
+
+.theme-dark .auth-card h2,
+.theme-dark .auth-card label {
+    color: #f3f0ff;
+}
+
+.theme-dark .auth-card #auth-subtitle {
+    color: #c4cbe0;
+}
+
+.theme-dark .auth-card input {
+    background: #1c2134;
+    border-color: #4b5270;
+    color: #fff;
+}
+
+/* Điện thoại */
+@media (max-width: 760px) {
+    .auth-overlay {
+        padding: 14px;
+        align-items: flex-start;
+    }
+
+    .auth-layout {
+        grid-template-columns: 1fr;
+        min-height: calc(100vh - 28px);
+    }
+
+    .auth-intro {
+        min-height: 160px;
+        padding: 22px 28px;
+    }
+
+    .auth-intro-content {
+        padding: 24px 0 0;
+    }
+
+    .auth-intro h1 {
+        margin: 8px 0;
+        font-size: 25px;
+    }
+
+    .auth-intro p,
+    .auth-intro-footer,
+    .auth-flower {
+        display: none;
+    }
+
+    .auth-card {
+        padding: 36px 28px 50px;
+    }
+
+    .account-actions {
+        border: 0;
+        padding-left: 0;
+    }
+}
+/* Thẻ tài khoản ở góc phải navbar */
+.account-actions {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    gap: 8px;
+    padding-left: 12px;
+    border-left: 1px solid #e6e2f2;
+}
+
+.account-profile {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    padding: 5px 12px 5px 5px;
+    border: 1px solid #e8e3fa;
+    border-radius: 999px;
+    background: #f8f6ff;
+}
+
+.account-avatar {
+    display: grid;
+    place-items: center;
+    flex: 0 0 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8a6bf0, #6651d8);
+    color: white;
+    font-size: 23px;
+    line-height: 1;
+}
+
+.account-meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.15;
+}
+
+.account-meta small {
+    margin-bottom: 3px;
+    color: #8b82a8;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .09em;
+}
+
+.account-name {
+    display: block;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #3e315d;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.logout-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 42px;
+    padding: 0 12px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: transparent;
+    color: #67577f;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .2s, color .2s;
+}
+
+.logout-btn:hover {
+    background: #f0ebff;
+    color: #5b44ba;
+}
+
+.logout-btn:focus-visible {
+    outline: 3px solid #a995ed;
+    outline-offset: 2px;
+}
+
+/* Chế độ tối */
+.theme-dark .account-actions {
+    border-color: #5c527f;
+}
+
+.theme-dark .account-profile {
+    border-color: #51496e;
+    background: #302a4e;
+}
+
+.theme-dark .account-meta small {
+    color: #aaa0c7;
+}
+
+.theme-dark .account-name {
+    color: #f3ecff;
+}
+
+.theme-dark .logout-btn {
+    color: #d6cafa;
+}
+
+.theme-dark .logout-btn:hover {
+    background: #40365f;
+}
+
+@media (max-width: 760px) {
+    .account-actions {
+        padding-left: 0;
+        border: 0;
+    }
+}
+/* Đổi mật khẩu trong khu vực tài khoản */
+.change-password-btn {
+    padding: 10px 13px;
+    border: 1px solid #ddd6f8;
+    border-radius: 999px;
+    background: #f7f5ff;
+    color: #5842ae;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.change-password-btn:hover {
+    background: #eee9ff;
+}
+
+.password-dialog[hidden] {
+    display: none;
+}
+
+.password-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+}
+
+.password-dialog-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(22, 17, 47, .6);
+}
+
+.password-dialog-card {
+    position: relative;
+    box-sizing: border-box;
+    width: min(440px, 100%);
+    padding: 32px;
+    border: 1px solid #e5def9;
+    border-radius: 24px;
+    background: #fff;
+    box-shadow: 0 24px 70px rgba(25, 16, 72, .25);
+}
+
+.password-dialog-icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: #ede9ff;
+    color: #6c5ce7;
+    font-size: 30px;
+}
+
+.password-dialog-card h2 {
+    margin: 16px 0 6px;
+    color: #30264c;
+    font-size: 24px;
+}
+
+.password-dialog-card > p {
+    margin: 0 0 23px;
+    color: #727089;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.password-dialog-close {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    border: 0;
+    background: none;
+    color: #706b84;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.password-dialog-card label {
+    display: block;
+    margin: 14px 0 7px;
+    color: #3e3653;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.password-dialog-card input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d9d4e9;
+    border-radius: 10px;
+    background: #faf9ff;
+    color: #30264c;
+    font: inherit;
+}
+
+.password-message {
+    min-height: 20px;
+    margin: 12px 0;
+    color: #a13758;
+    font-size: 13px;
+}
+
+.password-message.is-success {
+    color: #168453;
+}
+
+.password-submit {
+    width: 100%;
+    padding: 13px;
+    border: 0;
+    border-radius: 11px;
+    background: #6c5ce7;
+    color: white;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.password-submit:hover {
+    background: #5948d1;
+}
+
+.password-submit:disabled {
+    opacity: .65;
+    cursor: wait;
+}
+
+.change-password-btn:focus-visible,
+.password-dialog button:focus-visible,
+.password-dialog input:focus-visible {
+    outline: 3px solid #a995ed;
+    outline-offset: 2px;
+}
+
+.theme-dark .change-password-btn {
+    border-color: #5c527f;
+    background: #302a4e;
+    color: #f3ecff;
+}
+
+.theme-dark .password-dialog-card {
+    border-color: #51496e;
+    background: #23283d;
+}
+
+.theme-dark .password-dialog-card h2,
+.theme-dark .password-dialog-card label {
+    color: #f3ecff;
+}
+
+.theme-dark .password-dialog-card > p {
+    color: #c4cbe0;
+}
+
+.theme-dark .password-dialog-card input {
+    border-color: #4b5270;
+    background: #1c2134;
+    color: white;
+}
+
+@media (max-width: 520px) {
+    .account-actions {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .password-dialog-card {
+        padding: 24px;
+    }
+}
+/* Menu tài khoản */
+.account-actions {
+    position: relative;
+}
+
+.account-profile {
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.account-profile:hover {
+    background: #eee9ff;
+}
+
+.account-profile:focus-visible {
+    outline: 3px solid #a995ed;
+    outline-offset: 2px;
+}
+
+.account-profile::after {
+    content: '⌄';
+    margin-left: 5px;
+    color: #7665ac;
+    font-size: 16px;
+}
+
+.account-menu[hidden] {
+    display: none;
+}
+
+.account-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 1200;
+    display: grid;
+    gap: 4px;
+    min-width: 185px;
+    padding: 7px;
+    border: 1px solid #e8e3fa;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 15px 35px rgba(38, 27, 84, .16);
+}
+
+.account-menu .change-password-btn,
+.account-menu .logout-btn {
+    box-sizing: border-box;
+    justify-content: flex-start;
+    width: 100%;
+    min-height: 40px;
+    padding: 9px 12px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #443860;
+    text-align: left;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.account-menu .change-password-btn:hover,
+.account-menu .logout-btn:hover {
+    background: #f1edff;
+    color: #5842ae;
+}
+
+.account-menu .logout-btn {
+    border-top: 1px solid #eeeafb;
+    border-radius: 0 0 10px 10px;
+}
+
+.theme-dark .account-profile:hover {
+    background: #40365f;
+}
+
+.theme-dark .account-menu {
+    border-color: #51496e;
+    background: #23283d;
+}
+
+.theme-dark .account-menu .change-password-btn,
+.theme-dark .account-menu .logout-btn {
+    background: transparent;
+    color: #f3ecff;
+}
+
+.theme-dark .account-menu .change-password-btn:hover,
+.theme-dark .account-menu .logout-btn:hover {
+    background: #40365f;
+}
+
+.theme-dark .account-menu .logout-btn {
+    border-color: #51496e;
+}

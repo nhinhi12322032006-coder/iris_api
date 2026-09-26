@@ -4,14 +4,39 @@ function flipPersonCard(card, name) {
     card.setAttribute('aria-label', name + (flipped ? ', nhấn để quay lại mặt trước' : ', nhấn để xem câu chuyện'));
 }
 function switchPage(pageId, btnElement) {
-    document.querySelectorAll('.page-section').forEach(section => {
-        section.classList.remove('active');
-    });
-    document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    document.getElementById(pageId).classList.add('active');
-    btnElement.classList.add('active');
+
+    document
+        .querySelectorAll('.page-section')
+        .forEach(section => {
+            section.classList.remove(
+                'active'
+            );
+        });
+
+
+    document
+        .querySelectorAll('.nav-btn')
+        .forEach(btn => {
+            btn.classList.remove(
+                'active'
+            );
+        });
+
+
+    document
+        .getElementById(pageId)
+        .classList.add('active');
+
+
+    btnElement.classList.add(
+        'active'
+    );
+
+
+    if (pageId === 'page-history') {
+        loadPredictionHistory();
+    }
+
 }
 
 const elements = {
@@ -97,9 +122,9 @@ function updateFlowerDetails(predictionLabel) {
         contentSplit.style.display = 'flex'; 
     }
 }
+let predictionHistory = [];
 
 // Lưu trên thiết bị hiện tại; không ghi các lần dự đoán lỗi hoặc lần tự chạy khi mở trang.
-const HISTORY_KEY = 'irisai-prediction-history-v1';
 const historyRows = document.getElementById('history-rows');
 const historyEmpty = document.getElementById('history-empty');
 const historyTableWrap = document.getElementById('history-table-wrap');
@@ -120,18 +145,123 @@ function getConfidence(data) {
     return percent >= 0 && percent <= 100 ? Math.round(percent * 10) / 10 : null;
 }
 
-function readPredictionHistory() {
-    try {
-        const saved = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-        return Array.isArray(saved) ? saved : [];
-    } catch (error) {
-        historyMessage.textContent = 'Không thể đọc lịch sử đã lưu trên trình duyệt này.';
-        return [];
+async function loadPredictionHistory() {
+
+    const token = localStorage.getItem("irisai_token");
+
+    if (!token) {
+        predictionHistory = [];
+        renderPredictionHistory();
+        return;
     }
+
+
+    try {
+
+        historyMessage.textContent =
+            "Đang tải lịch sử...";
+
+
+        const response = await fetch(
+            "/history",
+            {
+                headers: {
+                    "Authorization":
+                        `Bearer ${token}`
+                }
+            }
+        );
+
+
+        if (!response.ok) {
+
+            if (response.status === 401) {
+
+                localStorage.removeItem(
+                    "irisai_token"
+                );
+
+                localStorage.removeItem(
+                    "irisai_username"
+                );
+
+                localStorage.removeItem(
+                    "irisai_role"
+                );
+
+                throw new Error(
+                    "Phiên đăng nhập đã hết hạn."
+                );
+
+            }
+
+            throw new Error(
+                "Không thể tải lịch sử."
+            );
+
+        }
+
+
+        const records =
+            await response.json();
+
+
+        predictionHistory = records.map(
+            record => ({
+                id:
+                    record.Prediction_ID,
+
+                time:
+                    record.Created_Time,
+
+                sepalLength:
+                    record.Sepal_Length,
+
+                sepalWidth:
+                    record.Sepal_Width,
+
+                petalLength:
+                    record.Petal_Length,
+
+                petalWidth:
+                    record.Petal_Width,
+
+                prediction:
+                    record.Prediction,
+
+                confidence:
+                    record.Confidence
+            })
+        );
+
+
+        predictionHistory.sort(
+            (a, b) =>
+                new Date(b.time) -
+                new Date(a.time)
+        );
+
+
+        historyMessage.textContent = "";
+
+        renderPredictionHistory();
+
+
+    } catch (error) {
+
+        predictionHistory = [];
+
+        historyMessage.textContent =
+            error.message;
+
+        renderPredictionHistory();
+
+    }
+
 }
 
 function renderPredictionHistory() {
-    const entries = readPredictionHistory();
+    const entries = predictionHistory;
     historyRows.replaceChildren();
     historyEmpty.hidden = entries.length > 0;
     historyTableWrap.hidden = entries.length === 0;
@@ -177,37 +307,111 @@ function renderPredictionHistory() {
     }
 }
 
-function savePrediction(payload, prediction, confidence) {
-    try {
-        const entries = readPredictionHistory();
-        entries.unshift({
-            time: new Date().toISOString(),
-            sepalLength: payload.sepal_length, sepalWidth: payload.sepal_width,
-            petalLength: payload.petal_length, petalWidth: payload.petal_width,
-            prediction, confidence
-        });
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(entries));
-        historyMessage.textContent = '';
-        renderPredictionHistory();
-    } catch (error) {
-        historyMessage.textContent = 'Không thể lưu lịch sử trên trình duyệt này. Hãy kiểm tra chế độ riêng tư hoặc dung lượng lưu trữ.';
-    }
-}
+clearPredictionsBtn.addEventListener(
+    'click',
+    async () => {
 
-clearPredictionsBtn.addEventListener('click', () => {
-    if (!confirm('Xóa toàn bộ lịch sử dự đoán trên trình duyệt này?')) return;
-    try {
-        localStorage.removeItem(HISTORY_KEY);
-        historyMessage.textContent = '';
-        renderPredictionHistory();
-    } catch (error) {
-        historyMessage.textContent = 'Không thể xóa lịch sử trên trình duyệt này.';
+        const confirmed = confirm(
+            'Bạn có chắc muốn xóa toàn bộ lịch sử dự đoán của tài khoản này?'
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        const token =
+            localStorage.getItem(
+                "irisai_token"
+            );
+
+
+        if (!token) {
+
+            historyMessage.textContent =
+                "Bạn cần đăng nhập trước.";
+
+            return;
+
+        }
+
+
+        try {
+
+            clearPredictionsBtn.disabled = true;
+
+            historyMessage.textContent =
+                "Đang xóa lịch sử...";
+
+
+            const response = await fetch(
+                "/history",
+                {
+                    method: "DELETE",
+
+                    headers: {
+                        "Authorization":
+                            `Bearer ${token}`
+                    }
+                }
+            );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                if (response.status === 401) {
+
+                    localStorage.removeItem(
+                        "irisai_token"
+                    );
+
+                    localStorage.removeItem(
+                        "irisai_username"
+                    );
+
+                    localStorage.removeItem(
+                        "irisai_role"
+                    );
+
+                    throw new Error(
+                        "Phiên đăng nhập đã hết hạn."
+                    );
+
+                }
+
+
+                throw new Error(
+                    data.detail ||
+                    "Không thể xóa lịch sử."
+                );
+
+            }
+
+
+            historyMessage.textContent =
+                `Đã xóa ${data.deleted_count} lượt dự đoán.`;
+
+
+            await loadPredictionHistory();
+
+
+        } catch (error) {
+
+            historyMessage.textContent =
+                error.message;
+
+        }
+
     }
-});
+);
 historySearch.addEventListener('input', renderPredictionHistory);
 historyFilter.addEventListener('change', renderPredictionHistory);
 exportPredictionsBtn.addEventListener('click', () => {
-    const entries = readPredictionHistory();
+    const entries = predictionHistory;
     if (!entries.length) return;
     const escapeCsv = value => `"${String(value ?? '').replace(/"/g, '""')}"`;
     const lines = [['Thời gian', 'Dài lá đài (cm)', 'Rộng lá đài (cm)', 'Dài cánh hoa (cm)', 'Rộng cánh hoa (cm)', 'Kết quả', 'Độ tin cậy (%)'],
@@ -220,8 +424,25 @@ exportPredictionsBtn.addEventListener('click', () => {
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
-renderPredictionHistory();
+loadPredictionHistory();
+window.addEventListener(
+    "irisai-login",
+    () => {
+        loadPredictionHistory();
+    }
+);
 
+
+window.addEventListener(
+    "irisai-logout",
+    () => {
+
+        predictionHistory = [];
+
+        renderPredictionHistory();
+
+    }
+);
 async function fetchPrediction(recordHistory = true) {
     const sepalLen = parseFloat(elements['sepal-len'].input.value);
     const sepalWid = parseFloat(elements['sepal-wid'].input.value);
@@ -250,14 +471,42 @@ async function fetchPrediction(recordHistory = true) {
     };
 
     try {
-        const response = await fetch("https://iris-api-5jf3.onrender.com/predict", {
+        const token = localStorage.getItem("irisai_token");
+
+        if (!token) {
+            throw new Error("Bạn cần đăng nhập trước khi dự đoán.");
+        }
+
+        const response = await fetch("/predict", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
             body: JSON.stringify(payload)
         });
 
-        if (!response.ok) throw new Error("API Error");
-
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+        
+            if (response.status === 401) {
+                localStorage.removeItem("irisai_token");
+                localStorage.removeItem("irisai_username");
+                localStorage.removeItem("irisai_role");
+        
+                window.dispatchEvent(
+                    new Event("irisai-logout")
+                );
+        
+                throw new Error(
+                    "Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại."
+                );
+            }
+        
+            throw new Error(
+                errorData.detail || "Không thể dự đoán."
+            );
+        }
         const data = await response.json();
         const predictedClass = data.prediction;
 
@@ -266,7 +515,9 @@ async function fetchPrediction(recordHistory = true) {
         }
         updateFlowerDetails(predictedClass);
         const confidence = getConfidence(data);
-        if (recordHistory) savePrediction(payload, resultBox.innerText, confidence);
+        if (recordHistory) {
+            await loadPredictionHistory();
+        }
         confidenceBox.style.display = 'block';
         document.getElementById('confidence-note').style.display = confidence === null ? 'block' : 'none';
         confidenceBox.querySelector('.progress-bar-bg').style.display = confidence === null ? 'none' : 'block';
@@ -291,7 +542,7 @@ async function fetchPrediction(recordHistory = true) {
     } catch (error) {
         subtitleBox.style.display = 'none';
         resultBox.className = "prediction-text warning-text";
-        resultBox.innerText = "Không thể kết nối đến API server!";
+        resultBox.innerText = error.message || "Không thể kết nối đến API server!";
         contentSplit.style.display = 'none';
         confidenceBox.style.display = 'none';
     }
@@ -342,7 +593,7 @@ function applyPreset(sepalLen, sepalWid, petalLen, petalWidth) {
 
 // Khởi tạo các biểu đồ Chart.js ở trang 2 khi trang tải xong
 window.addEventListener('DOMContentLoaded', () => {
-    fetchPrediction(false);
+    
 
     // Biểu đồ 1: Scatter Plot
     const chartSpeciesInputs = [...document.querySelectorAll('input[name="chart-species"]')];
