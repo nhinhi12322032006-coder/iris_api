@@ -1,9 +1,14 @@
+import os
 from passlib.context import CryptContext
 from jose import jwt
 from datetime import datetime, timedelta
 
 
-SECRET_KEY = "iris_secret_key"
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    if os.getenv("DATABASE_URL"):
+        raise RuntimeError("Hãy thiết lập SECRET_KEY trên Render.")
+    SECRET_KEY = "iris_secret_key"  # Chỉ dùng khi chạy trên máy cá nhân.
 ALGORITHM = "HS256"
 
 # Mã hóa mật khẩu

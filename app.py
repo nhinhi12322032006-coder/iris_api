@@ -1,4 +1,5 @@
 # IMPORT THƯ VIỆN
+from contextlib import asynccontextmanager
 from fastapi import (
     FastAPI,
     HTTPException,
@@ -28,12 +29,14 @@ from openpyxl import load_workbook
 from time import perf_counter
 
 # DATABASE + AUTH
-from database import get_db
+from database import Base, engine, get_db
 from models import (
     User,
     Prediction
 )
 from auth import (
+    SECRET_KEY,
+    ALGORITHM,
     hash_password,
     verify_password,
     create_token
@@ -97,18 +100,24 @@ default_model = model_bundle["default_model"]
 target_names = model_bundle["target_names"]
 
 # KHỞI TẠO FASTAPI
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
+
+
 app = FastAPI(
     title="IrisAI Studio API",
     description="API phân loại hoa Iris và lưu lịch sử dự đoán",
-    version="3.0.0"
+    version="3.0.0",
+    lifespan=lifespan
 )
 # Xác thực người dùng
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/login"
 )
-SECRET_KEY = "iris_secret_key"
-ALGORITHM = "HS256"
+
 # Lấy thông tin người dùng đang đăng nhập
 
 def get_current_user(
