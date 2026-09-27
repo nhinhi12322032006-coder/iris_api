@@ -123,7 +123,13 @@
         try {
             const form = new FormData();
             form.append('file', file);
-            const response = await fetch('/predict/file', {method: 'POST', body: form});
+            const response = await fetch('/predict/file', {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('irisai_token')}`
+                },
+                body: form
+            });
             const data = await response.json();
             if (!response.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'Không thể đọc tệp.');
             lastResult = data;

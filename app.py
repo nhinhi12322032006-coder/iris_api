@@ -195,12 +195,12 @@ class LoginInput(BaseModel):
 class ChangePasswordInput(BaseModel):
     current_password: str
     new_password: str
-FILE_COLUMNS = (
-    "sepal_length",
-    "sepal_width",
-    "petal_length",
-    "petal_width"
-)
+FILE_COLUMN_ALIASES = {
+    "sepal_length": ("sepal_length", "sepallengthcm"),
+    "sepal_width": ("sepal_width", "sepalwidthcm"),
+    "petal_length": ("petal_length", "petallengthcm"),
+    "petal_width": ("petal_width", "petalwidthcm"),
+}
 MAX_FILE_BYTES = 5 * 1024 * 1024
 MAX_FILE_ROWS = 2000
 
@@ -499,27 +499,225 @@ def get_models_evaluation():
     }
 
 # DỰ ĐOÁN FILE CSV/XLSX
+FILE_COLUMNS = (
+    "sepal_length",
+    "sepal_width",
+    "petal_length",
+    "petal_width",
+)
+
+FILE_COLUMN_ALIASES = {
+    "sepal_length": ("sepal_length", "sepallengthcm"),
+    "sepal_width": ("sepal_width", "sepalwidthcm"),
+    "petal_length": ("petal_length", "petallengthcm"),
+    "petal_width": ("petal_width", "petalwidthcm"),
+}
 @app.post("/predict/file")
 async def predict_file(
-    file: UploadFile = File(...)
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
 ):
     filename = file.filename or ""
     extension = os.path.splitext(filename)[1].lower()
-    if extension not in [".csv", ".xlsx"]:
+
+    if extension not in {".csv", ".xlsx"}:
         raise HTTPException(
             status_code=400,
-            detail="Chỉ hỗ trợ CSV hoặc XLSX"
+            detail="Chỉ hỗ trợ tệp .csv hoặc .xlsx."
         )
-    content = await file.read()
-    results = []
 
-    # Phần xử lý file giữ nguyên logic cũ
-    # từ app.py hiện tại của bạn
-    return {
-        "filename": filename,
-        "results": results
-    }
+    content = await file.read(MAX_FILE_BYTES + 1)
+    await file.close()
 
+    if len(content) > MAX_FILE_BYTES:
+        raise HTTPException(
+            status_code=400,
+            detail="Tệp phải nhỏ hơn 5 MB."
+        )
+    if not content:
+        raise HTTPException(
+            status_code=400,
+            detail="Tệp đang trống."
+        )
+
+    workbook = None
+    try:
+        if extension == ".csv":
+            try:
+                data = content.decode("utf-8-sig")
+            except UnicodeDecodeError:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Tệp CSV cần được lưu dưới dạng UTF-8."
+                )
+
+            try:
+                dialect = csv.Sniffer().sniff(
+                    data[:4096],
+                    delimiters=",;\t"
+                )
+                delimiter = dialect.delimiter
+            except csv.Error:
+                delimiter = ","
+
+            reader = csv.reader(
+                io.StringIO(data, newline=""),
+                delimiter=delimiter
+            )
+            headers = next(reader, [])
+            source_rows = reader
+        else:
+            workbook = load_workbook(
+                io.BytesIO(content),
+                read_only=True,
+                data_only=True
+            )
+            source_rows = workbook.active.iter_rows(values_only=True)
+            headers = next(source_rows, [])
+
+        headers = [
+            str(value).strip() if value is not None else ""
+            for value in headers
+        ]
+        normalized = [header.lower() for header in headers]
+
+        if len(set(normalized)) != len(normalized) or any(
+            not header for header in headers
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail="Dòng tiêu đề không được trống hoặc trùng tên cột."
+            )
+
+        measurement_columns = {
+            column: next(
+                (
+                    headers[normalized.index(alias)]
+                    for alias in FILE_COLUMN_ALIASES[column]
+                    if alias in normalized
+                ),
+                None
+            )
+            for column in FILE_COLUMNS
+        }
+
+        missing = [
+            column
+            for column in FILE_COLUMNS
+            if measurement_columns[column] is None
+        ]
+        if missing:
+            raise HTTPException(
+                status_code=400,
+                detail="Thiếu cột: " + ", ".join(missing)
+            )
+
+        results = []
+
+        for row_number, row in enumerate(source_rows, start=2):
+            if not any(
+                value is not None and str(value).strip()
+                for value in row
+            ):
+                continue
+
+            if len(results) >= MAX_FILE_ROWS:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Tệp chỉ được chứa tối đa 2000 dòng dữ liệu."
+                )
+
+            original = {
+                header: (
+                    str(row[index])
+                    if index < len(row) and row[index] is not None
+                    else ""
+                )
+                for index, header in enumerate(headers)
+            }
+            result = {
+                "row_number": row_number,
+                "original": original
+            }
+
+            try:
+                if len(row) > len(headers) and any(
+                    str(value).strip()
+                    for value in row[len(headers):]
+                    if value is not None
+                ):
+                    raise ValueError(
+                        "Số cột vượt quá dòng tiêu đề."
+                    )
+
+                features = []
+                for column in FILE_COLUMNS:
+                    raw = original[
+                        measurement_columns[column]
+                    ].strip().replace(",", ".")
+                    value = float(raw)
+
+                    if not math.isfinite(value) or value < 0:
+                        raise ValueError(
+                            "Các số đo phải không âm và hữu hạn."
+                        )
+                    features.append(value)
+
+                prediction = run_prediction(
+                    default_model,
+                    [features]
+                )
+                result.update({
+                    "prediction": prediction["prediction"],
+                    "confidence": prediction["confidence"],
+                    "probabilities": prediction["probabilities"],
+                    "error": None,
+                    "warning": (
+                        "Có số đo 0 cm; hãy kiểm tra dữ liệu gốc."
+                        if 0 in features else None
+                    )
+                })
+            except ValueError as error:
+                result.update({
+                    "prediction": None,
+                    "confidence": None,
+                    "probabilities": None,
+                    "error": str(error),
+                    "warning": None
+                })
+
+            results.append(result)
+
+        if not results:
+            raise HTTPException(
+                status_code=400,
+                detail="Tệp không có dòng dữ liệu nào."
+            )
+
+        return {
+            "filename": filename,
+            "model_name": default_model,
+            "columns": headers,
+            "measurement_columns": measurement_columns,
+            "total": len(results),
+            "success": sum(
+                item["error"] is None for item in results
+            ),
+            "results": results
+        }
+
+    except HTTPException:
+        raise
+    except (
+        ValueError, OSError, KeyError, EOFError, BadZipFile, csv.Error
+    ) as error:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Không đọc được tệp: {error}"
+        )
+    finally:
+        if workbook is not None:
+            workbook.close()
 # DỰ ĐOÁN TẤT CẢ MÔ HÌNH
 @app.post("/predict/all")
 def predict_all(

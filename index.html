@@ -9,10 +9,10 @@
             visibility: hidden;
         }
     </style>
-    
+
     <script>
         document.documentElement.classList.add('studio-pending');
-    
+
         if (!localStorage.getItem('irisai_token')) {
             window.location.replace('/static/login.html');
         }
@@ -42,7 +42,7 @@
             <li>
                 <button class="nav-btn active" onclick="switchPage('page-1', this)">
                     <svg viewBox="0 0 24 24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-8h2v2h4v2h-4v2h-2V5z"/></svg>
-                    Dự đoán 
+                    Dự đoán
                 </button>
             </li>
             <li>
@@ -69,7 +69,7 @@
                     Giới hạn
                 </button>
             </li>
-            
+
             <li><button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Bật chế độ tối"><span id="theme-icon" aria-hidden="true">☾</span><span id="theme-label">Chế độ tối</span></button></li>
         </ul>
         <div class="account-actions">
@@ -85,14 +85,14 @@
                     <strong id="account-name" class="account-name"></strong>
                 </span>
             </button>
-        
+
             <div id="account-menu" class="account-menu" hidden>
                 <button id="change-password-btn"
                         class="change-password-btn"
                         type="button">
                     Đổi mật khẩu
                 </button>
-        
+
                 <button id="logout-btn" class="logout-btn" type="button">
                     <svg viewBox="0 0 24 24"
                          width="17"
@@ -114,7 +114,7 @@
     <!-- ĐĂNG XUẤT -->
     <div id="password-dialog" class="password-dialog" hidden>
         <div class="password-dialog-backdrop" data-close-password></div>
-    
+
         <section class="password-dialog-card"
                  role="dialog"
                  aria-modal="true"
@@ -123,35 +123,35 @@
                     class="password-dialog-close"
                     type="button"
                     aria-label="Đóng">×</button>
-    
+
             <span class="password-dialog-icon" aria-hidden="true">✿</span>
             <h2 id="password-dialog-title">Đổi mật khẩu</h2>
             <p>Cập nhật mật khẩu cho tài khoản Iris Studio của bạn.</p>
-    
+
             <form id="change-password-form">
                 <label for="current-password">Mật khẩu hiện tại</label>
                 <input id="current-password"
                        type="password"
                        autocomplete="current-password"
                        required>
-    
+
                 <label for="new-password">Mật khẩu mới</label>
                 <input id="new-password"
                        type="password"
                        autocomplete="new-password"
                        required>
-    
+
                 <label for="confirm-password">Nhập lại mật khẩu mới</label>
                 <input id="confirm-password"
                        type="password"
                        autocomplete="new-password"
                        required>
-    
+
                 <p id="password-message"
                    class="password-message"
                    role="status"
                    aria-live="polite"></p>
-    
+
                 <button id="change-password-submit"
                         class="password-submit"
                         type="submit">
@@ -239,7 +239,7 @@
                 <div class="column-right">
                     <div class="result-subtitle" id="subtitle-box" style="display: none;">Kết quả dự đoán</div>
                     <p class="prediction-text" id="result">Chọn thông số và nhấp nút để dự đoán</p>
-                    
+
                     <div class="content-split" id="content-split" style="display: none;">
                         <div class="image-container" id="flower-img-container">
                             <img src="" id="flower-img" alt="Iris Flower">
@@ -256,7 +256,7 @@
                         <div class="progress-bar-bg">
                             <div id="highest-bar" class="progress-bar-fill"></div>
                         </div>
-                        
+
                         <div class="classes-grid">
                             <div class="class-card" id="card-setosa">
                                 <div class="class-name">Setosa</div>
@@ -337,7 +337,7 @@
             <div class="info-card">
                 <h3>📊 Phân Tích Dữ Liệu & Biểu Đồ Iris</h3>
                 <p style="color: #718096; margin-top: -6px; margin-bottom: 22px;">Khám phá phân phối thống kê, quan hệ tương quan giữa các đặc trưng đài và cánh hoa.</p>
-                
+
                 <!-- 4 THẺ THỐNG KÊ TỔNG QUAN -->
                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 25px;">
                     <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 15px;">
@@ -361,7 +361,7 @@
                         <div style="font-size: 11.5px; color: #38a169; font-weight: 600;">Đúng 50 mẫu/loài</div>
                     </div>
                 </div>
-                
+
                 <fieldset class="chart-species-filter" aria-label="Chọn loài hoa để hiển thị trên hai biểu đồ">
                     <legend>Chọn loài hoa để hiển thị trên cả hai biểu đồ</legend>
                     <label class="chart-species-option chart-species-setosa"><input type="checkbox" name="chart-species" value="Setosa" checked> Setosa</label>
@@ -389,10 +389,10 @@
 
                     <!-- SCRIPT ĐIỀU KHIỂN TAB CHUYỂN ĐỔI -->
 
-                
-                
 
-                
+
+
+
 
                 <section class="model-comparison" aria-labelledby="comparison-title">
                     <div class="comparison-heading">
@@ -451,7 +451,7 @@
                         <button class="person-flip" type="button" aria-label="Edgar Anderson, nhấn để xem câu chuyện" aria-pressed="false" onclick="flipPersonCard(this, 'Edgar Anderson')">
                             <span class="person-flip-inner" aria-hidden="true">
                                 <span class="person-face person-front">
-                
+
                                     <span class="person-symbol">✧</span><span class="person-name">Edgar Anderson (1935)</span><span class="person-role">Người thu thập các phép đo thực tế</span><span class="person-hint">Chạm để lật thẻ ↗</span></span>
                                 <span class="person-face person-back"><span class="person-name">Edgar Anderson</span><span class="person-back-text">Nghiên cứu và đo đạc hình thái hoa diên vĩ, trong đó có mẫu từ bán đảo Gaspé. Những phép đo này là cơ sở cho nghiên cứu sau đó của Fisher.</span><span class="person-hint">Chạm để quay lại ↶</span></span>
                             </span>
@@ -459,7 +459,7 @@
                         <button class="person-flip" type="button" aria-label="Sir Ronald A. Fisher, nhấn để xem câu chuyện" aria-pressed="false" onclick="flipPersonCard(this, 'Sir Ronald A. Fisher')">
                             <span class="person-flip-inner" aria-hidden="true">
                                 <span class="person-face person-front">
-                                    
+
                                     <span class="person-symbol">✧</span><span class="person-name">Sir Ronald A. Fisher (1936)</span><span class="person-role">Người đưa các phép đo vào phân tích thống kê</span><span class="person-hint">Chạm để lật thẻ ↗</span></span>
                                 <span class="person-face person-back"><span class="person-name">Sir Ronald A. Fisher</span><span class="person-back-text">Dùng dữ liệu của Anderson trong bài báo <em>The Use of Multiple Measurements in Taxonomic Problems</em>, trình bày cách kết hợp nhiều phép đo để phân biệt các nhóm.</span><span class="person-hint">Chạm để quay lại ↶</span></span>
                             </span>
@@ -513,7 +513,7 @@
                 <p style="color: #718096; margin-top: -6px; margin-bottom: 22px;">Để hiểu rõ hơn vì sao các biểu đồ trên lại có sự phân cụm và chênh lệch giá trị như vậy, hãy cùng nhìn lướt qua đặc điểm hình thái thực tế của từng loài:</p>
                     <!-- === KHUNG GIỚI THIỆU LOÀI HOA TƯƠNG TÁC (TABBED SPECIES CARD) === -->
                      <div style="margin-top: 35px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.03);">
-                        
+
                         <!-- Tiêu đề khung -->
                         <div style="text-align: center; margin-bottom: 20px;">
                             <span style="background: #ede9fe; color: #6c5ce7; font-size: 18px; font-weight: 700; padding: 5px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;">Khám phá sinh học & Dữ liệu</span>
@@ -528,10 +528,10 @@
 
                         <!-- Nội dung hiển thị của từng loài (Split Card Layout giống mẫu của bạn) -->
                         <div style="display: flex; gap: 24px; align-items: center; background: #f8fafc; border: 1px solid #edf2f7; border-radius: 16px; padding: 20px;" id="species-content-box">
-        
+
                             <!-- Hình ảnh bên trái -->
                             <div style="flex: 1; display: flex; justify-content: center;">
-                                <img id="species-img" src="setosa.jpg" alt="Iris Species" style="width: 100%; max-height: 300px; object-fit: contain; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 2px solid white;">                            
+                                <img id="species-img" src="setosa.jpg" alt="Iris Species" style="width: 100%; max-height: 300px; object-fit: contain; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 2px solid white;">
                             </div>
 
                             <!-- Thông tin chi tiết bên phải -->
@@ -588,8 +588,8 @@
     <script src="static/js/auth.js?v=account-menu-1"></script>
     <script src="static/js/app.js?v=delete-history-1"></script>
     <script src="static/js/comparison.js"></script>
-    <script src="static/js/batch.js?v=batch-mode-1"></script>
+    <script src="static/js/batch.js?v=batch-auth-2"></script>
     <script src="static/js/explore.js?v=anatomy-drag-1"></script>
-    
+
 </body>
 </html>
