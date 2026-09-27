@@ -93,28 +93,53 @@
     async function predictMeasuredFlower() {
         const values = { ...anatomyValues };
         if (anatomyRequest) anatomyRequest.abort();
+    
         const request = new AbortController();
         anatomyRequest = request;
         anatomyStatus.textContent = 'Đang dự đoán theo số đo hiện tại...';
         anatomySpecies.textContent = '…';
+    
         try {
+            const token = localStorage.getItem('irisai_token');
+            if (!token) {
+                throw new Error('Bạn cần đăng nhập để xem dự đoán.');
+            }
+    
             const response = await fetch('/predict', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...values, model_name: 'svm_rbf' }), signal: request.signal
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ ...values, model_name: 'svm_rbf' }),
+                signal: request.signal
             });
-            if (!response.ok) throw new Error('Máy chủ chưa trả về kết quả.');
+    
+            if (!response.ok) {
+                if (response.status === 401) {
+                    throw new Error('Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.');
+                }
+                throw new Error(`API trả về lỗi ${response.status}.`);
+            }
+    
             const data = await response.json();
-            if (!['setosa', 'versicolor', 'virginica'].includes(String(data.prediction).toLowerCase())) {
+            if (!['setosa', 'versicolor', 'virginica'].includes(
+                String(data.prediction).toLowerCase()
+            )) {
                 throw new Error('Kết quả dự đoán không hợp lệ.');
             }
+    
             if (request !== anatomyRequest) return;
+    
             anatomySpecies.textContent = 'Iris ' + data.prediction.toLowerCase();
             anatomyStatus.textContent = 'Mô hình SVM (RBF) · ' +
-                (Number.isFinite(Number(data.confidence)) ? `độ tin cậy ${Number(data.confidence).toFixed(1).replace('.', ',')}%` : 'đã dự đoán');
+                (Number.isFinite(Number(data.confidence))
+                    ? `độ tin cậy ${Number(data.confidence).toFixed(1).replace('.', ',')}%`
+                    : 'đã dự đoán');
         } catch (error) {
             if (error.name === 'AbortError' || request !== anatomyRequest) return;
             anatomySpecies.textContent = 'Chưa có kết quả';
-            anatomyStatus.textContent = 'Không kết nối được API. Hãy chạy ứng dụng rồi kéo một điểm trên hình để thử lại.';
+            anatomyStatus.textContent = error.message || 'Không thể kết nối đến API.';
         }
     }
 
