@@ -953,7 +953,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .auth-card form > div {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 4px;
 }
 /* Label */
 .auth-card label {
@@ -1050,18 +1050,21 @@ body.is-authenticated > .auth-overlay {
 /* Màn hình đăng nhập và đăng ký */
 .auth-overlay {
     box-sizing: border-box;
-    padding: 24px;
-    overflow-y: auto;
+    padding: 20px;
+    overflow: auto;
+    align-items: flex-start;
     background: #f1effa;
     backdrop-filter: none;
 }
 .auth-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(380px, .88fr);
-    width: min(1080px, 100%);
-    min-height: min(680px, calc(100vh - 48px));
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    flex: 0 0 auto;
+    width: min(900px, 100%);
+    min-height: 0;
+    margin: auto;
     overflow: hidden;
-    border-radius: 28px;
+    border-radius: 22px;
     background: #fff;
     box-shadow: 0 25px 75px rgba(46, 36, 102, .15);
 }
@@ -1177,12 +1180,12 @@ body.is-authenticated > .auth-overlay {
     letter-spacing: -.035em;
 }
 .auth-card #auth-subtitle {
-    margin: 0 0 30px;
+    margin: 0 0 12px;
     color: #697189;
     line-height: 1.5;
 }
 .auth-card label {
-    margin: 0 0 8px;
+    margin: 0;
     color: #322c47;
     font-size: 13px;
 }
@@ -1270,15 +1273,16 @@ body.is-authenticated > .auth-overlay {
         align-items: flex-start;
     }
     .auth-layout {
-        grid-template-columns: 1fr;
-        min-height: calc(100vh - 28px);
+        grid-template-columns: minmax(0, 1fr);
+        width: min(440px, 100%);
+        min-height: 0;
     }
     .auth-intro {
-        min-height: 160px;
-        padding: 22px 28px;
+        min-height: 0;
+        padding: 18px 22px;
     }
     .auth-intro-content {
-        padding: 24px 0 0;
+        padding: 12px 0 0;
     }
     .auth-intro h1 {
         margin: 8px 0;
@@ -1290,7 +1294,7 @@ body.is-authenticated > .auth-overlay {
         display: none;
     }
     .auth-card {
-        padding: 36px 28px 50px;
+        padding: 22px;
     }
     .account-actions {
         border: 0;
