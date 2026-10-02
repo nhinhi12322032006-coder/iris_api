@@ -174,6 +174,49 @@ body {
     align-items: center;
     text-align: center;
 }
+/* Trang dự đoán: nhập ở trên, kết quả ở dưới khi màn hình nhỏ */
+@media (max-width: 760px) {
+    #page-1 .dashboard-card {
+        flex-direction: column;
+        padding: 18px;
+        gap: 20px;
+    }
+
+    #page-1 .column-left,
+    #page-1 .column-right {
+        flex: none;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    #page-1 .column-right {
+        padding: 18px;
+    }
+
+    #page-1 .content-split {
+        flex-direction: column;
+    }
+
+    #page-1 .image-container,
+    #page-1 .description-container {
+        min-width: 0;
+    }
+
+    #page-1 .prediction-text {
+        overflow-wrap: anywhere;
+    }
+
+    #page-1 .prob-label {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    #page-1 .prediction-mode {
+        min-width: 0;
+        white-space: normal;
+    }
+}
 h2 {
     color: #2c3e50;
     margin-top: 0;
