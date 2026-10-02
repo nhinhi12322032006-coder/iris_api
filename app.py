@@ -21,8 +21,7 @@ from sqlalchemy.orm import Session
 # --- CƠ SỞ DỮ LIỆU VÀ XÁC THỰC ---
 from database import get_db
 from models import User
-from sql_api import get_current_user, router as sql_router, save_prediction
-
+from sql_api import get_current_user, router as sql_router, save_prediction, init_db
 # ĐƯỜNG DẪN TỆP
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "iris_svm_model.pkl")
@@ -57,6 +56,7 @@ target_names = model_bundle["target_names"]
 # KHỞI TẠO FASTAPI
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    init_db()
     print("Iris Studio API started")
     yield
     print("Iris Studio API stopped")
