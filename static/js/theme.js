@@ -2,12 +2,16 @@
 (() => {
     const key = 'irisai-theme';
     const saved = (() => {
-        try { return localStorage.getItem(key); } catch { return null; }
+        try {
+            return localStorage.getItem(key);
+        } catch {
+            return null;
+        }
     })();
     const root = document.documentElement;
     const lightChartText = window.Chart?.defaults.color;
     const lightChartGrid = window.Chart?.defaults.borderColor;
-
+    // --- MÀU BIỂU ĐỒ ---
     function updateCharts(dark) {
         if (!window.Chart) return;
         const textColor = dark ? '#d2d9eb' : lightChartText;
@@ -27,7 +31,7 @@
             chart.update('none');
         });
     }
-
+    // --- ÁP DỤNG GIAO DIỆN VÀ LƯU LỰA CHỌN ---
     function applyTheme(dark) {
         root.classList.toggle('theme-dark', dark);
         const button = document.getElementById('theme-toggle');
@@ -39,7 +43,6 @@
         }
         updateCharts(dark);
     }
-
     // Áp dụng ngay trong <head> để tránh chớp nền sáng khi tải lại trang.
     applyTheme(saved === 'dark');
     document.addEventListener('DOMContentLoaded', () => {
@@ -47,7 +50,10 @@
         document.getElementById('theme-toggle').addEventListener('click', () => {
             const dark = !root.classList.contains('theme-dark');
             applyTheme(dark);
-            try { localStorage.setItem(key, dark ? 'dark' : 'light'); } catch { /* Trình duyệt không cho lưu tùy chọn. */ }
+            try {
+                localStorage.setItem(key, dark ? 'dark' : 'light');
+            } catch {
+                /* Trình duyệt không cho lưu tùy chọn. */ }
         });
     });
 })();

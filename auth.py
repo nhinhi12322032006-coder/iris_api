@@ -3,7 +3,7 @@ from passlib.context import CryptContext
 from jose import jwt
 from datetime import datetime, timedelta
 
-
+# --- CẤU HÌNH JWT ---
 SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
     if os.getenv("DATABASE_URL"):
@@ -12,38 +12,21 @@ if not SECRET_KEY:
 ALGORITHM = "HS256"
 
 # Mã hóa mật khẩu
-pwd_context = CryptContext(
-    schemes=["pbkdf2_sha256"],
-    deprecated="auto"
-)
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 
+# --- BĂM VÀ KIỂM TRA MẬT KHẨU ---
 def hash_password(password: str):
     return pwd_context.hash(password)
 
 
-def verify_password(
-    plain_password,
-    hashed_password
-):
-    return pwd_context.verify(
-        plain_password,
-        hashed_password
-    )
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
 
 
+# --- TẠO TOKEN ĐĂNG NHẬP ---
 def create_token(username: str):
-    expire = datetime.utcnow() + timedelta(
-        hours=24
-    )
+    expire = datetime.utcnow() + timedelta(hours=24)
 
-    data = {
-        "sub": username,
-        "exp": expire
-    }
-
-    return jwt.encode(
-        data,
-        SECRET_KEY,
-        algorithm=ALGORITHM
-    )
+    data = {"sub": username, "exp": expire}
+    return jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)

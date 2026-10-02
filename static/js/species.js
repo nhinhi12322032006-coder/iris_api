@@ -1,61 +1,107 @@
-const speciesData = {
-    'setosa': {
-        title: "Iris Setosa",
-        color: "#00796b",
-        img: "setosa.jpg",
-        petal: "Rất ngắn và hẹp, kích thước nhỏ nhất trong 3 loài. Có màu tím nhạt hoặc xanh lam đồng điệu với hoa nhưng trơn, không có các vệt màu vàng ở gốc.",
-        sepal: "Tương đối rộng, hình bầu dục tròn trịa. Thường có màu xanh tím hoặc tím nhạt, ở gốc đài hoa có một vùng màu vàng sẫm hoặc vàng trắng kèm theo các đường gân đậm màu rất rõ nét.",
-        data: "Tạo thành một cụm hoàn toàn tách biệt ở phía trái biểu đồ, dễ phân loại nhất.",
-        physiology: "Chịu lạnh cực tốt, thích nghi với mùa đông dài băng giá.",
-        habitat: "Vùng khí hậu lạnh giá phía bắc, thích nghi với đất ẩm lạnh.",
-        bg: "#e6fffa", border: "#38b2ac"
-    },
-    'versicolor': {
-        title: "Iris Versicolor",
-        color: "#dd6b20",
-        img: "versicolor.jpg",
-        petal: "Kích thước nằm ở mức trung gian giữa setosa và virginica. Có màu sắc pha trộn giữa tím và xanh lam (đồng điệu với màu nền của hoa nhưng trơn, không có đốm vàng/trắng ở gốc).",
-        sepal: "Thon dài, cân đối vừa phải. Có màu sắc rực rỡ pha trộn giữa tím, xanh lam và có các đốm vàng/trắng ở phần gốc.",
-        data: "Nằm ở vùng trung gian trên biểu đồ, có sự giao thoa nhẹ với các loài khác.",
-        physiology: "Sức sống dẻo dai, linh hoạt với sự thay đổi pH của đất.",
-        habitat: "Phổ biến ở miền đông Bắc Mỹ, mọc hoang ở đất ẩm ướt, đầm lầy.",
-        bg: "#fffaf0", border: "#f6ad55"
-    },
-    'virginica': {
-        title: "Iris Virginica",
-        color: "#6b46c1",
-        img: "virginica.jpg",
-        petal: "Dài và phát triển mạnh mẽ nhất trong 3 loài, có xu hướng hơi ngả nhẹ ra ngoài. Có màu tím/xanh đậm đồng màu với đài hoa, trơn và không có đốm vàng ở gốc, đôi khi có gân tím sẫm chạy dọc thân cánh. ",
-        sepal: "Rộng, dài và khỏe khoắn. Mang sắc tím đậm hoặc xanh lam sẫm rực rỡ, ở gốc đài hoa có một đốm màu vàng tươi sáng (đốm mật) nổi bật nhưng các đường gân thường mờ hơn hoặc mịn hơn so với versicolor.",
-        data: "Chiếm vị trí ở phía phải biểu đồ với các giá trị thông số cao nhất.",
-        physiology: "Ưa sáng mạnh, phát triển nhanh khi có đủ ánh nắng mặt trời.",
-        habitat: "Sinh trưởng mạnh tại các vùng ngập nước ven sông suối, đầm lầy.",
-        bg: "#f5f3ff", border: "#b794f4"
+// --- TRANG CÂU CHUYỆN: DỮ LIỆU CHI TIẾT LOÀI ---
+let speciesData = {};
+async function loadSpeciesData() {
+    try {
+        const response = await fetch("/iris/detail", {
+            cache: "no-store"
+        });
+        if (!response.ok) {
+            throw new Error("API /iris/detail lỗi: HTTP " + response.status);
+        }
+        const data = await response.json();
+        console.log("SQL /iris/detail:", data);
+        if (!Array.isArray(data) || data.length === 0) {
+            throw new Error("SQL không trả về dữ liệu Iris.");
+        }
+        data.forEach(item => {
+            const key = String(item.Species_Name).trim().toLowerCase();
+            speciesData[key] = {
+                title: "Iris " + item.Species_Name,
+                img: key + ".jpg",
+                petal: item.Petal_Detail || "",
+                sepal: item.Sepal_Detail || "",
+                // QUAN TRỌNG:
+                // Data_Analysis chứa cả thông tin màu sắc
+                data: item.Data_Analysis || "",
+                physiology: item.Physiological_Feature || "",
+                habitat: item.Habitat_Detail || ""
+            };
+        });
+        console.log("speciesData sau khi đọc SQL:", speciesData);
+        // Mặc định
+        switchSpecies("setosa");
+    } catch (error) {
+        console.error("Không thể kết nối dữ liệu Iris từ SQL:", error);
     }
-};
-
+}
+// --- CHUYỂN LOÀI VÀ CẬP NHẬT THẺ ---
 function switchSpecies(key) {
-    // Cập nhật giao diện nút Tabs
-    document.querySelectorAll('.species-tab').forEach(tab => {
+    console.log("Đang chuyển sang:", key);
+    const data = speciesData[key];
+    if (!data) {
+        console.error("Không tìm thấy dữ liệu cho:", key, speciesData);
+        return;
+    }
+    // ==============================
+    // TAB
+    // ==============================
+    document.querySelectorAll(".species-tab").forEach(tab => {
         tab.style.background = "#f8fafc";
         tab.style.color = "#4a5568";
         tab.style.borderColor = "#cbd5e0";
     });
-    
-    const activeTab = document.getElementById(`tab-${key}`);
-    const data = speciesData[key];
-
-    activeTab.style.background = data.bg;
-    activeTab.style.color = data.color;
-    activeTab.style.borderColor = data.border;
-
-    // Cập nhật nội dung hiển thị
-    document.getElementById('species-img').src = data.img;
-    document.getElementById('species-title').innerText = data.title;
-    document.getElementById('species-title').style.color = data.color;
-    document.getElementById('info-petal').innerText = data.petal;
-    document.getElementById('info-sepal').innerText = data.sepal;
-    document.getElementById('info-data').innerText = data.data;
-    document.getElementById('info-physiology').innerText = data.physiology;
-    document.getElementById('info-habitat').innerText = data.habitat;
+    const activeTab = document.getElementById("tab-" + key);
+    if (activeTab) {
+        activeTab.style.background = key === "setosa" ? "#e6fffa" : key === "versicolor" ? "#fffaf0" :
+            "#f5f3ff";
+        activeTab.style.color = key === "setosa" ? "#00796b" : key === "versicolor" ? "#dd6b20" : "#6b46c1";
+        activeTab.style.borderColor = key === "setosa" ? "#38b2ac" : key === "versicolor" ? "#f6ad55" :
+            "#b794f4";
+    }
+    // ==============================
+    // ẢNH
+    // ==============================
+    const image = document.getElementById("species-img");
+    if (image) {
+        image.src = data.img;
+    }
+    // ==============================
+    // TÊN
+    // ==============================
+    const title = document.getElementById("species-title");
+    if (title) {
+        title.textContent = data.title;
+        title.style.color = key === "setosa" ? "#00796b" : key === "versicolor" ? "#dd6b20" : "#6b46c1";
+    }
+    // ==============================
+    // 5 DỮ LIỆU TỪ SQL
+    // ==============================
+    const petal = document.getElementById("info-petal");
+    if (petal) {
+        petal.textContent = data.petal || "Chưa có dữ liệu.";
+    }
+    const sepal = document.getElementById("info-sepal");
+    if (sepal) {
+        sepal.textContent = data.sepal || "Chưa có dữ liệu.";
+    }
+    const analysis = document.getElementById("info-data");
+    if (analysis) {
+        analysis.textContent = data.data || "Chưa có dữ liệu.";
+    }
+    const physiology = document.getElementById("info-physiology");
+    if (physiology) {
+        physiology.textContent = data.physiology || "Chưa có dữ liệu.";
+    }
+    const habitat = document.getElementById("info-habitat");
+    if (habitat) {
+        habitat.textContent = data.habitat || "Chưa có dữ liệu.";
+    }
+}
+// ==============================
+// KHỞI ĐỘNG
+// ==============================
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", loadSpeciesData);
+} else {
+    loadSpeciesData();
 }
