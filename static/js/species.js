@@ -2,7 +2,7 @@
 let speciesData = {};
 async function loadSpeciesData() {
     try {
-        const response = await fetch("/iris/detail", {
+        const response = await irisApiFetch("/iris/detail", {
             cache: "no-store"
         });
         if (!response.ok) {

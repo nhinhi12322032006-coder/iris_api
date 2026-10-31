@@ -159,7 +159,7 @@
         try {
             const token = localStorage.getItem('irisai_token');
             if (!token) throw new Error('Bạn cần đăng nhập để xem dự đoán.');
-            const response = await fetch('/predict/all', {
+            const response = await irisApiFetch('/predict/all', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -226,7 +226,7 @@
         try {
             const token = localStorage.getItem('irisai_token');
             if (!token) throw new Error('Bạn cần đăng nhập để lưu kết quả.');
-            const response = await fetch('/predict', {
+            const response = await irisApiFetch('/predict', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -752,7 +752,7 @@
         loading = true;
         status.textContent = 'Đang chạy thử nghiệm nhiễu số đo trên các mô hình đã lưu…';
         try {
-            const response = await fetch('/models/robustness');
+            const response = await irisApiFetch('/models/robustness');
             const data = await response.json();
             if (!response.ok)
                 throw new Error(

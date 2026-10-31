@@ -72,10 +72,10 @@
     }
     async function loadSampleFile() {
         try {
-            const response = await fetch('/sample-files');
+            const response = await irisApiFetch('/sample-files');
             const files = await response.json();
             if (files.length > 0) {
-                template.href = files[0].File_Path;
+                template.href = irisApiUrl(files[0].File_Path);
                 template.download = files[0].File_Name;
             }
         } catch (error) {
@@ -158,7 +158,7 @@
             const form = new FormData();
             form.append('file', file);
             form.append('model_name', selectedModel);
-            const response = await fetch('/predict/file', {
+            const response = await irisApiFetch('/predict/file', {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('irisai_token')}`,

@@ -283,7 +283,7 @@
         content.hidden = true;
         status.textContent = 'Đang tải kết quả đánh giá đã lưu…';
         try {
-            const response = await fetch('/models/evaluation', { cache: 'no-store' });
+            const response = await irisApiFetch('/models/evaluation', { cache: 'no-store' });
             if (!response.ok) throw new Error(`Không thể tải kết quả (HTTP ${response.status}).`);
             const data = await response.json();
             if (!data.models || !Object.keys(data.models).length)

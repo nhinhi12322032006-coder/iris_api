@@ -73,7 +73,7 @@ const irisData = {
 let irisSummaryData = [];
 async function loadIrisSummaryData() {
     try {
-        const response = await fetch('/iris/summary');
+        const response = await irisApiFetch('/iris/summary');
         if (!response.ok) {
             throw new Error('Không thể tải đặc điểm sơ lược Iris.');
         }
@@ -182,7 +182,7 @@ async function fetchPrediction(recordHistory = true) {
         if (!token) {
             throw new Error('Bạn cần đăng nhập trước khi dự đoán.');
         }
-        const response = await fetch('/predict', {
+        const response = await irisApiFetch('/predict', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -288,7 +288,7 @@ predictBtn.addEventListener('click', () => fetchPrediction());
 let irisSampleData = [];
 async function loadIrisSampleData() {
     try {
-        const response = await fetch('/iris/sample');
+        const response = await irisApiFetch('/iris/sample');
         if (!response.ok) {
             throw new Error('Không thể tải dữ liệu mẫu Iris.');
         }
@@ -344,7 +344,7 @@ async function loadPredictionHistory() {
     }
     try {
         historyMessage.textContent = 'Đang tải lịch sử...';
-        const response = await fetch('/history', {
+        const response = await irisApiFetch('/history', {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -500,7 +500,7 @@ async function clearPredictionHistory() {
     try {
         clearPredictionsBtn.disabled = true;
         historyMessage.textContent = 'Đang xóa lịch sử...';
-        const response = await fetch('/history', {
+        const response = await irisApiFetch('/history', {
             method: 'DELETE',
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -644,7 +644,7 @@ window.addEventListener('DOMContentLoaded', () => {
     let scatterChart;
     async function loadIrisScatterData() {
         try {
-            const response = await fetch('/iris/data');
+            const response = await irisApiFetch('/iris/data');
             if (!response.ok) {
                 throw new Error('Không thể tải 150 mẫu Iris từ SQL.');
             }
@@ -722,7 +722,7 @@ window.addEventListener('DOMContentLoaded', () => {
     let barChart;
     async function loadIrisAverageData() {
         try {
-            const response = await fetch('/iris/sample');
+            const response = await irisApiFetch('/iris/sample');
             if (!response.ok) {
                 throw new Error('Không thể tải dữ liệu Iris từ SQL.');
             }

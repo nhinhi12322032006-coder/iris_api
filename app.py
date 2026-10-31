@@ -1,4 +1,3 @@
-
 # --- THƯ VIỆN CHUẨN ---
 import csv
 import io
@@ -15,8 +14,7 @@ import joblib
 import numpy as np
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from openpyxl import load_workbook
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -31,8 +29,7 @@ from sql_api import get_current_user, router as sql_router, save_prediction, ini
 # ĐƯỜNG DẪN TỆP
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "iris_svm_model.pkl")
-INDEX_PATH = os.path.join(BASE_DIR, "index.html")
-STATIC_DIR = os.path.join(BASE_DIR, "static")
+PUBLIC_FILES_DIR = os.path.join(BASE_DIR, "static", "files")
 # ĐỌC MÔ HÌNH AI
 if not os.path.exists(MODEL_PATH):
     raise FileNotFoundError("Không tìm thấy iris_svm_model.pkl")
@@ -75,15 +72,23 @@ app = FastAPI(
     lifespan=lifespan,
 )
 app.include_router(sql_router)
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-# CORS
+# --- CORS: CHỈ CHO PHÉP GIAO DIỆN ĐÃ CẤU HÌNH ---
+# Trên Render đặt FRONTEND_URL bằng URL Static Site; không đặt URL của API.
+frontend_origins = os.getenv("FRONTEND_ORIGINS") or os.getenv(
+    "FRONTEND_URL", "http://localhost:5500,http://localhost:5173"
+)
+allowed_origins = [
+    origin.strip().rstrip("/")
+    for origin in frontend_origins.split(",")
+    if origin.strip()
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=allowed_origins,
+    allow_credentials=False,  # Đăng nhập hiện tại dùng Bearer token, không dùng cookie API.
+    allow_methods=["GET", "POST", "DELETE"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 
@@ -141,17 +146,10 @@ def run_prediction(model_key: str, features: list[list[float]]):
     }
 
 
-# TRANG CHỦ
-@app.get("/", response_class=HTMLResponse)
+# --- TRANG CHỦ API: GIAO DIỆN ĐƯỢC TRIỂN KHAI Ở STATIC SITE RIÊNG ---
+@app.get("/")
 def home():
-    if os.path.exists(INDEX_PATH):
-        with open(INDEX_PATH, "r", encoding="utf-8") as page:
-            return page.read()
-    return """
-    <h3>
-    Iris Studio API đang hoạt động
-    </h3>
-    """
+    return {"service": "Iris Studio API", "docs": "/docs", "health": "/health"}
 
 
 # --- ẢNH HOA ---
@@ -165,6 +163,21 @@ def flower_image(image_name: str):
     if not os.path.isfile(image_path):
         raise HTTPException(status_code=404, detail="Image not found")
     return FileResponse(image_path)
+
+
+# --- TẢI TỆP MẪU: HEADER ATTACHMENT HỖ TRỢ GIAO DIỆN KHÁC ORIGIN ---
+@app.get("/static/files/{file_name}", include_in_schema=False)
+def download_sample(file_name: str):
+    if (
+        "/" in file_name
+        or "\\" in file_name
+        or os.path.splitext(file_name)[1].lower() not in {".csv", ".xlsx"}
+    ):
+        raise HTTPException(status_code=404, detail="Sample file not found")
+    file_path = os.path.join(PUBLIC_FILES_DIR, file_name)
+    if not os.path.isfile(file_path):
+        raise HTTPException(status_code=404, detail="Sample file not found")
+    return FileResponse(file_path, filename=file_name)
 
 
 # HEALTH CHECK

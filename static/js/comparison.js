@@ -1,7 +1,6 @@
 
 // So sánh dự đoán của năm mô hình trên cùng số đo, không ưu tiên mô hình nào.
 (() => {
-    const apiBase = window.location.origin;
     const predictionList = document.getElementById('model-predictions');
     const predictionStatus = document.getElementById('model-prediction-status');
     const compareButton = document.getElementById('compare-current-input');
@@ -67,7 +66,7 @@
         predictionStatus.textContent = 'Đang so sánh các mô hình…';
         predictionList.replaceChildren();
         try {
-            const response = await fetch(`${apiBase}/predict/all`, {
+            const response = await irisApiFetch('/predict/all', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

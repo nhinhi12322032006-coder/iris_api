@@ -6,7 +6,7 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = 12000) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
-        return await fetch(url, {
+        return await irisApiFetch(url, {
             ...options,
             signal: controller.signal
         });
