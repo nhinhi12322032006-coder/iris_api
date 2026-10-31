@@ -1,7 +1,11 @@
+
+"""Các bảng ORM: tài khoản, lịch sử dự đoán và dữ liệu Iris."""
+
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.sql import func
 
 from database import Base
+
 
 # --- TÀI KHOẢN ---
 class User(Base):
@@ -12,6 +16,7 @@ class User(Base):
     Password = Column(String(255), nullable=False)
     Role = Column(String(20), default="user")
     Created_Time = Column(DateTime, server_default=func.now())
+
 
 # --- LỊCH SỬ DỰ ĐOÁN ---
 class Prediction(Base):
@@ -24,7 +29,9 @@ class Prediction(Base):
     Petal_Width = Column(Float)
     Prediction = Column(String(50))
     Confidence = Column(Float)
+    Model_Name = Column(String(50), nullable=True)
     Created_Time = Column(DateTime, server_default=func.now())
+
 
 # --- MẪU NHANH VÀ THÔNG SỐ ĐẠI DIỆN ---
 class IrisMau(Base):
@@ -37,6 +44,7 @@ class IrisMau(Base):
     Petal_Width = Column(Float)
     Sample_Count = Column(Integer)
 
+
 # --- ĐẶC ĐIỂM SƠ LƯỢC CHO KẾT QUẢ ---
 class IrisSpeciesSoluoc(Base):
     __tablename__ = "Iris_Species_SOLUOC"
@@ -46,6 +54,7 @@ class IrisSpeciesSoluoc(Base):
     Sepal_Feature = Column(String)
     General_Feature = Column(String)
     Habitat = Column(String)
+
 
 # --- THẺ CHI TIẾT LOÀI ---
 class IrisSpeciesChitiet(Base):
@@ -58,6 +67,7 @@ class IrisSpeciesChitiet(Base):
     Physiological_Feature = Column(String)
     Habitat_Detail = Column(String)
 
+
 # --- TỆP MẪU CHO DỰ ĐOÁN HÀNG LOẠT ---
 class SampleFile(Base):
     __tablename__ = "Sample_Files"
@@ -67,6 +77,7 @@ class SampleFile(Base):
     Description = Column(String)
     File_Path = Column(String(255), nullable=False)
     Created_Time = Column(DateTime, server_default=func.now())
+
 
 # --- DỮ LIỆU BIỂU ĐỒ PHÂN TÍCH ---
 class IrisData(Base):

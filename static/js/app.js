@@ -1,16 +1,19 @@
+
 // --- ĐIỀU HƯỚNG VÀ THẺ CÂU CHUYỆN ---
 function flipPersonCard(card, name) {
     const flipped = card.classList.toggle('flipped');
     card.setAttribute('aria-pressed', String(flipped));
-    card.setAttribute('aria-label', name + (flipped ? ', nhấn để quay lại mặt trước' :
-        ', nhấn để xem câu chuyện'));
+    card.setAttribute(
+        'aria-label',
+        name + (flipped ? ', nhấn để quay lại mặt trước' : ', nhấn để xem câu chuyện'),
+    );
 }
 
 function switchPage(pageId, btnElement) {
-    document.querySelectorAll('.page-section').forEach(section => {
+    document.querySelectorAll('.page-section').forEach((section) => {
         section.classList.remove('active');
     });
-    document.querySelectorAll('.nav-btn').forEach(btn => {
+    document.querySelectorAll('.nav-btn').forEach((btn) => {
         btn.classList.remove('active');
     });
     document.getElementById(pageId).classList.add('active');
@@ -23,20 +26,20 @@ function switchPage(pageId, btnElement) {
 const elements = {
     'sepal-len': {
         slider: document.getElementById('sepal-len'),
-        input: document.getElementById('num-sepal-len')
+        input: document.getElementById('num-sepal-len'),
     },
     'sepal-wid': {
         slider: document.getElementById('sepal-wid'),
-        input: document.getElementById('num-sepal-wid')
+        input: document.getElementById('num-sepal-wid'),
     },
     'petal-len': {
         slider: document.getElementById('petal-len'),
-        input: document.getElementById('num-petal-len')
+        input: document.getElementById('num-petal-len'),
     },
     'petal-wid': {
         slider: document.getElementById('petal-wid'),
-        input: document.getElementById('num-petal-wid')
-    }
+        input: document.getElementById('num-petal-wid'),
+    },
 };
 const subtitleBox = document.getElementById('subtitle-box');
 const resultBox = document.getElementById('result');
@@ -47,19 +50,25 @@ const predictBtn = document.getElementById('predict-btn');
 const confidenceBox = document.getElementById('confidence-box');
 const highestScore = document.getElementById('highest-score');
 const highestBar = document.getElementById('highest-bar');
+let predictionRequestId = 0;
+const predictionModel = document.getElementById('prediction-model');
+const modelResult = document.getElementById('prediction-model-result');
+const modelLabels = Object.fromEntries(
+    [...predictionModel.options].map((option) => [option.value, option.text]),
+);
 const irisData = {
-    'setosa': {
-        img: "setosa.jpg",
-        text: "Iris setosa"
+    setosa: {
+        img: 'setosa.jpg',
+        text: 'Iris setosa',
     },
-    'versicolor': {
-        img: "versicolor.jpg",
-        text: "Iris versicolor"
+    versicolor: {
+        img: 'versicolor.jpg',
+        text: 'Iris versicolor',
     },
-    'virginica': {
-        img: "virginica.jpg",
-        text: "Iris virginica"
-    }
+    virginica: {
+        img: 'virginica.jpg',
+        text: 'Iris virginica',
+    },
 };
 let irisSummaryData = [];
 async function loadIrisSummaryData() {
@@ -87,10 +96,12 @@ function updateFlowerDetails(predictionLabel) {
     const data = irisData[matchedKey];
     if (data) {
         subtitleBox.style.display = 'block';
-        resultBox.className = "prediction-text";
+        resultBox.className = 'prediction-text';
         resultBox.innerText = data.text;
         flowerImg.src = data.img;
-        const summary = irisSummaryData.find(item => item.Species_Name.toLowerCase() === matchedKey);
+        const summary = irisSummaryData.find(
+            (item) => item.Species_Name.toLowerCase() === matchedKey,
+        );
         if (summary) {
             descContainer.innerHTML = `
                 <div class="bio-title">
@@ -132,66 +143,85 @@ function getConfidence(data) {
     return percent >= 0 && percent <= 100 ? Math.round(percent * 10) / 10 : null;
 }
 async function fetchPrediction(recordHistory = true) {
+    const requestId = ++predictionRequestId;
+    const selectedModel = predictionModel.value;
+    modelResult.textContent = '';
     const sepalLen = parseFloat(elements['sepal-len'].input.value);
     const sepalWid = parseFloat(elements['sepal-wid'].input.value);
     const petalLen = parseFloat(elements['petal-len'].input.value);
     const petalWidth = parseFloat(elements['petal-wid'].input.value);
-    if (sepalLen <= 0 || sepalWid <= 0 || petalLen <= 0 || petalWidth <= 0 || isNaN(sepalLen) || isNaN(
-            sepalWid) || isNaN(petalLen) || isNaN(petalWidth)) {
+    if (
+        sepalLen <= 0 ||
+        sepalWid <= 0 ||
+        petalLen <= 0 ||
+        petalWidth <= 0 ||
+        isNaN(sepalLen) ||
+        isNaN(sepalWid) ||
+        isNaN(petalLen) ||
+        isNaN(petalWidth)
+    ) {
         subtitleBox.style.display = 'none';
-        resultBox.className = "prediction-text warning-text";
-        resultBox.innerText = "⚠️ Vui lòng không nhập giá trị 0cm hoặc để trống!";
+        resultBox.className = 'prediction-text warning-text';
+        resultBox.innerText = '⚠️ Vui lòng không nhập giá trị 0cm hoặc để trống!';
         contentSplit.style.display = 'none';
         confidenceBox.style.display = 'none';
         return;
     }
     subtitleBox.style.display = 'none';
-    resultBox.innerText = "Đang dự đoán...";
-    resultBox.className = "prediction-text loading";
+    resultBox.innerText = 'Đang dự đoán...';
+    resultBox.className = 'prediction-text loading';
     const payload = {
         sepal_length: sepalLen,
         sepal_width: sepalWid,
         petal_length: petalLen,
-        petal_width: petalWidth
+        petal_width: petalWidth,
+        model_name: selectedModel,
     };
     try {
-        const token = localStorage.getItem("irisai_token");
+        const token = localStorage.getItem('irisai_token');
         if (!token) {
-            throw new Error("Bạn cần đăng nhập trước khi dự đoán.");
+            throw new Error('Bạn cần đăng nhập trước khi dự đoán.');
         }
-        const response = await fetch("/predict", {
-            method: "POST",
+        const response = await fetch('/predict', {
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
         });
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             if (response.status === 401) {
-                localStorage.removeItem("irisai_token");
-                localStorage.removeItem("irisai_username");
-                localStorage.removeItem("irisai_role");
-                window.dispatchEvent(new Event("irisai-logout"));
-                throw new Error("Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.");
+                localStorage.removeItem('irisai_token');
+                localStorage.removeItem('irisai_username');
+                localStorage.removeItem('irisai_role');
+                window.dispatchEvent(new Event('irisai-logout'));
+                throw new Error('Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.');
             }
-            throw new Error(errorData.detail || "Không thể dự đoán.");
+            throw new Error(errorData.detail || 'Không thể dự đoán.');
         }
         const data = await response.json();
+        if (requestId !== predictionRequestId) return;
         const predictedClass = data.prediction;
-        if (typeof predictedClass !== 'string' || !/setosa|versicolor|virginica/i.test(predictedClass)) {
+        if (
+            typeof predictedClass !== 'string' ||
+            !/setosa|versicolor|virginica/i.test(predictedClass)
+        ) {
             throw new Error('Unexpected prediction');
         }
         updateFlowerDetails(predictedClass);
+        modelResult.textContent = `Kết quả từ ${data.model_display_name || modelLabels[selectedModel]}`;
         const confidence = getConfidence(data);
         if (recordHistory) {
             await loadPredictionHistory();
+            if (requestId !== predictionRequestId) return;
         }
         confidenceBox.style.display = 'block';
-        document.getElementById('confidence-note').style.display = confidence === null ? 'block' : 'none';
-        confidenceBox.querySelector('.progress-bar-bg').style.display = confidence === null ? 'none' :
-            'block';
+        document.getElementById('confidence-note').style.display =
+            confidence === null ? 'block' : 'none';
+        confidenceBox.querySelector('.progress-bar-bg').style.display =
+            confidence === null ? 'none' : 'block';
         confidenceBox.querySelector('.classes-grid').style.display = 'none';
         if (confidence === null) highestScore.innerText = '—';
         if (confidence !== null) {
@@ -201,25 +231,42 @@ async function fetchPrediction(recordHistory = true) {
             const probabilities = data.probabilities;
             const cardsGrid = confidenceBox.querySelector('.classes-grid');
             const keys = ['setosa', 'versicolor', 'virginica'];
-            const scores = keys.map(key => probabilities && Number(probabilities[key]));
-            const hasScores = probabilities && scores.every(value => Number.isFinite(value) && value >=
-                0 && value <= 100);
+            const scores = keys.map((key) => probabilities && Number(probabilities[key]));
+            const hasScores =
+                probabilities &&
+                scores.every((value) => Number.isFinite(value) && value >= 0 && value <= 100);
             cardsGrid.style.display = hasScores ? '' : 'none';
-            if (hasScores) keys.forEach((key, index) => {
-                document.getElementById(`score-${key}`).innerText = `${scores[index]}%`;
-                document.getElementById(`card-${key}`).classList.toggle('active-class',
-                    predictedClass.toLowerCase().includes(key));
-            });
+            if (hasScores)
+                keys.forEach((key, index) => {
+                    document.getElementById(`score-${key}`).innerText = `${scores[index]}%`;
+                    document
+                        .getElementById(`card-${key}`)
+                        .classList.toggle(
+                            'active-class',
+                            predictedClass.toLowerCase().includes(key),
+                        );
+                });
         }
     } catch (error) {
+        if (requestId !== predictionRequestId) return;
         subtitleBox.style.display = 'none';
-        resultBox.className = "prediction-text warning-text";
-        resultBox.innerText = error.message || "Không thể kết nối đến API server!";
+        resultBox.className = 'prediction-text warning-text';
+        resultBox.innerText = error.message || 'Không thể kết nối đến API server!';
         contentSplit.style.display = 'none';
         confidenceBox.style.display = 'none';
     }
 }
-Object.keys(elements).forEach(key => {
+// --- DỰ ĐOÁN: GẮN SỰ KIỆN CHỌN MÔ HÌNH, NHẬP SỐ ĐO VÀ GỬI YÊU CẦU ---
+predictionModel.addEventListener('change', () => {
+    predictionRequestId++;
+    subtitleBox.style.display = 'none';
+    resultBox.className = 'prediction-text';
+    resultBox.textContent = 'Mô hình đã thay đổi. Bấm để dự đoán lại.';
+    contentSplit.style.display = 'none';
+    confidenceBox.style.display = 'none';
+    modelResult.textContent = '';
+});
+Object.keys(elements).forEach((key) => {
     const item = elements[key];
     item.slider.addEventListener('input', (e) => {
         item.input.value = e.target.value;
@@ -252,7 +299,9 @@ async function loadIrisSampleData() {
 }
 
 function applyPreset(speciesName) {
-    const sample = irisSampleData.find(item => item.Species_Name.toLowerCase() === speciesName.toLowerCase());
+    const sample = irisSampleData.find(
+        (item) => item.Species_Name.toLowerCase() === speciesName.toLowerCase(),
+    );
     if (!sample) {
         console.error('Không tìm thấy mẫu Iris:', speciesName);
         return;
@@ -279,32 +328,38 @@ const exportPredictionsBtn = document.getElementById('export-predictions');
 const historySearch = document.getElementById('history-search');
 const historyFilter = document.getElementById('history-filter');
 const historyCount = document.getElementById('history-count');
+const historyModelFilter = document.getElementById('history-model-filter');
 const historyNoMatch = document.getElementById('history-no-match');
+
+// --- LỊCH SỬ: TÊN MÔ HÌNH VÀ TẢI DỮ LIỆU ---
+function historyModelLabel(item) {
+    return modelLabels[item.model] || item.model || 'Chưa ghi nhận';
+}
 async function loadPredictionHistory() {
-    const token = localStorage.getItem("irisai_token");
+    const token = localStorage.getItem('irisai_token');
     if (!token) {
         predictionHistory = [];
         renderPredictionHistory();
         return;
     }
     try {
-        historyMessage.textContent = "Đang tải lịch sử...";
-        const response = await fetch("/history", {
+        historyMessage.textContent = 'Đang tải lịch sử...';
+        const response = await fetch('/history', {
             headers: {
-                "Authorization": `Bearer ${token}`
-            }
+                Authorization: `Bearer ${token}`,
+            },
         });
         if (!response.ok) {
             if (response.status === 401) {
-                localStorage.removeItem("irisai_token");
-                localStorage.removeItem("irisai_username");
-                localStorage.removeItem("irisai_role");
-                throw new Error("Phiên đăng nhập đã hết hạn.");
+                localStorage.removeItem('irisai_token');
+                localStorage.removeItem('irisai_username');
+                localStorage.removeItem('irisai_role');
+                throw new Error('Phiên đăng nhập đã hết hạn.');
             }
-            throw new Error("Không thể tải lịch sử.");
+            throw new Error('Không thể tải lịch sử.');
         }
         const records = await response.json();
-        predictionHistory = records.map(record => ({
+        predictionHistory = records.map((record) => ({
             id: record.Prediction_ID,
             time: record.Created_Time,
             sepalLength: record.Sepal_Length,
@@ -312,11 +367,11 @@ async function loadPredictionHistory() {
             petalLength: record.Petal_Length,
             petalWidth: record.Petal_Width,
             prediction: record.Prediction,
-            confidence: record.Confidence
+            confidence: record.Confidence,
+            model: record.Model_Name || null,
         }));
-        predictionHistory.sort(
-            (a, b) => new Date(b.time) - new Date(a.time));
-        historyMessage.textContent = "";
+        predictionHistory.sort((a, b) => new Date(b.time) - new Date(a.time));
+        historyMessage.textContent = '';
         renderPredictionHistory();
     } catch (error) {
         predictionHistory = [];
@@ -325,6 +380,7 @@ async function loadPredictionHistory() {
     }
 }
 
+// --- LỊCH SỬ: LỌC VÀ HIỂN THỊ BẢNG ---
 function renderPredictionHistory() {
     const entries = predictionHistory;
     historyRows.replaceChildren();
@@ -334,27 +390,54 @@ function renderPredictionHistory() {
     exportPredictionsBtn.disabled = entries.length === 0;
     const search = historySearch.value.trim().toLocaleLowerCase('vi-VN');
     const species = historyFilter.value;
-    const filtered = entries.filter(item => {
-        const fields = [item.prediction, item.sepalLength, item.sepalWidth, item.petalLength, item
-            .petalWidth
+    const selectedHistoryModel = historyModelFilter.value;
+    const filtered = entries.filter((item) => {
+        const fields = [
+            item.prediction,
+            historyModelLabel(item),
+            item.sepalLength,
+            item.sepalWidth,
+            item.petalLength,
+            item.petalWidth,
         ];
-        return (!species || String(item.prediction).toLowerCase().includes(species)) && (!search ||
-            fields.some(value => String(value).toLocaleLowerCase('vi-VN').includes(search)));
+        const matchesModel =
+            !selectedHistoryModel ||
+            (selectedHistoryModel === 'unknown'
+                ? !item.model
+                : item.model === selectedHistoryModel);
+        return (
+            matchesModel &&
+            (!species || String(item.prediction).toLowerCase().includes(species)) &&
+            (!search ||
+                fields.some((value) => String(value).toLocaleLowerCase('vi-VN').includes(search)))
+        );
     });
-    historyCount.textContent = entries.length ? `Hiển thị ${filtered.length}/${entries.length} lượt dự đoán` :
-        '';
+    historyCount.textContent = entries.length
+        ? `Hiển thị ${filtered.length}/${entries.length} lượt dự đoán`
+        : '';
     historyNoMatch.hidden = filtered.length > 0;
-    const labels = ['Thời gian', 'Dài lá đài', 'Rộng lá đài', 'Dài cánh hoa', 'Rộng cánh hoa', 'Kết quả',
-        'Độ tin cậy'
+    const labels = [
+        'Thời gian',
+        'Dài lá đài',
+        'Rộng lá đài',
+        'Dài cánh hoa',
+        'Rộng cánh hoa',
+        'Kết quả',
+        'Độ tin cậy',
+        'Mô hình',
     ];
     for (const item of filtered) {
         const row = document.createElement('tr');
         const timestamp = new Date(item.time);
         const values = [
             Number.isNaN(timestamp.getTime()) ? '—' : timestamp.toLocaleString('vi-VN'),
-            item.sepalLength + ' cm', item.sepalWidth + ' cm',
-            item.petalLength + ' cm', item.petalWidth + ' cm', item.prediction,
-            typeof item.confidence === 'number' ? `${item.confidence}%` : '—'
+            item.sepalLength + ' cm',
+            item.sepalWidth + ' cm',
+            item.petalLength + ' cm',
+            item.petalWidth + ' cm',
+            item.prediction,
+            typeof item.confidence === 'number' ? `${item.confidence}%` : '—',
+            historyModelLabel(item),
         ];
         values.forEach((value, index) => {
             const cell = document.createElement('td');
@@ -376,78 +459,11 @@ function renderPredictionHistory() {
         historyRows.appendChild(row);
     }
 }
-clearPredictionsBtn.addEventListener('click', async () => {
-    const confirmed = confirm('Bạn có chắc muốn xóa toàn bộ lịch sử dự đoán của tài khoản này?');
-    if (!confirmed) {
-        return;
-    }
-    const token = localStorage.getItem("irisai_token");
-    if (!token) {
-        historyMessage.textContent = "Bạn cần đăng nhập trước.";
-        return;
-    }
-    try {
-        clearPredictionsBtn.disabled = true;
-        historyMessage.textContent = "Đang xóa lịch sử...";
-        const response = await fetch("/history", {
-            method: "DELETE",
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
-        });
-        const data = await response.json();
-        if (!response.ok) {
-            if (response.status === 401) {
-                localStorage.removeItem("irisai_token");
-                localStorage.removeItem("irisai_username");
-                localStorage.removeItem("irisai_role");
-                throw new Error("Phiên đăng nhập đã hết hạn.");
-            }
-            throw new Error(data.detail || "Không thể xóa lịch sử.");
-        }
-        historyMessage.textContent = `Đã xóa ${data.deleted_count} lượt dự đoán.`;
-        await loadPredictionHistory();
-    } catch (error) {
-        historyMessage.textContent = error.message;
-    }
-});
-historySearch.addEventListener('input', renderPredictionHistory);
-historyFilter.addEventListener('change', renderPredictionHistory);
-exportPredictionsBtn.addEventListener('click', () => {
-    const entries = predictionHistory;
-    if (!entries.length) return;
-    const escapeCsv = value => `"${String(value ?? '').replace(/"/g, '""')}"`;
-    const lines = [
-        ['Thời gian', 'Dài lá đài (cm)', 'Rộng lá đài (cm)', 'Dài cánh hoa (cm)',
-            'Rộng cánh hoa (cm)', 'Kết quả', 'Độ tin cậy (%)'
-        ], ...entries.map(item => [item.time, item.sepalLength, item.sepalWidth, item.petalLength,
-            item.petalWidth, item.prediction, item.confidence ?? ''
-        ])
-    ];
-    const blob = new Blob(['\uFEFF' + lines.map(row => row.map(escapeCsv).join(',')).join('\r\n')], {
-        type: 'text/csv;charset=utf-8'
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `lich-su-du-doan-iris-${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-});
-window.addEventListener("irisai-login",
-    () => {
-        loadPredictionHistory();
-    });
-window.addEventListener("irisai-logout",
-    () => {
-        predictionHistory = [];
-        renderPredictionHistory();
-    });
 // --- LỊCH SỬ: NẠP LẠI SỐ ĐO ĐỂ DỰ ĐOÁN ---
 function retryPrediction(item) {
     const measurements = [item.sepalLength, item.sepalWidth, item.petalLength, item.petalWidth];
     const keys = ['sepal-len', 'sepal-wid', 'petal-len', 'petal-wid'];
-    if (measurements.some(value => !Number.isFinite(Number(value)) || Number(value) <= 0)) {
+    if (measurements.some((value) => !Number.isFinite(Number(value)) || Number(value) <= 0)) {
         historyMessage.textContent = 'Số đo đã lưu không hợp lệ, không thể dự đoán lại.';
         return;
     }
@@ -455,13 +471,113 @@ function retryPrediction(item) {
         elements[key].input.value = measurements[index];
         elements[key].slider.value = measurements[index];
     });
+    const canRestoreModel = Boolean(item.model && modelLabels[item.model]);
+    if (canRestoreModel) predictionModel.value = item.model;
+    predictionModel.dispatchEvent(new Event('change'));
     switchPage('page-1', document.querySelector('.nav-btn[onclick*="page-1"]'));
     window.scrollTo({
         top: 0,
-        behavior: 'smooth'
+        behavior: 'smooth',
     });
-    fetchPrediction();
+    if (canRestoreModel) {
+        fetchPrediction();
+    } else {
+        resultBox.textContent =
+            'Đã nạp số đo. Lượt cũ chưa ghi nhận mô hình khả dụng; hãy chọn mô hình và bấm dự đoán.';
+    }
 }
+// --- LỊCH SỬ: XÓA CÁC LƯỢT DỰ ĐOÁN ---
+async function clearPredictionHistory() {
+    const confirmed = confirm('Bạn có chắc muốn xóa toàn bộ lịch sử dự đoán của tài khoản này?');
+    if (!confirmed) {
+        return;
+    }
+    const token = localStorage.getItem('irisai_token');
+    if (!token) {
+        historyMessage.textContent = 'Bạn cần đăng nhập trước.';
+        return;
+    }
+    try {
+        clearPredictionsBtn.disabled = true;
+        historyMessage.textContent = 'Đang xóa lịch sử...';
+        const response = await fetch('/history', {
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            if (response.status === 401) {
+                localStorage.removeItem('irisai_token');
+                localStorage.removeItem('irisai_username');
+                localStorage.removeItem('irisai_role');
+                throw new Error('Phiên đăng nhập đã hết hạn.');
+            }
+            throw new Error(data.detail || 'Không thể xóa lịch sử.');
+        }
+        historyMessage.textContent = `Đã xóa ${data.deleted_count} lượt dự đoán.`;
+        await loadPredictionHistory();
+    } catch (error) {
+        historyMessage.textContent = error.message;
+    }
+}
+
+// --- LỊCH SỬ: XUẤT CSV (BAO GỒM TÊN MÔ HÌNH) ---
+function exportPredictionHistory() {
+    const entries = predictionHistory;
+    if (!entries.length) return;
+    const escapeCsv = (value) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+    const lines = [
+        [
+            'Thời gian',
+            'Dài lá đài (cm)',
+            'Rộng lá đài (cm)',
+            'Dài cánh hoa (cm)',
+            'Rộng cánh hoa (cm)',
+            'Kết quả',
+            'Độ tin cậy (%)',
+            'Mô hình',
+        ],
+        ...entries.map((item) => [
+            item.time,
+            item.sepalLength,
+            item.sepalWidth,
+            item.petalLength,
+            item.petalWidth,
+            item.prediction,
+            item.confidence ?? '',
+            historyModelLabel(item),
+        ]),
+    ];
+    const blob = new Blob(
+        ['\uFEFF' + lines.map((row) => row.map(escapeCsv).join(',')).join('\r\n')],
+        {
+            type: 'text/csv;charset=utf-8',
+        },
+    );
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `lich-su-du-doan-iris-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// --- LỊCH SỬ: GẮN SỰ KIỆN VÀ CẬP NHẬT THEO PHIÊN ĐĂNG NHẬP ---
+historySearch.addEventListener('input', renderPredictionHistory);
+historyFilter.addEventListener('change', renderPredictionHistory);
+historyModelFilter.addEventListener('change', renderPredictionHistory);
+window.addEventListener('irisai-login', () => {
+    loadPredictionHistory();
+});
+window.addEventListener('irisai-logout', () => {
+    predictionHistory = [];
+    renderPredictionHistory();
+});
+clearPredictionsBtn.addEventListener('click', clearPredictionHistory);
+exportPredictionsBtn.addEventListener('click', exportPredictionHistory);
+
 // --- TRANG PHÂN TÍCH: BIỂU ĐỒ VÀ BỘ LỌC LOÀI ---
 // Khởi tạo các biểu đồ Chart.js ở trang 2 khi trang tải xong
 window.addEventListener('DOMContentLoaded', () => {
@@ -472,25 +588,25 @@ window.addEventListener('DOMContentLoaded', () => {
     const separationGuides = {
         id: 'separationGuides',
         beforeDatasetsDraw(chart) {
-            const {
-                ctx,
-                chartArea,
-                scales
-            } = chart;
+            const { ctx, chartArea, scales } = chart;
             if (!chartArea || !scales.x) return;
-            const regions = [{
-                from: chartArea.left,
-                to: scales.x.getPixelForValue(2.85),
-                color: 'rgba(56, 178, 172, 0.10)'
-            }, {
-                from: scales.x.getPixelForValue(2.85),
-                to: scales.x.getPixelForValue(5),
-                color: 'rgba(221, 107, 32, 0.09)'
-            }, {
-                from: scales.x.getPixelForValue(5),
-                to: chartArea.right,
-                color: 'rgba(107, 70, 193, 0.09)'
-            }];
+            const regions = [
+                {
+                    from: chartArea.left,
+                    to: scales.x.getPixelForValue(2.85),
+                    color: 'rgba(56, 178, 172, 0.10)',
+                },
+                {
+                    from: scales.x.getPixelForValue(2.85),
+                    to: scales.x.getPixelForValue(5),
+                    color: 'rgba(221, 107, 32, 0.09)',
+                },
+                {
+                    from: scales.x.getPixelForValue(5),
+                    to: chartArea.right,
+                    color: 'rgba(107, 70, 193, 0.09)',
+                },
+            ];
             ctx.save();
             for (const [index, region] of regions.entries()) {
                 if (!chart.isDatasetVisible(index)) continue;
@@ -498,8 +614,12 @@ window.addEventListener('DOMContentLoaded', () => {
                 const right = Math.min(chartArea.right, region.to);
                 if (right > left) {
                     ctx.fillStyle = region.color;
-                    ctx.fillRect(left, chartArea.top, right - left, chartArea.bottom - chartArea
-                        .top);
+                    ctx.fillRect(
+                        left,
+                        chartArea.top,
+                        right - left,
+                        chartArea.bottom - chartArea.top,
+                    );
                 }
             }
             ctx.strokeStyle = 'rgba(74, 85, 104, 0.65)';
@@ -518,7 +638,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 }
             }
             ctx.restore();
-        }
+        },
     };
     const ctxScatter = document.getElementById('irisScatterChart').getContext('2d');
     let scatterChart;
@@ -529,41 +649,46 @@ window.addEventListener('DOMContentLoaded', () => {
                 throw new Error('Không thể tải 150 mẫu Iris từ SQL.');
             }
             const irisData = await response.json();
-            const setosaData = irisData.filter(item => item.Species_Name.toLowerCase() ===
-                'setosa').map(item => ({
-                x: item.Petal_Length,
-                y: item.Petal_Width
-            }));
-            const versicolorData = irisData.filter(item => item.Species_Name.toLowerCase() ===
-                'versicolor').map(item => ({
-                x: item.Petal_Length,
-                y: item.Petal_Width
-            }));
-            const virginicaData = irisData.filter(item => item.Species_Name.toLowerCase() ===
-                'virginica').map(item => ({
-                x: item.Petal_Length,
-                y: item.Petal_Width
-            }));
+            const setosaData = irisData
+                .filter((item) => item.Species_Name.toLowerCase() === 'setosa')
+                .map((item) => ({
+                    x: item.Petal_Length,
+                    y: item.Petal_Width,
+                }));
+            const versicolorData = irisData
+                .filter((item) => item.Species_Name.toLowerCase() === 'versicolor')
+                .map((item) => ({
+                    x: item.Petal_Length,
+                    y: item.Petal_Width,
+                }));
+            const virginicaData = irisData
+                .filter((item) => item.Species_Name.toLowerCase() === 'virginica')
+                .map((item) => ({
+                    x: item.Petal_Length,
+                    y: item.Petal_Width,
+                }));
             scatterChart = new Chart(ctxScatter, {
                 type: 'scatter',
                 data: {
-                    datasets: [{
-                        label: 'Setosa',
-                        data: setosaData,
-                        backgroundColor: '#38b2ac'
-                    }, {
-                        label: 'Versicolor',
-                        data: versicolorData,
-                        backgroundColor: '#dd6b20'
-                    }, {
-                        label: 'Virginica',
-                        data: virginicaData,
-                        backgroundColor: '#6b46c1'
-                    }]
+                    datasets: [
+                        {
+                            label: 'Setosa',
+                            data: setosaData,
+                            backgroundColor: '#38b2ac',
+                        },
+                        {
+                            label: 'Versicolor',
+                            data: versicolorData,
+                            backgroundColor: '#dd6b20',
+                        },
+                        {
+                            label: 'Virginica',
+                            data: virginicaData,
+                            backgroundColor: '#6b46c1',
+                        },
+                    ],
                 },
-                plugins: [
-                    separationGuides
-                ],
+                plugins: [separationGuides],
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
@@ -571,17 +696,17 @@ window.addEventListener('DOMContentLoaded', () => {
                         x: {
                             title: {
                                 display: true,
-                                text: 'Chiều dài cánh hoa - Petal Length (cm)'
-                            }
+                                text: 'Chiều dài cánh hoa - Petal Length (cm)',
+                            },
                         },
                         y: {
                             title: {
                                 display: true,
-                                text: 'Chiều rộng cánh hoa - Petal Width (cm)'
-                            }
-                        }
-                    }
-                }
+                                text: 'Chiều rộng cánh hoa - Petal Width (cm)',
+                            },
+                        },
+                    },
+                },
             });
             updateChartSpecies();
             console.log(`Đã tải ${irisData.length} mẫu Iris từ SQL.`);
@@ -602,47 +727,52 @@ window.addEventListener('DOMContentLoaded', () => {
                 throw new Error('Không thể tải dữ liệu Iris từ SQL.');
             }
             const irisSamples = await response.json();
-            const setosa = irisSamples.find(item => item.Species_Name.toLowerCase() === 'setosa');
-            const versicolor = irisSamples.find(item => item.Species_Name.toLowerCase() ===
-                'versicolor');
-            const virginica = irisSamples.find(item => item.Species_Name.toLowerCase() ===
-                'virginica');
+            const setosa = irisSamples.find((item) => item.Species_Name.toLowerCase() === 'setosa');
+            const versicolor = irisSamples.find(
+                (item) => item.Species_Name.toLowerCase() === 'versicolor',
+            );
+            const virginica = irisSamples.find(
+                (item) => item.Species_Name.toLowerCase() === 'virginica',
+            );
             barChart = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
-                    labels: ['Sepal Length', 'Sepal Width', 'Petal Length',
-                        'Petal Width'],
-                    datasets: [{
-                        label: 'Setosa',
-                        data: [
-                            setosa.Sepal_Length,
-                            setosa.Sepal_Width,
-                            setosa.Petal_Length,
-                            setosa.Petal_Width
-                        ],
-                        backgroundColor: '#38b2ac',
-                        borderRadius: 6
-                    }, {
-                        label: 'Versicolor',
-                        data: [
-                            versicolor.Sepal_Length,
-                            versicolor.Sepal_Width,
-                            versicolor.Petal_Length,
-                            versicolor.Petal_Width
-                        ],
-                        backgroundColor: '#dd6b20',
-                        borderRadius: 6
-                    }, {
-                        label: 'Virginica',
-                        data: [
-                            virginica.Sepal_Length,
-                            virginica.Sepal_Width,
-                            virginica.Petal_Length,
-                            virginica.Petal_Width
-                        ],
-                        backgroundColor: '#6b46c1',
-                        borderRadius: 6
-                    }]
+                    labels: ['Sepal Length', 'Sepal Width', 'Petal Length', 'Petal Width'],
+                    datasets: [
+                        {
+                            label: 'Setosa',
+                            data: [
+                                setosa.Sepal_Length,
+                                setosa.Sepal_Width,
+                                setosa.Petal_Length,
+                                setosa.Petal_Width,
+                            ],
+                            backgroundColor: '#38b2ac',
+                            borderRadius: 6,
+                        },
+                        {
+                            label: 'Versicolor',
+                            data: [
+                                versicolor.Sepal_Length,
+                                versicolor.Sepal_Width,
+                                versicolor.Petal_Length,
+                                versicolor.Petal_Width,
+                            ],
+                            backgroundColor: '#dd6b20',
+                            borderRadius: 6,
+                        },
+                        {
+                            label: 'Virginica',
+                            data: [
+                                virginica.Sepal_Length,
+                                virginica.Sepal_Width,
+                                virginica.Petal_Length,
+                                virginica.Petal_Width,
+                            ],
+                            backgroundColor: '#6b46c1',
+                            borderRadius: 6,
+                        },
+                    ],
                 },
                 options: {
                     responsive: true,
@@ -651,12 +781,12 @@ window.addEventListener('DOMContentLoaded', () => {
                         y: {
                             title: {
                                 display: true,
-                                text: 'Giá trị trung bình (cm)'
+                                text: 'Giá trị trung bình (cm)',
                             },
-                            beginAtZero: true
-                        }
-                    }
-                }
+                            beginAtZero: true,
+                        },
+                    },
+                },
             });
             updateChartSpecies();
         } catch (error) {
@@ -666,35 +796,39 @@ window.addEventListener('DOMContentLoaded', () => {
     loadIrisAverageData();
 
     function updateChartSpecies() {
-        const selected = new Set(chartSpeciesInputs.filter(input => input.checked).map(input => input
-            .value));
+        const selected = new Set(
+            chartSpeciesInputs.filter((input) => input.checked).map((input) => input.value),
+        );
         const charts = [scatterChart, barChart];
         for (const chart of charts) {
             if (!chart) continue;
-            chart.data.datasets.forEach(
-                (dataset, index) => {
-                    chart.setDatasetVisibility(index, selected.has(dataset.label));
-                });
+            chart.data.datasets.forEach((dataset, index) => {
+                chart.setDatasetVisibility(index, selected.has(dataset.label));
+            });
             chart.update();
         }
-        chartFilterMessage.textContent = selected.size === 3 ? 'Đang hiển thị cả 3 loài.' :
-            `Đang hiển thị: ${[...selected].join(', ')}.`;
+        chartFilterMessage.textContent =
+            selected.size === 3
+                ? 'Đang hiển thị cả 3 loài.'
+                : `Đang hiển thị: ${[...selected].join(', ')}.`;
     }
-    chartSpeciesInputs.forEach(input => input.addEventListener('change', () => {
-        if (!chartSpeciesInputs.some(option => option.checked)) {
-            input.checked = true;
-            chartFilterMessage.textContent = 'Hãy giữ ít nhất một loài để hiển thị.';
-            return;
-        }
-        updateChartSpecies();
-    }));
+    chartSpeciesInputs.forEach((input) =>
+        input.addEventListener('change', () => {
+            if (!chartSpeciesInputs.some((option) => option.checked)) {
+                input.checked = true;
+                chartFilterMessage.textContent = 'Hãy giữ ít nhất một loài để hiển thị.';
+                return;
+            }
+            updateChartSpecies();
+        }),
+    );
 });
 // --- KHỞI TẠO DỮ LIỆU VÀ NÚT MẪU ---
 loadIrisSummaryData();
 loadIrisSampleData();
 loadPredictionHistory();
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.preset-btn').forEach(button => {
+    document.querySelectorAll('.preset-btn').forEach((button) => {
         button.addEventListener('click', () => {
             const speciesName = button.dataset.species;
             applyPreset(speciesName);

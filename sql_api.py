@@ -1,11 +1,14 @@
+
 """Tài khoản, xác thực và lịch sử dự đoán lưu trong SQL."""
 
 from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from pydantic import BaseModel
+from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session
 
 from auth import ALGORITHM, SECRET_KEY, create_token, hash_password, verify_password
@@ -36,11 +39,37 @@ class ChangePasswordInput(BaseModel):
     new_password: str
 
 
-# KHỞI TẠO CƠ SỞ DỮ LIỆU 
+# --- CƠ SỞ DỮ LIỆU: BỔ SUNG CẤU TRÚC CHO LỊCH SỬ CŨ ---
+def ensure_prediction_model_column():
+    """Bổ sung tên mô hình, giữ nguyên các bản ghi cũ (NULL)."""
+    dialect = engine.dialect.name
+    with engine.begin() as connection:
+        if dialect == "postgresql":
+            statement = 'ALTER TABLE "Predictions" ADD COLUMN IF NOT EXISTS "Model_Name" VARCHAR(50) NULL'
+        elif dialect == "mssql":
+            statement = "IF COL_LENGTH('Predictions', 'Model_Name') IS NULL ALTER TABLE [Predictions] ADD [Model_Name] VARCHAR(50) NULL"
+        elif dialect == "sqlite":
+            columns = {
+                column["name"]
+                for column in inspect(connection).get_columns("Predictions")
+            }
+            if "Model_Name" in columns:
+                return
+            statement = (
+                'ALTER TABLE "Predictions" ADD COLUMN "Model_Name" VARCHAR(50) NULL'
+            )
+        else:
+            raise RuntimeError("Chưa hỗ trợ cập nhật lịch sử cho cơ sở dữ liệu này.")
+        connection.execute(text(statement))
+
+
+# --- CƠ SỞ DỮ LIỆU: KHỞI TẠO BẢNG VÀ CẬP NHẬT CẤU TRÚC ---
 def init_db():
     Base.metadata.create_all(bind=engine)
+    ensure_prediction_model_column()
 
-# XÁC THỰC PHIÊN ĐĂNG NHẬP 
+
+# --- XÁC THỰC: LẤY TÀI KHOẢN TỪ TOKEN ---
 def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
@@ -60,7 +89,7 @@ def get_current_user(
     return user
 
 
-# TRANG ĐĂNG NHẬP / ĐĂNG KÝ 
+# --- TÀI KHOẢN: ĐĂNG KÝ VÀ ĐĂNG NHẬP ---
 @router.post("/register")
 def register(data: RegisterInput, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.Username == data.username).first()
@@ -95,7 +124,7 @@ def login(
     }
 
 
-# TÀI KHOẢN: ĐỔI MẬT KHẨU 
+# --- TÀI KHOẢN: ĐỔI MẬT KHẨU ---
 @router.post("/account/change-password")
 def change_password(
     data: ChangePasswordInput,
@@ -115,7 +144,8 @@ def change_password(
     db.commit()
     return {"message": "Đổi mật khẩu thành công."}
 
-# TRANG DỰ ĐOÁN: LƯU KẾT QUẢ 
+
+# --- LỊCH SỬ: LƯU KẾT QUẢ VÀ TÊN MÔ HÌNH ---
 def save_prediction(db: Session, user: User, data, result: dict):
     """Lưu một dự đoán sau khi mô hình đã tính xong."""
     db.add(
@@ -127,18 +157,21 @@ def save_prediction(db: Session, user: User, data, result: dict):
             Petal_Width=data.petal_width,
             Prediction=result["prediction"],
             Confidence=result["confidence"],
+            Model_Name=result["model_name"],
         )
     )
     db.commit()
 
 
-#  TRANG LỊCH SỬ: ĐỌC VÀ XÓA 
+# --- LỊCH SỬ: ĐỌC VÀ XÓA THEO TÀI KHOẢN ---
 @router.get("/history")
 def history(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    records = db.query(Prediction).filter(Prediction.User_ID == current_user.User_ID).all()
+    records = (
+        db.query(Prediction).filter(Prediction.User_ID == current_user.User_ID).all()
+    )
     result = jsonable_encoder(records)
 
     database_timezone = (
@@ -172,7 +205,7 @@ def delete_history(
     }
 
 
-# IRIS INFORMATION API
+# --- DỮ LIỆU IRIS: MẪU, BIỂU ĐỒ, THÔNG TIN LOÀI VÀ TỆP MẪU ---
 @router.get("/iris/sample")
 def get_iris_sample(db: Session = Depends(get_db)):
     return db.query(IrisMau).all()

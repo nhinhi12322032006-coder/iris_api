@@ -1,3 +1,4 @@
+
 // Dự đoán mọi dòng của tệp và giữ nguyên các cột đầu vào khi xuất CSV.
 (() => {
     const fileInput = document.getElementById('batch-file');
@@ -16,7 +17,12 @@
     const singleModeButton = document.getElementById('mode-single');
     const fileModeButton = document.getElementById('mode-file');
     const fileName = document.getElementById('batch-file-name');
-    document.querySelector('.batch-upload-zone').addEventListener('keydown', event => {
+    const modelSelect = document.getElementById('batch-model-select');
+    const modelNames = Object.fromEntries(
+        [...modelSelect.options].map((option) => [option.value, option.text]),
+    );
+    modelSelect.value = 'svm_rbf';
+    document.querySelector('.batch-upload-zone').addEventListener('keydown', (event) => {
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
             fileInput.click();
@@ -39,22 +45,23 @@
             if (!comparison.hidden) document.getElementById('close-comparison').click();
         }
     }
-    singleModeButton.addEventListener('click', () => switchMode('single'));
-    fileModeButton.addEventListener('click', () => switchMode('file'));
     // --- XUẤT CSV VÀ TỆP MẪU ---
     const columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width'];
-    const csvCell = value => {
+    const csvCell = (value) => {
         let text = String(value ?? '');
         // Ngăn nội dung do người dùng cung cấp trở thành công thức khi mở bằng Excel.
-        if (/^[\s]*[=+@\-]/.test(text) && !/^-?\d+(?:[.,]\d+)?$/.test(text.trim())) text = "'" + text;
+        if (/^[\s]*[=+@\-]/.test(text) && !/^-?\d+(?:[.,]\d+)?$/.test(text.trim()))
+            text = "'" + text;
         return `"${text.replace(/"/g, '""')}"`;
     };
 
     function saveCsv(name, rows) {
-        const content = '\uFEFF' + rows.map(row => row.map(csvCell).join(',')).join('\r\n');
-        const url = URL.createObjectURL(new Blob([content], {
-            type: 'text/csv;charset=utf-8'
-        }));
+        const content = '\uFEFF' + rows.map((row) => row.map(csvCell).join(',')).join('\r\n');
+        const url = URL.createObjectURL(
+            new Blob([content], {
+                type: 'text/csv;charset=utf-8',
+            }),
+        );
         const link = document.createElement('a');
         link.href = url;
         link.download = name;
@@ -65,38 +72,45 @@
     }
     async function loadSampleFile() {
         try {
-            const response = await fetch("/sample-files");
+            const response = await fetch('/sample-files');
             const files = await response.json();
             if (files.length > 0) {
                 template.href = files[0].File_Path;
                 template.download = files[0].File_Name;
             }
         } catch (error) {
-            console.error("Không thể tải file mẫu:", error);
+            console.error('Không thể tải file mẫu:', error);
         }
     }
-    loadSampleFile();
-    fileInput.addEventListener('change', () => {
+    // --- XÓA KẾT QUẢ CŨ KHI ĐỔI TỆP HOẶC MÔ HÌNH ---
+    function resetResult() {
         lastResult = null;
         download.hidden = true;
         resultPanel.hidden = true;
         wrap.hidden = true;
         body.replaceChildren();
-        fileName.textContent = fileInput.files.length ? fileInput.files[0].name :
-            '.csv hoặc .xlsx · tối đa 5 MB';
-        status.textContent = fileInput.files.length ? `Đã chọn: ${fileInput.files[0].name}` :
-            'Chưa chọn tệp.';
-    });
+        fileName.textContent = fileInput.files.length
+            ? fileInput.files[0].name
+            : '.csv hoặc .xlsx · tối đa 5 MB';
+        status.textContent = fileInput.files.length
+            ? `Đã chọn: ${fileInput.files[0].name}`
+            : 'Chưa chọn tệp.';
+    }
+
     // --- HIỂN THỊ KẾT QUẢ TỆP ---
     function renderResult(data) {
         body.replaceChildren();
         for (const item of data.results.slice(0, 50)) {
             const tr = document.createElement('tr');
-            const dimensions = columns.map(column => item.original[data.measurement_columns[column]] ||
-                '—').join(' / ');
-            const cells = [item.row_number, dimensions, item.prediction || '—',
-                item.confidence === null ? '—' : `${item.confidence}%`, item.error || item.warning ||
-                '—'
+            const dimensions = columns
+                .map((column) => item.original[data.measurement_columns[column]] || '—')
+                .join(' / ');
+            const cells = [
+                item.row_number,
+                dimensions,
+                item.prediction || '—',
+                item.confidence === null ? '—' : `${item.confidence}%`,
+                item.error || item.warning || '—',
             ];
             for (const value of cells) {
                 const td = document.createElement('td');
@@ -109,19 +123,19 @@
         wrap.hidden = false;
         resultPanel.hidden = false;
         download.hidden = false;
-        status.textContent =
-            `Đã xử lý ${data.total} dòng: ${data.success} dòng có kết quả, ${data.total - data.success} dòng cần sửa.`;
-        summary.textContent = `${data.filename} · ${data.success}/${data.total} dòng có kết quả`;
-        previewNote.textContent = data.total > 50 ?
-            'Đang xem 50 dòng đầu · Tải CSV để nhận kết quả của toàn bộ tệp.' :
-            'Tệp tải xuống chứa tất cả các dòng, kể cả dòng cần sửa.';
+        status.textContent = `Mô hình ${data.model_display_name || modelNames[data.model_name] || data.model_name} · Đã xử lý ${data.total} dòng: ${data.success} dòng có kết quả, ${data.total - data.success} dòng cần sửa.`;
+        summary.textContent = `${data.filename} · ${data.model_display_name || modelNames[data.model_name] || data.model_name} · ${data.success}/${data.total} dòng có kết quả`;
+        previewNote.textContent =
+            data.total > 50
+                ? 'Đang xem 50 dòng đầu · Tải CSV để nhận kết quả của toàn bộ tệp.'
+                : 'Tệp tải xuống chứa tất cả các dòng, kể cả dòng cần sửa.';
         resultPanel.scrollIntoView({
             behavior: 'smooth',
-            block: 'start'
+            block: 'start',
         });
     }
     // --- GỬI TỆP ĐẾN API ---
-    submit.addEventListener('click', async () => {
+    async function submitFile() {
         const file = fileInput.files[0];
         if (!file) {
             status.textContent = 'Hãy chọn một tệp CSV hoặc Excel (.xlsx).';
@@ -132,6 +146,9 @@
             return;
         }
         submit.disabled = true;
+        modelSelect.disabled = true;
+        fileInput.disabled = true;
+        const selectedModel = modelSelect.value;
         download.hidden = true;
         resultPanel.hidden = true;
         wrap.hidden = true;
@@ -140,43 +157,70 @@
         try {
             const form = new FormData();
             form.append('file', file);
+            form.append('model_name', selectedModel);
             const response = await fetch('/predict/file', {
                 method: 'POST',
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem('irisai_token')}`
+                    Authorization: `Bearer ${localStorage.getItem('irisai_token')}`,
                 },
-                body: form
+                body: form,
             });
             const data = await response.json();
-            if (!response.ok) throw new Error(typeof data.detail === 'string' ? data.detail :
-                'Không thể đọc tệp.');
+            if (!response.ok)
+                throw new Error(
+                    typeof data.detail === 'string' ? data.detail : 'Không thể đọc tệp.',
+                );
             lastResult = data;
             renderResult(data);
         } catch (error) {
             status.textContent = `Không thể xử lý tệp: ${error.message}`;
         } finally {
             submit.disabled = false;
+            modelSelect.disabled = false;
+            fileInput.disabled = false;
         }
-    });
+    }
+
     // --- TẢI KẾT QUẢ CSV ---
-    download.addEventListener('click', () => {
+    function downloadResult() {
         if (!lastResult) return;
-        const {
-            columns: inputColumns,
-            results,
-            filename
-        } = lastResult;
-        const outputColumns = ['Dòng', ...inputColumns, 'Dự đoán', 'Độ tin cậy (%)', 'Setosa (%)',
-            'Versicolor (%)', 'Virginica (%)', 'Lỗi', 'Lưu ý'
+        const { columns: inputColumns, results, filename } = lastResult;
+        const outputColumns = [
+            'Dòng',
+            ...inputColumns,
+            'Dự đoán',
+            'Độ tin cậy (%)',
+            'Setosa (%)',
+            'Versicolor (%)',
+            'Virginica (%)',
+            'Lỗi',
+            'Lưu ý',
+            'Mô hình',
         ];
-        const rows = results.map(item => [item.row_number, ...inputColumns.map(column => item
-                .original[column]), item.prediction || '',
-            item.confidence ?? '', item.probabilities?.setosa ?? '',
-            item.probabilities?.versicolor ?? '', item.probabilities?.virginica ?? '',
-            item.error || '', item.warning || ''
+        const rows = results.map((item) => [
+            item.row_number,
+            ...inputColumns.map((column) => item.original[column]),
+            item.prediction || '',
+            item.confidence ?? '',
+            item.probabilities?.setosa ?? '',
+            item.probabilities?.versicolor ?? '',
+            item.probabilities?.virginica ?? '',
+            item.error || '',
+            item.warning || '',
+            lastResult.model_display_name ||
+                modelNames[lastResult.model_name] ||
+                lastResult.model_name,
         ]);
-        const baseName = filename.replace(/\.(csv|xlsx)$/i, '').replace(/[^\p{L}\p{N}_-]+/gu,
-        '_');
+        const baseName = filename.replace(/\.(csv|xlsx)$/i, '').replace(/[^\p{L}\p{N}_-]+/gu, '_');
         saveCsv(`${baseName || 'iris'}-ket-qua.csv`, [outputColumns, ...rows]);
-    });
+    }
+
+    // --- GẮN SỰ KIỆN VÀ KHỞI TẠO ---
+    singleModeButton.addEventListener('click', () => switchMode('single'));
+    fileModeButton.addEventListener('click', () => switchMode('file'));
+    loadSampleFile();
+    fileInput.addEventListener('change', resetResult);
+    modelSelect.addEventListener('change', resetResult);
+    submit.addEventListener('click', submitFile);
+    download.addEventListener('click', downloadResult);
 })();
