@@ -16,9 +16,10 @@ from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from openpyxl import load_workbook
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 from sklearn.datasets import load_iris
+from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split
 
 # --- CƠ SỞ DỮ LIỆU VÀ XÁC THỰC ---
@@ -42,16 +43,52 @@ required_keys = [
     "default_model",
     "target_names",
 ]
-missing_keys = [key for key in required_keys if key not in model_bundle]
-if missing_keys:
+EXPECTED_KERNELS = {
+    "svm_rbf": "rbf", "svm_linear": "linear",
+    "svm_poly": "poly", "svm_sigmoid": "sigmoid",
+}
 
+
+def valid_svm_bundle(bundle):
+    if any(key not in bundle for key in required_keys):
+        return False
+    if bundle.get("model_set") != "svm_kernels_v1":
+        return False
+    if set(bundle["models"]) != set(EXPECTED_KERNELS):
+        return False
+    if bundle["default_model"] != "svm_rbf":
+        return False
+    if any(set(bundle[key]) != set(EXPECTED_KERNELS)
+           for key in ("model_names", "model_types", "evaluations")):
+        return False
+    return all(
+        isinstance(bundle["models"][key], SVC)
+        and bundle["models"][key].kernel == kernel
+        for key, kernel in EXPECTED_KERNELS.items()
+    )
+
+
+if not valid_svm_bundle(model_bundle):
+    # A complete old five-model bundle must also be rebuilt, not just missing keys.
     runpy.run_path(os.path.join(BASE_DIR, "train.py"), run_name="__main__")
-
     model_bundle = joblib.load(MODEL_PATH)
+    if not valid_svm_bundle(model_bundle):
+        raise RuntimeError("Bộ mô hình phải chứa đúng bốn kernel SVM.")
+
 models = model_bundle["models"]
-model_names = model_bundle["model_names"]
+model_names = {
+    "svm_rbf": "RBF",
+    "svm_linear": "Linear",
+    "svm_poly": "Polynomial",
+    "svm_sigmoid": "Sigmoid",
+}
+
 model_types = model_bundle["model_types"]
-evaluations = model_bundle["evaluations"]
+
+evaluations = {
+    key: {**metrics, "name": model_names[key]}
+    for key, metrics in model_bundle["evaluations"].items()
+}
 default_model = model_bundle["default_model"]
 target_names = model_bundle["target_names"]
 
@@ -67,8 +104,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Iris Studio API",
-    description="API phân loại hoa Iris và lưu lịch sử dự đoán",
-    version="3.0.0",
+    description="API phân loại hoa Iris bằng bốn kernel SVM và lưu lịch sử dự đoán",
+    version="4.0.0",
     lifespan=lifespan,
 )
 app.include_router(sql_router)
@@ -94,10 +131,10 @@ app.add_middleware(
 
 # --- DỮ LIỆU ĐẦU VÀO ---
 class IrisInput(BaseModel):
-    sepal_length: float
-    sepal_width: float
-    petal_length: float
-    petal_width: float
+    sepal_length: float = Field(gt=0, allow_inf_nan=False)
+    sepal_width: float = Field(gt=0, allow_inf_nan=False)
+    petal_length: float = Field(gt=0, allow_inf_nan=False)
+    petal_width: float = Field(gt=0, allow_inf_nan=False)
     model_name: str = "svm_rbf"
 
 
@@ -186,6 +223,7 @@ def health():
     return {
         "status": "healthy",
         "models_loaded": len(models),
+        "model_set": model_bundle["model_set"],
         "default_model": default_model,
     }
 
@@ -253,24 +291,8 @@ def model_evaluation_detail(model_key: str, metrics: dict):
                 }
             )
     parameter_keys = (
-        "kernel",
-        "C",
-        "gamma",
-        "degree",
-        "coef0",
-        "probability",
-        "max_iter",
-        "solver",
-        "penalty",
-        "criterion",
-        "p",
-        "n_neighbors",
-        "weights",
-        "metric",
-        "max_depth",
-        "min_samples_split",
-        "min_samples_leaf",
-        "random_state",
+        "kernel", "C", "gamma", "degree", "coef0",
+        "probability", "max_iter", "random_state",
     )
     parameters = models[model_key].get_params()
     if parameters.get("kernel") != "poly":

@@ -10,7 +10,7 @@
             }
         </style>
 
-        <script src="/static/js/api.js?v=split-1"></script>
+        <script src="/static/js/api.js?v=svm-kernels-20261104"></script>
         <script>
             document.documentElement.classList.add('studio-pending');
 
@@ -20,8 +20,8 @@
         </script>
         <!-- Nhúng thư viện Chart.js để vẽ biểu đồ ở trang 2 -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="static/js/theme.js?v=theme-1"></script>
-        <link rel="stylesheet" href="static/css/style.css?v=model-playground-1" />
+        <script src="static/js/theme.js?v=svm-kernels-20261104"></script>
+        <link rel="stylesheet" href="static/css/style.css?v=svm-kernels-20261104" />
     </head>
     <body>
         <!-- THANH NAVBAR -->
@@ -225,15 +225,12 @@
                                 <div class="model-picker">
                                     <label for="prediction-model">Mô hình dự đoán</label>
                                     <select id="prediction-model">
-                                        <option value="svm_rbf">SVM (RBF)</option>
-                                        <option value="svm_linear">SVM (Linear)</option>
-                                        <option value="logistic_regression">
-                                            Logistic Regression
-                                        </option>
-                                        <option value="knn">K-Nearest Neighbors</option>
-                                        <option value="decision_tree">Decision Tree</option>
+                                        <option value="svm_rbf">RBF</option>
+                                        <option value="svm_linear">Linear</option>
+                                        <option value="svm_poly">Polynomial</option>
+                                        <option value="svm_sigmoid">Sigmoid</option>
                                     </select>
-                                    <p>Chọn mô hình đã huấn luyện sẵn để dự đoán một bông hoa.</p>
+                                    <p>Chọn kernel SVM để dự đoán. Các kernel có chất lượng khác nhau; xem mục Đánh giá trước khi đối chiếu kết quả.</p>
                                 </div>
 
                                 <div class="presets-container">
@@ -373,7 +370,7 @@
                                     aria-controls="quick-comparison"
                                     aria-expanded="false"
                                 >
-                                    So sánh 5 mô hình
+                                    So sánh 4 mô hình SVM
                                 </button>
                             </div>
                             <div id="batch-file-mode" class="batch-file-mode" hidden>
@@ -381,13 +378,10 @@
                                 <div class="model-picker">
                                     <label for="batch-model-select">Mô hình dự đoán tệp</label>
                                     <select id="batch-model-select">
-                                        <option value="svm_rbf" selected>SVM (RBF)</option>
-                                        <option value="svm_linear">SVM (Linear)</option>
-                                        <option value="logistic_regression">
-                                            Logistic Regression
-                                        </option>
-                                        <option value="knn">K-Nearest Neighbors</option>
-                                        <option value="decision_tree">Decision Tree</option>
+                                        <option value="svm_rbf" selected>RBF</option>
+                                        <option value="svm_linear">Linear</option>
+                                        <option value="svm_poly">Polynomial</option>
+                                        <option value="svm_sigmoid">Sigmoid</option>
                                     </select>
                                     <p>Áp dụng cho tất cả các dòng trong tệp CSV hoặc Excel.</p>
                                 </div>
@@ -510,9 +504,9 @@
                         <div class="quick-comparison-header">
                             <div>
                                 <span class="comparison-eyebrow"
-                                    >CÙNG BỐN SỐ ĐO · NĂM GÓC NHÌN</span
+                                    >CÙNG BỐN SỐ ĐO · BỐN KERNEL SVM</span
                                 >
-                                <h3 id="quick-comparison-title">Kết quả từ 5 mô hình</h3>
+                                <h3 id="quick-comparison-title">Kết quả từ 4 mô hình SVM</h3>
                                 <p>
                                     Mỗi mô hình dùng các số đo bạn đang nhập ở phía trên. Chỉnh số
                                     đo và bấm so sánh lại để xem kết quả mới.
@@ -623,12 +617,12 @@
                             <option value="virginica">Virginica</option></select
                         ><select id="history-model-filter" aria-label="Lọc lịch sử theo mô hình">
                             <option value="">Tất cả mô hình</option>
-                            <option value="svm_rbf">SVM (RBF)</option>
-                            <option value="svm_linear">SVM (Linear)</option>
-                            <option value="logistic_regression">Logistic Regression</option>
-                            <option value="knn">K-Nearest Neighbors</option>
-                            <option value="decision_tree">Decision Tree</option>
-                        </select>
+                            <option value="svm_rbf">RBF</option>
+                            <option value="svm_linear">Linear</option>
+                            <option value="svm_poly">Polynomial</option>
+                            <option value="svm_sigmoid">Sigmoid</option>
+                        
+</select>
                     </div>
                     <p id="history-count" class="history-count" role="status"></p>
                     <div id="history-empty" class="history-empty">
@@ -1044,16 +1038,11 @@
                                                 <span>Mô hình</span>
                                                 <select id="anatomy-model-select">
                                                     <option value="svm_rbf" selected>
-                                                        SVM (RBF)
+                                                        RBF
                                                     </option>
-                                                    <option value="svm_linear">SVM (Linear)</option>
-                                                    <option value="logistic_regression">
-                                                        Logistic Regression
-                                                    </option>
-                                                    <option value="knn">K-Nearest Neighbors</option>
-                                                    <option value="decision_tree">
-                                                        Decision Tree
-                                                    </option>
+                                                    <option value="svm_linear">Linear</option>
+                                                    <option value="svm_poly">Polynomial</option>
+                                                    <option value="svm_sigmoid">Sigmoid</option>
                                                 </select>
                                             </label>
                                         </div>
@@ -1674,7 +1663,7 @@
                     <section class="limits-lab" aria-labelledby="limits-lab-title">
                         <div class="limits-lab-heading">
                             <span>01 · CHẠM VÀO CÁCH MÔ HÌNH QUYẾT ĐỊNH</span>
-                            <h3 id="limits-lab-title">Một bông hoa qua năm góc nhìn</h3>
+                            <h3 id="limits-lab-title">Một bông hoa qua bốn kernel SVM</h3>
                             <p>
                                 Chọn một mẫu có nhãn thật → kéo mức lệch số đo → quan sát năm mô
                                 hình dự đoán lại. Mọi mô hình nhận cùng bốn số đo; loài thật giữ
@@ -1744,7 +1733,7 @@
                                 <div
                                     id="playground-models"
                                     class="playground-models"
-                                    aria-label="Năm mô hình trên cùng một mẫu hoa"
+                                    aria-label="Bốn mô hình SVM trên cùng một mẫu hoa"
                                 ></div>
                                 <p class="limits-lab-note">
                                     Mở “Cách mô hình này học” để xem nguyên lý, không phải lời giải
@@ -1785,7 +1774,7 @@
                                     <canvas
                                         id="limits-lab-chart"
                                         role="img"
-                                        aria-label="Số mẫu phân loại sai của năm mô hình khi tăng sai lệch số đo; số liệu tại mức đang chọn nằm trong bảng bên dưới."
+                                        aria-label="Số mẫu phân loại sai của bốn mô hình SVM khi tăng sai lệch số đo; số liệu tại mức đang chọn nằm trong bảng bên dưới."
                                     ></canvas>
                                 </div>
                                 <p id="limits-lab-chart-note" class="limits-lab-note" hidden>
@@ -1854,7 +1843,7 @@
                             <div class="evaluation-table-wrap">
                                 <table class="evaluation-table">
                                     <caption>
-                                        Kết quả của năm mô hình trên cùng điều kiện đánh giá
+                                        Kết quả của bốn mô hình SVM trên cùng điều kiện đánh giá
                                     </caption>
                                     <thead>
                                         <tr>
@@ -2000,13 +1989,13 @@
         </div>
 
         <!-- SCRIPT XỬ LÝ -->
-        <script src="static/js/species.js?v=split-1"></script>
-        <script src="static/js/auth.js?v=split-1"></script>
-        <script src="static/js/app.js?v=split-1"></script>
-        <script src="static/js/comparison.js?v=split-1"></script>
-        <script src="static/js/evaluation.js?v=split-1"></script>
-        <script src="static/js/batch.js?v=split-1"></script>
-        <script src="static/js/explore.js?v=split-1"></script>
-        <script src="static/js/navbar.js"></script>
+        <script src="static/js/species.js?v=audit-fix-1"></script>
+        <script src="static/js/auth.js?v=svm-kernels-20261104"></script>
+        <script src="static/js/app.js?v=audit-fix-1"></script>
+        <script src="static/js/comparison.js?v=svm-kernels-20261104"></script>
+        <script src="static/js/evaluation.js?v=svm-kernels-20261104"></script>
+        <script src="static/js/batch.js?v=svm-kernels-20261104"></script>
+        <script src="static/js/explore.js?v=svm-kernels-20261104"></script>
+        <script src="static/js/navbar.js?v=svm-kernels-20261104"></script>
     </body>
 </html>

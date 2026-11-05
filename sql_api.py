@@ -9,6 +9,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from pydantic import BaseModel
 from sqlalchemy import inspect, text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from auth import ALGORITHM, SECRET_KEY, create_token, hash_password, verify_password
@@ -96,6 +97,10 @@ def register(data: RegisterInput, db: Session = Depends(get_db)):
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already exists")
 
+    existing_email = db.query(User).filter(User.Email == data.email).first()
+    if existing_email:
+        raise HTTPException(status_code=400, detail="Email đã được sử dụng.")
+
     new_user = User(
         Username=data.username,
         Email=data.email,
@@ -103,7 +108,14 @@ def register(data: RegisterInput, db: Session = Depends(get_db)):
         Role="user",
     )
     db.add(new_user)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail="Tên đăng nhập hoặc email đã được sử dụng.",
+        )
     db.refresh(new_user)
     return {"message": "Account created successfully"}
 

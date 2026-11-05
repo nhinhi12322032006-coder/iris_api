@@ -387,7 +387,7 @@
     );
 })();
 
-// 2. Một bông hoa qua năm mô hình và thử nghiệm sai số trên tập kiểm tra.
+// 2. Một bông hoa qua bốn mô hình SVM và thử nghiệm sai số trên tập kiểm tra.
 // Thử nghiệm nhiễu số đo trên tập kiểm tra; không huấn luyện hoặc lưu lịch sử.
 (() => {
     // --- GIAO DIỆN VÀ TRẠNG THÁI RIÊNG CỦA TRANG ĐÁNH GIÁ ---
@@ -413,11 +413,11 @@
             'SVM (RBF) dùng ranh giới có thể uốn cong để phân loại theo bốn số đo. Kết quả phụ thuộc cấu hình C, gamma và thang đo; không thể quy một lần đổi nhãn cho riêng một số đo chỉ từ thẻ này.',
         svm_linear:
             'SVM (Linear) dùng các mặt phẳng phân tách, ưu tiên khoảng cách lớn tới những mẫu gần ranh giới. Khi đầu vào đi qua ranh giới, nhãn có thể đổi.',
-        logistic_regression:
-            'Logistic Regression kết hợp các số đo bằng trọng số để ước lượng xác suất cho từng loài. Đây là mô hình phân loại với ranh giới tuyến tính, dù tên có chữ Regression.',
-        knn: 'K-Nearest Neighbors dự đoán bằng lá phiếu của các mẫu huấn luyện gần nhất về số đo. Khi số đo đổi, nhóm láng giềng có thể đổi; thẻ này không hiển thị những láng giềng thực tế.',
-        decision_tree:
-            'Decision Tree đi qua chuỗi câu hỏi về ngưỡng số đo. Số đo vượt ngưỡng có thể dẫn sang nhánh khác. Thẻ này mô tả nguyên lý, không truy vết đường đi của mẫu trong cây.',
+        svm_poly:
+            'SVM (Polynomial) dùng kernel đa thức bậc 3 để biểu diễn quan hệ phi tuyến giữa bốn số đo. Kết quả phụ thuộc C, gamma, coef0 và thang đo dữ liệu.',
+        svm_sigmoid:
+            'SVM (Sigmoid) dùng hàm tanh trên tích vô hướng của các số đo. Với cấu hình mặc định và dữ liệu chưa chuẩn hóa, mô hình này có thể hoạt động kém; đây không phải kết luận cho mọi cấu hình Sigmoid.',
+
     };
     const featureLabels = ['Dài lá đài', 'Rộng lá đài', 'Dài cánh', 'Rộng cánh'];
     let featureMaxima = [];
@@ -459,7 +459,7 @@
                 ? `${model.name}: chưa thêm nhiễu. Tỷ lệ phân loại sai gốc là ${number(baseline.error_rate)}%. Kéo thanh để quan sát tác động của sai lệch số đo.`
                 : `${model.name}: ở mức sai lệch tối đa ±${level}%, mô phỏng có ${current.error_count}/${result.test_size} mẫu sai (${number(current.error_rate)}%), so với ${baseline.error_count} mẫu sai ban đầu. ${current.changed_predictions} mẫu đổi dự đoán; đổi dự đoán và dự đoán sai là hai chỉ số khác nhau.`;
         byId('limits-lab-comparison-title').textContent =
-            `Cả năm mô hình nhận cùng dữ liệu ở mức sai lệch tối đa ±${level}%`;
+            `Cả bốn mô hình SVM nhận cùng dữ liệu ở mức sai lệch tối đa ±${level}%`;
         const rows = byId('limits-lab-model-rows');
         rows.replaceChildren();
         for (const model of Object.values(result.models)) {
@@ -477,7 +477,7 @@
         renderChart();
     }
 
-    // --- TƯƠNG TÁC MỘT MẪU: SỐ ĐO VÀ NĂM KẾT QUẢ NGANG HÀNG ---
+    // --- TƯƠNG TÁC MỘT MẪU: SỐ ĐO VÀ BỐN KẾT QUẢ NGANG HÀNG ---
     function initializePlayground() {
         sampleSelect.replaceChildren();
         // Giữ chỉ số gốc của tập kiểm tra để tra cứu đúng dự đoán, chỉ sắp thứ tự trình bày.
@@ -592,7 +592,7 @@
         byId('playground-message').textContent =
             `Ở mức ±${result.noise_levels[levelIndex]}%: ${correct}/${count} mô hình đoán đúng mẫu #${sample.sample_id}; ${changed} mô hình đổi dự đoán. ` +
             (answers.size === 1
-                ? 'Cả năm cùng một đáp án; cùng đáp án không có nghĩa luôn đúng.'
+                ? 'Cả bốn cùng một đáp án; cùng đáp án không có nghĩa luôn đúng.'
                 : `Các mô hình đưa ra ${answers.size} đáp án khác nhau.`);
     }
 
@@ -644,7 +644,7 @@
         }
     }
 
-    // --- BIỂU ĐỒ: CÙNG THƯỚC ĐO CHO CẢ NĂM MÔ HÌNH ---
+    // --- BIỂU ĐỒ: CÙNG THƯỚC ĐO CHO CẢ BỐN MÔ HÌNH SVM ---
     function renderChart() {
         if (!result || !page.classList.contains('active') || !cohort.open) return;
         const canvas = byId('limits-lab-chart');

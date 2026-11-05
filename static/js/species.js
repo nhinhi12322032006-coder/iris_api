@@ -9,7 +9,6 @@ async function loadSpeciesData() {
             throw new Error("API /iris/detail lỗi: HTTP " + response.status);
         }
         const data = await response.json();
-        console.log("SQL /iris/detail:", data);
         if (!Array.isArray(data) || data.length === 0) {
             throw new Error("SQL không trả về dữ liệu Iris.");
         }
@@ -27,7 +26,6 @@ async function loadSpeciesData() {
                 habitat: item.Habitat_Detail || ""
             };
         });
-        console.log("speciesData sau khi đọc SQL:", speciesData);
         // Mặc định
         switchSpecies("setosa");
     } catch (error) {
@@ -36,7 +34,6 @@ async function loadSpeciesData() {
 }
 // --- CHUYỂN LOÀI VÀ CẬP NHẬT THẺ ---
 function switchSpecies(key) {
-    console.log("Đang chuyển sang:", key);
     const data = speciesData[key];
     if (!data) {
         console.error("Không tìm thấy dữ liệu cho:", key, speciesData);

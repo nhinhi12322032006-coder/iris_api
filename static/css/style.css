@@ -549,7 +549,7 @@ input[type='range']::-webkit-slider-thumb:hover {
     margin-top: 4px;
 }
 
-/* 1.4. KẾT QUẢ: TIÊU ĐỀ LỚN, ẢNH VUÔNG HIỂN THỊ ĐẦY ĐỦ */
+/* 1.4. KẾT QUẢ: TIÊU ĐỀ LỚN, ẢNH DỌC 4:5 HIỂN THỊ ĐẦY ĐỦ */
 
 .result-subtitle {
     font-size: 24px;
@@ -600,12 +600,17 @@ input[type='range']::-webkit-slider-thumb:hover {
 .image-container img {
     width: 100%;
     height: auto;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 2px solid white;
+    background-color: #edf2f7;
     min-height: 0;
+    box-sizing: border-box;
+    object-position: center;
     max-width: 280px;
     aspect-ratio: 4 / 5;
-    object-fit: cover;
-    object-position: center;
-    
+    display: block;
 }
 
 .description-container {
@@ -2657,7 +2662,7 @@ input[type='range']::-webkit-slider-thumb:hover {
 }
 .playground-models {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 10px;
     margin: 20px 0 14px;
     align-items: start;
@@ -3629,10 +3634,7 @@ input[type='range']::-webkit-slider-thumb:hover {
     border-color: #414a67;
     color: #edf0fa;
 }
-/* Tiêu đề bộ lọc biểu đồ trong chế độ tối */
-.theme-dark .chart-species-filter legend {
-    color: #f1edff;
-}
+
 .theme-dark .anatomy-option.is-active,
 .theme-dark .anatomy-readouts > div.is-active,
 .theme-dark .limits-case.is-active {
@@ -4724,3 +4726,5 @@ body.is-authenticated > .auth-overlay {
         max-width: 100%;
     }
 }
+
+.theme-dark .chart-species-filter legend { color: #f1edff; }

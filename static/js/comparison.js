@@ -1,5 +1,5 @@
 
-// So sánh dự đoán của năm mô hình trên cùng số đo, không ưu tiên mô hình nào.
+// So sánh dự đoán của bốn mô hình SVM trên cùng số đo, không ưu tiên mô hình nào.
 (() => {
     const predictionList = document.getElementById('model-predictions');
     const predictionStatus = document.getElementById('model-prediction-status');
@@ -45,7 +45,7 @@
         card.append(heading, figures);
         return card;
     }
-    // --- TRANG DỰ ĐOÁN: SO SÁNH NĂM MÔ HÌNH ---
+    // --- TRANG DỰ ĐOÁN: SO SÁNH BỐN MÔ HÌNH SVM ---
     compareButton.addEventListener('click', async () => {
         comparisonPanel.hidden = false;
         compareButton.setAttribute('aria-expanded', 'true');
@@ -122,7 +122,7 @@
         compareButton.disabled = false;
         predictionList.replaceChildren();
         predictionStatus.textContent =
-            'Số đo đã thay đổi. Bấm “So sánh 5 mô hình” để xem kết quả mới.';
+            'Số đo đã thay đổi. Bấm “So sánh 4 mô hình SVM” để xem kết quả mới.';
     }
     [
         'num-sepal-len',

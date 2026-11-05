@@ -110,7 +110,7 @@
                     ? 'Chưa ghi nhận số fold'
                     : `${evaluation.cv_folds} fold trên tập huấn luyện`,
             ],
-            ['Cách so sánh', 'Cùng tập kiểm tra và cùng các fold cho cả năm mô hình'],
+            ['Cách so sánh', 'Cùng tập kiểm tra và cùng các fold cho cả bốn mô hình SVM'],
             [
                 'Random state',
                 evaluation.random_state == null ? 'Chưa ghi nhận' : String(evaluation.random_state),

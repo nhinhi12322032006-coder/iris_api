@@ -139,10 +139,10 @@ function getConfidence(data) {
     if (raw === null || raw === undefined || raw === '') return null;
     const value = Number(raw);
     if (!Number.isFinite(value)) return null;
-    const percent = value >= 0 && value <= 1 ? value * 100 : value;
-    return percent >= 0 && percent <= 100 ? Math.round(percent * 10) / 10 : null;
+    // API trả confidence theo phần trăm 0–100, kể cả các giá trị nhỏ hơn 1%.
+    return value >= 0 && value <= 100 ? Math.round(value * 10) / 10 : null;
 }
-async function fetchPrediction(recordHistory = true) {
+async function fetchPrediction() {
     const requestId = ++predictionRequestId;
     const selectedModel = predictionModel.value;
     modelResult.textContent = '';
@@ -213,10 +213,8 @@ async function fetchPrediction(recordHistory = true) {
         updateFlowerDetails(predictedClass);
         modelResult.textContent = `Kết quả từ ${data.model_display_name || modelLabels[selectedModel]}`;
         const confidence = getConfidence(data);
-        if (recordHistory) {
-            await loadPredictionHistory();
-            if (requestId !== predictionRequestId) return;
-        }
+        await loadPredictionHistory();
+        if (requestId !== predictionRequestId) return;
         confidenceBox.style.display = 'block';
         document.getElementById('confidence-note').style.display =
             confidence === null ? 'block' : 'none';
@@ -333,7 +331,14 @@ const historyNoMatch = document.getElementById('history-no-match');
 
 // --- LỊCH SỬ: TÊN MÔ HÌNH VÀ TẢI DỮ LIỆU ---
 function historyModelLabel(item) {
-    return modelLabels[item.model] || item.model || 'Chưa ghi nhận';
+    const legacyNames = {
+        logistic_regression: 'Logistic Regression',
+        knn: 'K-Nearest Neighbors',
+        decision_tree: 'Decision Tree',
+    };
+    if (modelLabels[item.model]) return modelLabels[item.model];
+    if (!item.model) return 'Chưa ghi nhận';
+    return `${legacyNames[item.model] || item.model} (phiên bản cũ)`;
 }
 async function loadPredictionHistory() {
     const token = localStorage.getItem('irisai_token');
@@ -402,9 +407,7 @@ function renderPredictionHistory() {
         ];
         const matchesModel =
             !selectedHistoryModel ||
-            (selectedHistoryModel === 'unknown'
-                ? !item.model
-                : item.model === selectedHistoryModel);
+            item.model === selectedHistoryModel;
         return (
             matchesModel &&
             (!species || String(item.prediction).toLowerCase().includes(species)) &&
@@ -483,7 +486,7 @@ function retryPrediction(item) {
         fetchPrediction();
     } else {
         resultBox.textContent =
-            'Đã nạp số đo. Lượt cũ chưa ghi nhận mô hình khả dụng; hãy chọn mô hình và bấm dự đoán.';
+            'Đã nạp số đo. Mô hình của lượt cũ không còn khả dụng; hãy chọn một mô hình SVM và bấm dự đoán.';
     }
 }
 // --- LỊCH SỬ: XÓA CÁC LƯỢT DỰ ĐOÁN ---
@@ -568,9 +571,6 @@ function exportPredictionHistory() {
 historySearch.addEventListener('input', renderPredictionHistory);
 historyFilter.addEventListener('change', renderPredictionHistory);
 historyModelFilter.addEventListener('change', renderPredictionHistory);
-window.addEventListener('irisai-login', () => {
-    loadPredictionHistory();
-});
 window.addEventListener('irisai-logout', () => {
     predictionHistory = [];
     renderPredictionHistory();
@@ -709,7 +709,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 },
             });
             updateChartSpecies();
-            console.log(`Đã tải ${irisData.length} mẫu Iris từ SQL.`);
         } catch (error) {
             console.error('Lỗi tải dữ liệu Biểu đồ 1:', error);
             chartFilterMessage.textContent = 'Không thể tải dữ liệu biểu đồ từ SQL.';
@@ -826,7 +825,6 @@ window.addEventListener('DOMContentLoaded', () => {
 // --- KHỞI TẠO DỮ LIỆU VÀ NÚT MẪU ---
 loadIrisSummaryData();
 loadIrisSampleData();
-loadPredictionHistory();
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.preset-btn').forEach((button) => {
         button.addEventListener('click', () => {

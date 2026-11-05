@@ -1,4 +1,7 @@
 from pathlib import Path
+import json
+import platform
+import sklearn
 
 import joblib
 import numpy as np
@@ -6,15 +9,12 @@ from sklearn.datasets import load_iris
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_score
 from sklearn.svm import SVC
-from sklearn.linear_model import LogisticRegression
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.tree import DecisionTreeClassifier
 
 
 BASE_DIR = Path(__file__).resolve().parent
 MODEL_PATH = BASE_DIR / "iris_svm_model.pkl"
 
-# Dùng cùng một tập kiểm thử để việc so sánh năm mô hình công bằng.
+# Dùng cùng một tập kiểm thử để việc so sánh bốn mô hình SVM công bằng.
 iris = load_iris()
 X_train, X_test, y_train, y_test = train_test_split(
     iris.data,
@@ -27,25 +27,22 @@ target_names = [name.lower() for name in iris.target_names]
 models = {
     "svm_rbf": SVC(kernel="rbf", probability=True, random_state=42),
     "svm_linear": SVC(kernel="linear", probability=True, random_state=42),
-    "logistic_regression": LogisticRegression(max_iter=1000, random_state=42),
-    "knn": KNeighborsClassifier(n_neighbors=5),
-    "decision_tree": DecisionTreeClassifier(max_depth=4, random_state=42),
+    "svm_poly": SVC(kernel="poly", degree=3, coef0=0.0, probability=True, random_state=42),
+    "svm_sigmoid": SVC(kernel="sigmoid", coef0=0.0, probability=True, random_state=42),
 }
 
 model_names = {
-    "svm_rbf": "SVM (RBF)",
-    "svm_linear": "SVM (Linear)",
-    "logistic_regression": "Logistic Regression",
-    "knn": "K-Nearest Neighbors",
-    "decision_tree": "Decision Tree",
+    "svm_rbf": "RBF",
+    "svm_linear": "Linear",
+    "svm_poly": "Polynomial",
+    "svm_sigmoid": "Sigmoid",
 }
 
 model_types = {
     "svm_rbf": ("SVM", "Phi tuyến tính"),
     "svm_linear": ("SVM", "Tuyến tính"),
-    "logistic_regression": ("Mô hình xác suất", "Tuyến tính"),
-    "knn": ("Học dựa trên láng giềng", "Phi tuyến tính"),
-    "decision_tree": ("Mô hình cây", "Phi tuyến tính"),
+    "svm_poly": ("SVM", "Phi tuyến tính"),
+    "svm_sigmoid": ("SVM", "Phi tuyến tính"),
 }
 
 evaluations = {}
@@ -73,6 +70,10 @@ for key, current_model in models.items():
     }
 
 data_to_save = {
+    "model_set": "svm_kernels_v1",
+    "sklearn_version": sklearn.__version__,
+    "numpy_version": np.__version__,
+    "python_version": platform.python_version(),
     # Giữ khóa model để tương thích với phiên bản cũ; SVM vẫn là mô hình chính.
     "model": models["svm_rbf"],
     "target_names": target_names,
@@ -87,6 +88,13 @@ data_to_save = {
 }
 
 joblib.dump(data_to_save, MODEL_PATH)
+report = {key: value for key, value in data_to_save.items() if key not in {"model", "models"}}
+report["train_size"] = len(y_train)
+report["scaling"] = "none"
+report["model_parameters"] = {key: model.get_params() for key, model in models.items()}
+(BASE_DIR / "svm_evaluation.json").write_text(
+    json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
+)
 
 print(f"-> Đã huấn luyện {len(models)} mô hình và lưu vào '{MODEL_PATH.name}'.")
 for metrics in evaluations.values():
