@@ -1,4 +1,4 @@
-"""Xác minh access token Keycloak; mật khẩu Iris cũ chỉ dùng để liên kết lịch sử."""
+"""Xác minh access token Keycloak cho Iris Studio."""
 import json
 import os
 import time
@@ -8,7 +8,6 @@ from urllib.request import urlopen
 
 from fastapi import HTTPException
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 KEYCLOAK_ISSUER = os.getenv(
     "KEYCLOAK_ISSUER", "https://identity-hub-idp.onrender.com/realms/identity-hub"
@@ -22,16 +21,6 @@ if (not _separator or not _realm or "/" in _realm or not _parts.hostname
         or not (_parts.scheme == "https" or
                 (_parts.scheme == "http" and _parts.hostname in {"localhost", "127.0.0.1"}))):
     raise RuntimeError("KEYCLOAK_ISSUER phải là URL HTTPS đầy đủ của realm Keycloak.")
-
-pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
-
-
-def verify_password(plain_password, hashed_password):
-    try:
-        return pwd_context.verify(plain_password, hashed_password)
-    except (ValueError, TypeError):
-        return False
-
 
 def public_auth_config():
     return {"url": _base, "realm": _realm, "clientId": KEYCLOAK_WEB_CLIENT_ID}

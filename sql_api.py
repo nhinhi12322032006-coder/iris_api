@@ -4,18 +4,15 @@
 from datetime import datetime, timezone
 import hashlib
 import secrets
-import time
-from threading import Lock
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel, Field
 from sqlalchemy import inspect, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from auth import (KEYCLOAK_ISSUER, decode_access_token, public_auth_config, verify_password)
+from auth import (KEYCLOAK_ISSUER, decode_access_token, public_auth_config)
 from database import Base, engine, get_db
 from models import (
     User,
@@ -108,62 +105,7 @@ def get_current_user(claims: dict = Depends(get_claims), db: Session = Depends(g
 @router.get("/auth/me")
 def auth_me(claims: dict = Depends(get_claims), user: User = Depends(get_current_user)):
     return {"username": claims.get("preferred_username") or claims.get("name") or "Tài khoản",
-            "email": claims.get("email"), "role": user.Role,
-            "can_link_legacy": user.Password.startswith("!sso:")}
-
-
-class LinkAccountInput(BaseModel):
-    email: str = Field(min_length=1, max_length=100)
-    password: str = Field(min_length=1, max_length=1024)
-
-
-_link_lock = Lock()
-_link_failures = {}
-
-
-@router.post("/auth/link-account")
-def link_account(data: LinkAccountInput, claims: dict = Depends(get_claims),
-                 current: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    # Người dùng chứng minh quyền sở hữu cả phiên Keycloak và tài khoản Iris cũ.
-    # Không tự động ghép theo email hoặc tên hiển thị.
-    now = time.monotonic()
-    with _link_lock:
-        for subject in list(_link_failures):
-            if now - _link_failures[subject][1] >= 900:
-                del _link_failures[subject]
-        count, since = _link_failures.get(claims["sub"], (0, now))
-        if count >= 5:
-            raise HTTPException(429, "Đã thử sai nhiều lần. Hãy thử lại sau 15 phút.")
-        _link_failures[claims["sub"]] = (count + 1, since)
-
-    old = db.query(User).filter(User.Email == data.email.strip()).first()
-    if old is None or not verify_password(data.password, old.Password):
-        raise HTTPException(400, "Email hoặc mật khẩu Iris cũ không đúng.")
-    identity = db.query(ExternalIdentity).filter_by(
-        Issuer=KEYCLOAK_ISSUER, Subject=claims["sub"]
-    ).first()
-    if old.User_ID == current.User_ID:
-        return {"message": "Tài khoản đã được liên kết."}
-    if not current.Password.startswith("!sso:"):
-        raise HTTPException(409, "Tài khoản này đã liên kết với một tài khoản Iris cũ.")
-    if db.query(ExternalIdentity).filter_by(User_ID=old.User_ID).first():
-        raise HTTPException(409, "Tài khoản Iris cũ đã liên kết với một tài khoản Identity Hub khác.")
-    if identity is None:
-        raise HTTPException(409, "Không tìm thấy định danh. Hãy tải lại trang.")
-    try:
-        # Giữ lịch sử cũ và chuyển cả lượt vừa tạo trong phiên SSO sang cùng chủ sở hữu.
-        db.query(Prediction).filter_by(User_ID=current.User_ID).update(
-            {Prediction.User_ID: old.User_ID}, synchronize_session=False)
-        identity.User_ID = old.User_ID
-        db.flush()
-        db.delete(current)
-        db.commit()
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(409, "Tài khoản vừa được liên kết ở phiên khác. Hãy tải lại trang.")
-    with _link_lock:
-        _link_failures.pop(claims["sub"], None)
-    return {"message": "Đã liên kết và giữ toàn bộ lịch sử dự đoán."}
+            "email": claims.get("email"), "role": user.Role}
 
 
 # Mật khẩu mới, đăng ký và đăng nhập do Identity Hub quản lý.

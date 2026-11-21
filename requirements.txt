@@ -7,7 +7,6 @@ openpyxl==3.1.5
 python-multipart==0.0.32
 sqlalchemy
 pyodbc
-passlib
 python-jose[cryptography]
 psycopg[binary]
 numpy==1.26.4

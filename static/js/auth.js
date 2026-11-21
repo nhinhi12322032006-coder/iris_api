@@ -58,7 +58,6 @@
         if (!authenticated) throw new Error('Bạn cần đăng nhập để tiếp tục.');
         const me = await getJson('/auth/me', {headers: {Authorization: `Bearer ${kc.token}`}});
         document.getElementById('account-name').textContent = me.username;
-        document.getElementById('link-account-btn').hidden = !me.can_link_legacy;
         document.body.classList.add('is-authenticated');
         document.documentElement.classList.remove('studio-pending');
         return me;
@@ -99,36 +98,7 @@
         location.replace('/static/login.html');
     });
 
-    const dialog = document.getElementById('link-dialog');
-    const form = document.getElementById('link-account-form');
-    const message = document.getElementById('link-message');
-    const close = () => { dialog.hidden = true; form.reset(); message.textContent = ''; };
-    document.getElementById('link-account-btn').addEventListener('click', () => {
-        closeMenu(); dialog.hidden = false; document.getElementById('legacy-email').focus();
-    });
-    document.getElementById('link-dialog-close').addEventListener('click', close);
-    dialog.querySelector('[data-close-link]').addEventListener('click', close);
     document.addEventListener('keydown', event => {
-        if (event.key === 'Escape') { close(); closeMenu(); }
-    });
-    form.addEventListener('submit', async event => {
-        event.preventDefault();
-        const submit = document.getElementById('link-submit');
-        submit.disabled = true;
-        message.textContent = 'Đang liên kết…';
-        try {
-            const response = await irisApiFetch('/auth/link-account', {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({email: document.getElementById('legacy-email').value.trim(),
-                    password: document.getElementById('legacy-password').value})
-            });
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.detail || 'Không thể liên kết.');
-            form.reset();
-            message.textContent = data.message;
-            document.getElementById('link-account-btn').hidden = true;
-            if (typeof loadPredictionHistory === 'function') await loadPredictionHistory();
-        } catch (error) { message.textContent = error.message; }
-        finally { submit.disabled = false; }
+        if (event.key === 'Escape') closeMenu();
     });
 })();
