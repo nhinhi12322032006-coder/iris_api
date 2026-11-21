@@ -161,7 +161,7 @@
             const response = await irisApiFetch('/predict/file', {
                 method: 'POST',
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem('irisai_token')}`,
+                    Authorization: `Bearer ${await window.irisAccessToken()}`,
                 },
                 body: form,
             });

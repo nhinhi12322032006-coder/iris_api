@@ -178,7 +178,7 @@ async function fetchPrediction() {
         model_name: selectedModel,
     };
     try {
-        const token = localStorage.getItem('irisai_token');
+        const token = await window.irisAccessToken();
         if (!token) {
             throw new Error('Bạn cần đăng nhập trước khi dự đoán.');
         }
@@ -193,9 +193,6 @@ async function fetchPrediction() {
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             if (response.status === 401) {
-                localStorage.removeItem('irisai_token');
-                localStorage.removeItem('irisai_username');
-                localStorage.removeItem('irisai_role');
                 window.dispatchEvent(new Event('irisai-logout'));
                 throw new Error('Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.');
             }
@@ -341,7 +338,7 @@ function historyModelLabel(item) {
     return `${legacyNames[item.model] || item.model} (phiên bản cũ)`;
 }
 async function loadPredictionHistory() {
-    const token = localStorage.getItem('irisai_token');
+    const token = await window.irisAccessToken();
     if (!token) {
         predictionHistory = [];
         renderPredictionHistory();
@@ -356,9 +353,6 @@ async function loadPredictionHistory() {
         });
         if (!response.ok) {
             if (response.status === 401) {
-                localStorage.removeItem('irisai_token');
-                localStorage.removeItem('irisai_username');
-                localStorage.removeItem('irisai_role');
                 throw new Error('Phiên đăng nhập đã hết hạn.');
             }
             throw new Error('Không thể tải lịch sử.');
@@ -495,7 +489,7 @@ async function clearPredictionHistory() {
     if (!confirmed) {
         return;
     }
-    const token = localStorage.getItem('irisai_token');
+    const token = await window.irisAccessToken();
     if (!token) {
         historyMessage.textContent = 'Bạn cần đăng nhập trước.';
         return;
@@ -512,9 +506,6 @@ async function clearPredictionHistory() {
         const data = await response.json();
         if (!response.ok) {
             if (response.status === 401) {
-                localStorage.removeItem('irisai_token');
-                localStorage.removeItem('irisai_username');
-                localStorage.removeItem('irisai_role');
                 throw new Error('Phiên đăng nhập đã hết hạn.');
             }
             throw new Error(data.detail || 'Không thể xóa lịch sử.');

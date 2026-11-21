@@ -10,13 +10,11 @@
             }
         </style>
 
-        <script src="/static/js/api.js?v=svm-kernels-20261104"></script>
+        <script src="/static/js/api.js?v=identity-hub-1"></script>
         <script>
             document.documentElement.classList.add('studio-pending');
 
-            if (!localStorage.getItem('irisai_token')) {
-                window.location.replace('/static/login.html');
-            }
+            // auth.js sẽ khôi phục phiên Keycloak trước khi hiện giao diện.
         </script>
         <!-- Nhúng thư viện Chart.js để vẽ biểu đồ ở trang 2 -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -118,9 +116,12 @@
 
                 <div id="account-menu" class="account-menu" hidden>
                     <button id="change-password-btn" class="change-password-btn" type="button">
-                        Đổi mật khẩu
+                        Quản lý tài khoản / đổi mật khẩu
                     </button>
 
+                    <button id="link-account-btn" class="change-password-btn" type="button" hidden>
+                        Liên kết lịch sử Iris cũ
+                    </button>
                     <button id="logout-btn" class="logout-btn" type="button">
                         <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">
                             <path
@@ -138,59 +139,19 @@
             </div>
         </nav>
 
-        <!-- ĐĂNG XUẤT -->
-        <div id="password-dialog" class="password-dialog" hidden>
-            <div class="password-dialog-backdrop" data-close-password></div>
-
-            <section
-                class="password-dialog-card"
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="password-dialog-title"
-            >
-                <button
-                    id="password-dialog-close"
-                    class="password-dialog-close"
-                    type="button"
-                    aria-label="Đóng"
-                >
-                    ×
-                </button>
-
-                <span class="password-dialog-icon" aria-hidden="true">✿</span>
-                <h2 id="password-dialog-title">Đổi mật khẩu</h2>
-                <p>Cập nhật mật khẩu cho tài khoản Iris Studio của bạn.</p>
-
-                <form id="change-password-form">
-                    <label for="current-password">Mật khẩu hiện tại</label>
-                    <input
-                        id="current-password"
-                        type="password"
-                        autocomplete="current-password"
-                        required
-                    />
-
-                    <label for="new-password">Mật khẩu mới</label>
-                    <input id="new-password" type="password" autocomplete="new-password" required />
-
-                    <label for="confirm-password">Nhập lại mật khẩu mới</label>
-                    <input
-                        id="confirm-password"
-                        type="password"
-                        autocomplete="new-password"
-                        required
-                    />
-
-                    <p
-                        id="password-message"
-                        class="password-message"
-                        role="status"
-                        aria-live="polite"
-                    ></p>
-
-                    <button id="change-password-submit" class="password-submit" type="submit">
-                        Lưu mật khẩu mới
-                    </button>
+        <div id="link-dialog" class="password-dialog" hidden>
+            <div class="password-dialog-backdrop" data-close-link></div>
+            <section class="password-dialog-card" role="dialog" aria-modal="true" aria-labelledby="link-title">
+                <button id="link-dialog-close" class="password-dialog-close" type="button" aria-label="Đóng">×</button>
+                <h2 id="link-title">Liên kết lịch sử Iris cũ</h2>
+                <p>Nhập tài khoản Iris trước đây để giữ lịch sử. Chỉ cần liên kết một lần.</p>
+                <form id="link-account-form">
+                    <label for="legacy-email">Email Iris cũ</label>
+                    <input id="legacy-email" type="email" autocomplete="username" required maxlength="100">
+                    <label for="legacy-password">Mật khẩu Iris cũ</label>
+                    <input id="legacy-password" type="password" autocomplete="current-password" required maxlength="1024">
+                    <p id="link-message" class="password-message" role="status" aria-live="polite"></p>
+                    <button id="link-submit" class="password-submit" type="submit">Liên kết lịch sử</button>
                 </form>
             </section>
         </div>
@@ -1990,12 +1951,12 @@
 
         <!-- SCRIPT XỬ LÝ -->
         <script src="static/js/species.js?v=audit-fix-1"></script>
-        <script src="static/js/auth.js?v=svm-kernels-20261104"></script>
-        <script src="static/js/app.js?v=audit-fix-1"></script>
+        <script src="static/js/auth.js?v=identity-hub-1"></script>
+        <script src="static/js/app.js?v=identity-hub-1"></script>
         <script src="static/js/comparison.js?v=svm-kernels-20261104"></script>
         <script src="static/js/evaluation.js?v=svm-kernels-20261104"></script>
-        <script src="static/js/batch.js?v=svm-kernels-20261104"></script>
-        <script src="static/js/explore.js?v=svm-kernels-20261104"></script>
+        <script src="static/js/batch.js?v=identity-hub-1"></script>
+        <script src="static/js/explore.js?v=identity-hub-1"></script>
         <script src="static/js/navbar.js?v=svm-kernels-20261104"></script>
     </body>
 </html>

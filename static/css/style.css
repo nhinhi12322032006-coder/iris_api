@@ -4728,3 +4728,7 @@ body.is-authenticated > .auth-overlay {
 }
 
 .theme-dark .chart-species-filter legend { color: #f1edff; }
+
+/* Thông báo khi Identity Hub hoặc API chưa sẵn sàng. */
+.sso-error { max-width: 560px; margin: 15vh auto; padding: 28px; font-family: sans-serif; }
+.sso-error button, .sso-error a { display: inline-block; margin: 12px; }

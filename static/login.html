@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập · Iris Studio</title>
     <link rel="stylesheet" href="/static/css/style.css?v=auth-responsive-4">
-    <script src="/static/js/api.js?v=audit-fix-1"></script>
+    <script src="/static/js/api.js?v=identity-hub-1"></script>
 </head>
 <body>
     <main id="auth-overlay" class="auth-overlay">
@@ -38,84 +38,20 @@
                     </p>
 
                     <form id="auth-form">
-
-                        <div class="form-group" id="login-username-field" hidden>
-                            <label for="auth-username">
-                                Tên đăng nhập
-                            </label>
-                    
-                            <input
-                                id="auth-username"
-                                type="text"
-                                autocomplete="username"
-                                placeholder="Nhập tên đăng nhập"
-                            >
-                        </div>
-                    
-                    
-                        <div class="form-group" id="login-email-field">
-                            <label for="auth-login-email">
-                                Email
-                            </label>
-                    
-                            <input
-                                id="auth-login-email"
-                                type="email"
-                                autocomplete="email"
-                                placeholder="Nhập địa chỉ email"
-                                oninvalid="this.setCustomValidity('Email không hợp lệ. Vui lòng kiểm tra lại.')"
-                                oninput="this.setCustomValidity('')"
-                            >
-                        </div>
-                    
-                    
-                        <div class="form-group" id="register-fields" hidden>
-                            <label for="auth-email">
-                                Email
-                            </label>
-                    
-                            <input
-                                id="auth-email"
-                                type="email"
-                                autocomplete="email"
-                                placeholder="Nhập địa chỉ email"
-                                oninvalid="this.setCustomValidity('Email không hợp lệ. Vui lòng kiểm tra lại.')"
-                                oninput="this.setCustomValidity('')"
-                            >
-                        </div>
-                    
-                    
-                        <div class="form-group">
-                            <label for="auth-password">
-                                Mật khẩu
-                            </label>
-                    
-                            <input
-                                id="auth-password"
-                                type="password"
-                                autocomplete="current-password"
-                                placeholder="Nhập mật khẩu"
-                                required
-                            >
-                        </div>
-                    
-                    
-                        <button id="auth-submit" type="submit">
-                            Đăng nhập
-                        </button>
-                    
+                        <p>Bạn sẽ đăng nhập tại Identity Hub và quay lại Iris Studio.</p>
+                        <button id="auth-submit" type="submit" disabled>Đăng nhập bằng Identity Hub</button>
                     </form>
 
                     <p id="auth-message" role="status" aria-live="polite"></p>
 
                     <button id="auth-switch" type="button">
-                        Chưa có tài khoản? Đăng ký
+                        Đăng ký tài khoản chung
                     </button>
                 </div>
             </section>
         </div>
     </main>
 
-    <script src="/static/js/auth.js?v=split-1"></script>
+    <script src="/static/js/auth.js?v=identity-hub-1"></script>
 </body>
 </html>

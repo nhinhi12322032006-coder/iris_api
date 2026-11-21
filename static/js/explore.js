@@ -157,7 +157,7 @@
         anatomyStatus.textContent = 'Đang dự đoán theo số đo hiện tại...';
         anatomySpecies.textContent = '…';
         try {
-            const token = localStorage.getItem('irisai_token');
+            const token = await window.irisAccessToken();
             if (!token) throw new Error('Bạn cần đăng nhập để xem dự đoán.');
             const response = await irisApiFetch('/predict/all', {
                 method: 'POST',
@@ -224,7 +224,7 @@
         anatomySaveMessage.classList.remove('is-success');
         anatomySaveMessage.textContent = 'Đang lưu vào lịch sử...';
         try {
-            const token = localStorage.getItem('irisai_token');
+            const token = await window.irisAccessToken();
             if (!token) throw new Error('Bạn cần đăng nhập để lưu kết quả.');
             const response = await irisApiFetch('/predict', {
                 method: 'POST',

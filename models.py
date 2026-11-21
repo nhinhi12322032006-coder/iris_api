@@ -1,7 +1,7 @@
 
 """Các bảng ORM: tài khoản, lịch sử dự đoán và dữ liệu Iris."""
 
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.sql import func
 
 from database import Base
@@ -16,6 +16,16 @@ class User(Base):
     Password = Column(String(255), nullable=False)
     Role = Column(String(20), default="user")
     Created_Time = Column(DateTime, server_default=func.now())
+
+
+# Định danh ổn định: issuer + subject, không tự ghép tài khoản theo email.
+class ExternalIdentity(Base):
+    __tablename__ = "External_Identities"
+    Identity_ID = Column(Integer, primary_key=True)
+    Issuer = Column(String(512), nullable=False)
+    Subject = Column(String(255), nullable=False)
+    User_ID = Column(Integer, ForeignKey("Users.User_ID"), nullable=False, unique=True)
+    __table_args__ = (UniqueConstraint("Issuer", "Subject", name="uq_external_identity"),)
 
 
 # --- LỊCH SỬ DỰ ĐOÁN ---

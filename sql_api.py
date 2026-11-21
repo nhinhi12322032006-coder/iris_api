@@ -2,20 +2,24 @@
 """Tài khoản, xác thực và lịch sử dự đoán lưu trong SQL."""
 
 from datetime import datetime, timezone
+import hashlib
+import secrets
+import time
+from threading import Lock
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jose import JWTError, jwt
-from pydantic import BaseModel
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel, Field
 from sqlalchemy import inspect, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from auth import ALGORITHM, SECRET_KEY, create_token, hash_password, verify_password
+from auth import (KEYCLOAK_ISSUER, decode_access_token, public_auth_config, verify_password)
 from database import Base, engine, get_db
 from models import (
     User,
+    ExternalIdentity,
     Prediction,
     IrisMau,
     IrisSpeciesSoluoc,
@@ -25,19 +29,7 @@ from models import (
 )
 
 router = APIRouter()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
-
-
-# --- DỮ LIỆU TÀI KHOẢN ---
-class RegisterInput(BaseModel):
-    username: str
-    email: str
-    password: str
-
-
-class ChangePasswordInput(BaseModel):
-    current_password: str
-    new_password: str
+bearer = HTTPBearer(auto_error=False)
 
 
 # --- CƠ SỞ DỮ LIỆU: BỔ SUNG CẤU TRÚC CHO LỊCH SỬ CŨ ---
@@ -70,91 +62,116 @@ def init_db():
     ensure_prediction_model_column()
 
 
-# --- XÁC THỰC: LẤY TÀI KHOẢN TỪ TOKEN ---
-def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db),
-):
+# --- SSO: CẤU HÌNH CÔNG KHAI VÀ ĐỊNH DANH ---
+@router.get("/auth/config")
+def auth_config():
+    return public_auth_config()
+
+
+def get_claims(credentials: HTTPAuthorizationCredentials = Depends(bearer)):
+    if credentials is None or credentials.scheme.lower() != "bearer":
+        raise HTTPException(401, "Bạn cần đăng nhập.", headers={"WWW-Authenticate": "Bearer"})
+    return decode_access_token(credentials.credentials)
+
+
+def get_current_user(claims: dict = Depends(get_claims), db: Session = Depends(get_db)):
+    def lookup():
+        return db.query(ExternalIdentity).filter_by(
+            Issuer=KEYCLOAK_ISSUER, Subject=claims["sub"]
+        ).first()
+
+    identity = lookup()
+    if identity:
+        user = db.get(User, identity.User_ID)
+        if user is None:
+            raise HTTPException(500, "Liên kết tài khoản không còn hợp lệ.")
+        return user
+
+    digest = hashlib.sha256((KEYCLOAK_ISSUER + "\0" + claims["sub"]).encode()).hexdigest()[:40]
+    # Các trường tương thích bảng Users cũ. Không phải email đăng nhập Keycloak.
+    user = User(Username="sso_" + digest, Email=digest + "@identity.invalid",
+                Password="!sso:" + secrets.token_hex(32), Role="user")
+    db.add(user)
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username = payload.get("sub")
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Phiên đăng nhập không hợp lệ.")
-
-    if not username:
-        raise HTTPException(status_code=401, detail="Phiên đăng nhập không hợp lệ.")
-
-    user = db.query(User).filter(User.Username == username).first()
-    if user is None:
-        raise HTTPException(status_code=401, detail="Không tìm thấy tài khoản.")
-    return user
-
-
-# --- TÀI KHOẢN: ĐĂNG KÝ VÀ ĐĂNG NHẬP ---
-@router.post("/register")
-def register(data: RegisterInput, db: Session = Depends(get_db)):
-    existing_user = db.query(User).filter(User.Username == data.username).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Username already exists")
-
-    existing_email = db.query(User).filter(User.Email == data.email).first()
-    if existing_email:
-        raise HTTPException(status_code=400, detail="Email đã được sử dụng.")
-
-    new_user = User(
-        Username=data.username,
-        Email=data.email,
-        Password=hash_password(data.password),
-        Role="user",
-    )
-    db.add(new_user)
-    try:
+        db.flush()
+        db.add(ExternalIdentity(Issuer=KEYCLOAK_ISSUER, Subject=claims["sub"], User_ID=user.User_ID))
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(
-            status_code=400,
-            detail="Tên đăng nhập hoặc email đã được sử dụng.",
-        )
-    db.refresh(new_user)
-    return {"message": "Account created successfully"}
+        identity = lookup()  # Hai yêu cầu đầu tiên có thể đến cùng lúc.
+        if not identity:
+            raise HTTPException(409, "Chưa thể tạo liên kết tài khoản. Hãy thử lại.")
+        user = db.get(User, identity.User_ID)
+    return user
 
 
+@router.get("/auth/me")
+def auth_me(claims: dict = Depends(get_claims), user: User = Depends(get_current_user)):
+    return {"username": claims.get("preferred_username") or claims.get("name") or "Tài khoản",
+            "email": claims.get("email"), "role": user.Role,
+            "can_link_legacy": user.Password.startswith("!sso:")}
+
+
+class LinkAccountInput(BaseModel):
+    email: str = Field(min_length=1, max_length=100)
+    password: str = Field(min_length=1, max_length=1024)
+
+
+_link_lock = Lock()
+_link_failures = {}
+
+
+@router.post("/auth/link-account")
+def link_account(data: LinkAccountInput, claims: dict = Depends(get_claims),
+                 current: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    # Người dùng chứng minh quyền sở hữu cả phiên Keycloak và tài khoản Iris cũ.
+    # Không tự động ghép theo email hoặc tên hiển thị.
+    now = time.monotonic()
+    with _link_lock:
+        for subject in list(_link_failures):
+            if now - _link_failures[subject][1] >= 900:
+                del _link_failures[subject]
+        count, since = _link_failures.get(claims["sub"], (0, now))
+        if count >= 5:
+            raise HTTPException(429, "Đã thử sai nhiều lần. Hãy thử lại sau 15 phút.")
+        _link_failures[claims["sub"]] = (count + 1, since)
+
+    old = db.query(User).filter(User.Email == data.email.strip()).first()
+    if old is None or not verify_password(data.password, old.Password):
+        raise HTTPException(400, "Email hoặc mật khẩu Iris cũ không đúng.")
+    identity = db.query(ExternalIdentity).filter_by(
+        Issuer=KEYCLOAK_ISSUER, Subject=claims["sub"]
+    ).first()
+    if old.User_ID == current.User_ID:
+        return {"message": "Tài khoản đã được liên kết."}
+    if not current.Password.startswith("!sso:"):
+        raise HTTPException(409, "Tài khoản này đã liên kết với một tài khoản Iris cũ.")
+    if db.query(ExternalIdentity).filter_by(User_ID=old.User_ID).first():
+        raise HTTPException(409, "Tài khoản Iris cũ đã liên kết với một tài khoản Identity Hub khác.")
+    if identity is None:
+        raise HTTPException(409, "Không tìm thấy định danh. Hãy tải lại trang.")
+    try:
+        # Giữ lịch sử cũ và chuyển cả lượt vừa tạo trong phiên SSO sang cùng chủ sở hữu.
+        db.query(Prediction).filter_by(User_ID=current.User_ID).update(
+            {Prediction.User_ID: old.User_ID}, synchronize_session=False)
+        identity.User_ID = old.User_ID
+        db.flush()
+        db.delete(current)
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(409, "Tài khoản vừa được liên kết ở phiên khác. Hãy tải lại trang.")
+    with _link_lock:
+        _link_failures.pop(claims["sub"], None)
+    return {"message": "Đã liên kết và giữ toàn bộ lịch sử dự đoán."}
+
+
+# Mật khẩu mới, đăng ký và đăng nhập do Identity Hub quản lý.
 @router.post("/login")
-def login(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db),
-):
-    user = db.query(User).filter(User.Email == form_data.username).first()
-    if not user or not verify_password(form_data.password, user.Password):
-        raise HTTPException(status_code=401, detail="Incorrect username or password")
-    return {
-        "access_token": create_token(user.Username),
-        "token_type": "bearer",
-        "username": user.Username,
-        "role": user.Role,
-    }
-
-
-# --- TÀI KHOẢN: ĐỔI MẬT KHẨU ---
+@router.post("/register")
 @router.post("/account/change-password")
-def change_password(
-    data: ChangePasswordInput,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    if not verify_password(data.current_password, current_user.Password):
-        raise HTTPException(status_code=400, detail="Mật khẩu hiện tại không đúng.")
-
-    if verify_password(data.new_password, current_user.Password):
-        raise HTTPException(
-            status_code=400,
-            detail="Mật khẩu mới phải khác mật khẩu hiện tại.",
-        )
-
-    current_user.Password = hash_password(data.new_password)
-    db.commit()
-    return {"message": "Đổi mật khẩu thành công."}
+def old_auth_endpoint():
+    raise HTTPException(410, "Hãy dùng đăng nhập hoặc quản lý tài khoản qua Identity Hub.")
 
 
 # --- LỊCH SỬ: LƯU KẾT QUẢ VÀ TÊN MÔ HÌNH ---
